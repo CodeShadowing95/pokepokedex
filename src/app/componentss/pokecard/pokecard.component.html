@@ -1,0 +1,29 @@
+<div class="poke-card group">
+    <div class="poke-card__content">
+        <h2 class="poke-card__content-title">
+            {{ data?.name }}
+        </h2>
+    </div>
+
+    <div class="absolute inset-0 flex justify-end m-3 gap-2" (click)="navigateToPokemonDetails(data?.slug)">
+        <div class="bg-gray-700 w-10 h-10 rounded-full flex justify-center items-center cursor-pointer gap-2">
+            <img src="../../../assets/detail.png" alt="detail" class="w-8 h-8 object-contain" />
+        </div>
+    </div>
+
+    <div class="relative w-full h-50 my-3 flex justify-center">
+        <img
+            [src]="data?.ThumbnailImage"
+            alt="{{ data?.ThumbnailAltText }}"
+            [width]="250"
+            [height]="250"
+            class="object-contain"
+        >
+    </div>
+
+    <div class="relative flex justify-center flex-wrap w-full mt-2">
+        <div *ngFor="let pokemon_type of data?.type">
+            <img [src]="getPokemonType(pokemon_type)" alt="{{ pokemon_type }}" [width]="100" [height]="100">
+        </div>
+    </div>
+</div>

@@ -1,0 +1,85 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Palanquin:wght@100;200;300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Palanquin:wght@100;200;300;400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    font-family: Montserrat, "Helvetica Neue", sans-serif;
+}
+
+body {
+  background-color: #000;
+}
+
+.red-gradient {
+  background: linear-gradient(92deg, #ff5956 2.87%, #ee1e38 96.18%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+/* START: Pokemon Card styles */
+.poke-card {
+    @apply relative flex flex-col p-6 justify-center items-start text-white bg-slate-900 hover:bg-slate-800 hover:shadow-lg hover:shadow-gray-600 rounded-3xl transition-all;
+}
+
+.poke-card__content {
+    @apply w-full flex justify-between items-start gap-2;
+}
+
+.poke-card__content-title {
+    @apply text-[22px] leading-[26px] font-bold capitalize;
+}
+
+.poke-card__price {
+    @apply flex mt-6 text-[32px] leading-[38px] font-extrabold;
+}
+
+.poke-card__price-dollar {
+    @apply self-start text-[14px] leading-[17px] font-semibold;
+}
+
+.poke-card__price-day {
+    @apply self-end text-[14px] leading-[17px] font-medium;
+}
+
+.poke-card__image {
+    @apply relative w-full h-40 my-3 object-contain;
+}
+
+.poke-card__icon-container {
+    @apply flex group-hover:invisible w-full justify-between text-gray-50;
+}
+
+.poke-card__icon {
+    @apply flex flex-col justify-center items-center gap-2;
+}
+
+.poke-card__icon-text {
+    @apply text-[14px] leading-[17px];
+}
+
+.poke-card__btn-container {
+    @apply hidden group-hover:flex absolute bottom-0 w-full z-10;
+}
+/* END: Pokemon Card styles */
+
+.black-gradient {
+  background: #000000; /* fallback for old browsers */
+  background: -webkit-linear-gradient(
+    to right,
+    #434343,
+    #000000
+  ); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(
+    to right,
+    #434343,
+    #000000
+  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
