@@ -43,3 +43,7 @@ Thumbs.db
 
 # git conf
 .gitConf
+
+# RapidAPI credentials
+src/environments/environment.ts
+src/environments/environment.prod.ts
