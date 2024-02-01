@@ -9,4 +9,12 @@
             <app-pokecard [data]="pokemon"></app-pokecard>
         </div>
     </section>
+
+    <app-pagination
+        [currentPage]="currentPage"
+        [numberOfPages]="numberOfPages"
+        (pageChange)="onPageChange($event)"
+        (nextPageClick)="onNextPageClick()"
+        (previousPageClick)="onPreviousPageClick()"
+    ></app-pagination>
 </main>

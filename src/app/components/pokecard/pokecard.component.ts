@@ -19,6 +19,6 @@ export class PokecardComponent {
     }
 
     navigateToPokemonDetails(slug: string | undefined): void {
-        this.router.navigate(['/details', slug]);
+        this.router.navigate(['pokemon/', slug]);
     }
 }

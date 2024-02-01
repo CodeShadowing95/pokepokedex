@@ -12,7 +12,7 @@ export class DataService {
 
   constructor(private http: HttpClient) { }
 
-  getData(): Observable<any> {
+  getPokemons(): Observable<any> {
     const headers = new HttpHeaders({
         'Content-Type': 'application/json',
         'X-RapidAPI-Key': this.apiKey,
@@ -22,5 +22,16 @@ export class DataService {
     // const url = `${this.apiUrl}?page=${page}&pageSize=${pageSize}`;
 
     return this.http.get(this.apiUrl, { headers });
+  }
+
+  getPokemonDetails(name: string): Observable<any> {
+    const headers = new HttpHeaders({
+        'Content-Type': 'application/json',
+        'X-RapidAPI-Key': this.apiKey,
+        'X-RapidAPI-Host': this.apiHost,
+    });
+
+    const url = `${this.apiUrl}/${name}`;
+    return this.http.get(url, { headers });
   }
 }

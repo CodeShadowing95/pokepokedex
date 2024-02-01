@@ -4,12 +4,13 @@
             {{ data?.name }}
         </h2>
     </div>
-
-    <div class="absolute inset-0 flex justify-end m-3 gap-2" (click)="navigateToPokemonDetails(data?.slug)">
+    
+    <!-- <div class="absolute inset-0 flex justify-end m-3 gap-2" (click)="navigateToPokemonDetails(data?.slug)"> -->
+    <a [routerLink]="['/pokemon', data?.slug]" class="absolute inset-0 flex justify-end m-3 gap-2">
         <div class="bg-gray-700 w-10 h-10 rounded-full flex justify-center items-center cursor-pointer gap-2">
             <img src="../../../assets/detail.png" alt="detail" class="w-8 h-8 object-contain" />
         </div>
-    </div>
+    </a>
 
     <div class="relative w-full h-50 my-3 flex justify-center">
         <img
