@@ -10,6 +10,8 @@ import { PokecardComponent } from './components/pokecard/pokecard.component';
 import { PokedetailsComponent } from './components/pokedetails/pokedetails.component';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { PaginationComponent } from './components/pagination/pagination.component';
+import { HomeComponent } from './components/home/home.component';
+import { BackbuttonComponent } from './components/backbutton/backbutton.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +20,9 @@ import { PaginationComponent } from './components/pagination/pagination.componen
     PokepanelComponent,
     PokecardComponent,
     PokedetailsComponent,
-    PaginationComponent
+    PaginationComponent,
+    HomeComponent,
+    BackbuttonComponent
   ],
   imports: [
     BrowserModule,

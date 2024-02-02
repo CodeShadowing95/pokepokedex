@@ -1,7 +1,22 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+
 import { DataService } from '../../services/data.service';
-import { PokemonProps } from '../../../types';
+import { pokemonTypes } from '../../../constants';
+
+interface PokemonDetail {
+    abilities: string;
+    category: string;
+    height: string;
+    name: string;
+    sex: string[];
+    slug: string;
+    thumbnailalttext: string;
+    thumbnailimage: string;
+    type: string[];
+    weaknesses: string[];
+    weight: string;
+}
 
 @Component({
   selector: 'app-pokedetails',
@@ -9,21 +24,36 @@ import { PokemonProps } from '../../../types';
   styleUrl: './pokedetails.component.css'
 })
 export class PokedetailsComponent implements OnInit {
-    pokemon: PokemonProps | undefined;
+    pokemon!: PokemonDetail;
 
-    constructor(private route: ActivatedRoute, private pokemonService: DataService) {}
+    constructor(private route: ActivatedRoute, private pokemonService: DataService, private router: Router) {}
 
     ngOnInit(): void {
         this.route.params.subscribe((params) => {
             const name = params['slug'];
             this.pokemonService.getPokemonDetails(name).subscribe(
                 (data) => {
-                    this.pokemon = data;
+                    console.log(data[0]);
+                    this.pokemon = data[0];
                 },
                 (error) => {
                     console.log(error);
                 }
             )
         })
+    }
+
+    getPokemonType(typeName: string): string {
+        const pokeType = pokemonTypes.find((type) => type.name.toLowerCase() === typeName.toLowerCase());
+        return pokeType ? pokeType.image : '';
+    }
+
+    getPokemonWeakness(weaknessType: string): string {
+        const weakness = pokemonTypes.find((type) => type.name.toLowerCase() === weaknessType.toLowerCase());
+        return weakness ? weakness.image : '';
+    }
+
+    navigateToHome() {
+        this.router.navigate(['/']);
     }
 }

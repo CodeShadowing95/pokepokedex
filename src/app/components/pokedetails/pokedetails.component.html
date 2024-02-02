@@ -1,3 +1,83 @@
-<div *ngIf="pokemon">
-    <h2>{{ pokemon.name }}</h2>
+<div *ngIf="pokemon" class="pokedetail-container">
+    <app-backbutton></app-backbutton>
+
+    <div class="flex gap-28 xl:flex-row flex-col">
+        <!-- **************************************************************** LEFT SIDE START **************************************************************** -->
+        <div class="pokemon-image">
+            <img
+                [src]="pokemon.thumbnailimage"
+                alt="{{ pokemon.thumbnailalttext }}"
+                [width]="500"
+                [height]="400"
+                class="mx-auto"
+            />
+        </div>
+        <!-- **************************************************************** LEFT SIDE END **************************************************************** -->
+
+
+        <!-- **************************************************************** RIGHT SIDE START **************************************************************** -->
+        <div class="flex-1 flex flex-col">
+            <div class="flex flex-col justify-between items-start gap-5 pb-6">
+                <div class="flex flex-col gap-3">
+                    <p class="text-[35px] text-secondary font-semibold text-white">{{ pokemon.name }}</p>
+                    <p class="text-lg text-gray-100 opacity-50">Category: {{ pokemon.category }}</p>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div *ngFor="let pokemon_type of pokemon.type">
+                        <div class="p-2 bg-white-200 rounded-10">
+                            <img
+                                [src]="getPokemonType(pokemon_type.toLowerCase())"
+                                alt="{{ pokemon_type }}"
+                                [width]="100"
+                                [height]="100"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="my-3 flex flex-col gap-5 border-y py-6 border-y-gray-700">
+                    <div class="flex gap-5 flex-wrap">
+                        <!-- Weight -->
+                        <div class="pokemon-info_card border-l-gray-600">
+                            <p class="text-base text-black-100">Weight</p>
+                    
+                            <div class="flex gap-1">
+                                <img src="../../../assets/weight.svg" alt="weight" width={24} height={24} />
+                    
+                                <p class="text-2xl font-bold text-secondary">{{ pokemon.weight }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Height -->
+                        <div class="pokemon-info_card border-l-gray-600">
+                            <p class="text-base text-black-100">Height</p>
+                    
+                            <div class="flex gap-1">
+                                <img src="../../../assets/height.svg" alt="weight" width={24} height={24} />
+                    
+                                <p class="text-2xl font-bold text-secondary">{{ pokemon.height }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pokemon-info_card border-l-gray-600 w-full">
+                    <p class="text-base text-black-100">Weaknesses</p>
+
+                    <div class="flex flex-wrap gap-2">
+                        <div *ngFor="let weakness of pokemon.weaknesses">
+                            <img
+                                [src]="getPokemonWeakness(weakness.toLowerCase())"
+                                alt="{{ weakness }}"
+                                [width]="90"
+                                [height]="90"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- **************************************************************** RIGHT SIDE END **************************************************************** -->
+    </div>
 </div>

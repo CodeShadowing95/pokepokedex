@@ -6,7 +6,7 @@
 @tailwind utilities;
 
 * {
-    font-family: Montserrat, "Helvetica Neue", sans-serif;
+    font-family: Montserrat, Palanquin, "Helvetica Neue", sans-serif;
 }
 
 body {
@@ -69,6 +69,22 @@ body {
     @apply hidden group-hover:flex absolute bottom-0 w-full z-10;
 }
 /* END: Pokemon Card styles */
+
+
+/* START: Pokemon Detail style */
+  .pokedetail-container {
+    @apply flex flex-col gap-16 flex-wrap px-6 md:px-20 py-6 my-auto;
+  }
+
+  .pokemon-image {
+    @apply flex /*flex-grow*/ xl:max-w-[50%] max-w-full py-16 border border-[#CDDBFF] rounded-[17px];
+  }
+
+  .pokemon-info_card {
+    @apply flex-1 min-w-[200px] flex flex-col gap-2 border-l-[3px] rounded-lg bg-slate-700 px-5 py-4;
+  }
+/* END: Pokemon Detail style */
+
 
 .black-gradient {
   background: #000000; /* fallback for old browsers */

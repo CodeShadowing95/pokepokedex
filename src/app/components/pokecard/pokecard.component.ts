@@ -18,7 +18,7 @@ export class PokecardComponent {
         return pokeType ? pokeType.image : '';
     }
 
-    navigateToPokemonDetails(slug: string | undefined): void {
+    navigateToPokemonDetails(slug: string): void {
         this.router.navigate(['pokemon/', slug]);
     }
 }
