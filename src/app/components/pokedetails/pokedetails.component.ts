@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { DataService } from '../../services/data.service';
+import { DataService } from '../../services/data/data.service';
 import { pokemonTypes } from '../../../constants';
 
 interface PokemonDetail {
@@ -51,6 +51,10 @@ export class PokedetailsComponent implements OnInit {
     getPokemonWeakness(weaknessType: string): string {
         const weakness = pokemonTypes.find((type) => type.name.toLowerCase() === weaknessType.toLowerCase());
         return weakness ? weakness.image : '';
+    }
+
+    getSimilarTypes(types: string[]) {
+
     }
 
     catchMessage(name: string): void {
