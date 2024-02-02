@@ -33,10 +33,8 @@ export class PokepanelComponent implements OnInit {
     }
 
     onPreviousPageClick(): void {
-        if (this.currentPage > 1) {
-            this.currentPage--;
-            this.loadPokemons();
-        }
+        this.currentPage--;
+        this.loadPokemons();
     }
  
     onNextPageClick(): void {

@@ -1,22 +1,34 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 @Component({
   selector: 'app-pagination',
   templateUrl: './pagination.component.html',
 })
-export class PaginationComponent {
+export class PaginationComponent implements OnInit {
     @Input() currentPage!: number;
     @Input() numberOfPages!: number;
     @Output() pageChange = new EventEmitter<number>();
     @Output() nextPageClick = new EventEmitter<void>();
     @Output() previousPageClick = new EventEmitter<void>();
+
+    ngOnInit(): void {
+        this.pageChange.emit(this.currentPage);
+    }
   
     nextPage(): void {
-      this.nextPageClick.emit();
+        if(this.currentPage < this.numberOfPages) {
+            this.currentPage++;
+            // this.nextPageClick.emit();
+            this.pageChange.emit(this.currentPage);
+        }
     }
   
     previousPage(): void {
-      this.previousPageClick.emit();
+        if(this.currentPage > 1) {
+            this.currentPage--;
+            // this.previousPageClick.emit();
+            this.pageChange.emit(this.currentPage);
+        }
     }
 
     onPageChange(pageNumber: number): void {
