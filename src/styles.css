@@ -20,6 +20,20 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
+.black-gradient {
+    background: #000000; /* fallback for old browsers */
+    background: -webkit-linear-gradient(
+        to right,
+        #434343,
+        #000000
+    ); /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(
+        to right,
+        #434343,
+        #000000
+    ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
 :root {
   color-scheme: dark;
 }
@@ -78,18 +92,12 @@ body {
     }
     /* END: Pokemon Detail style */
 
+    /* SEARCHBAR INPUT */
+    .searchbar-input {
+        @apply flex-1 bg-slate-800 min-w-[200px] w-full p-3 border border-gray-500 rounded-lg shadow-sm text-base text-gray-200 focus:outline-none;
+    }
 
-    .black-gradient {
-    background: #000000; /* fallback for old browsers */
-    background: -webkit-linear-gradient(
-        to right,
-        #434343,
-        #000000
-    ); /* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient(
-        to right,
-        #434343,
-        #000000
-    ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    .searchbar-btn {
+        @apply  bg-gray-500 border border-gray-900 rounded-lg shadow-sm px-5 py-3 text-white text-base font-semibold hover:opacity-90 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-40;
     }
 }

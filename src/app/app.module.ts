@@ -12,6 +12,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { PaginationComponent } from './components/pagination/pagination.component';
 import { HomeComponent } from './components/home/home.component';
 import { BackbuttonComponent } from './components/backbutton/backbutton.component';
+import { SearchbarComponent } from './components/searchbar/searchbar.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { BackbuttonComponent } from './components/backbutton/backbutton.componen
     PokedetailsComponent,
     PaginationComponent,
     HomeComponent,
-    BackbuttonComponent
+    BackbuttonComponent,
+    SearchbarComponent,
   ],
   imports: [
     BrowserModule,
