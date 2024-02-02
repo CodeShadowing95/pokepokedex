@@ -9,7 +9,8 @@ import { environment } from '../../environments/environment';
 })
 export class DataService {
     private apiUrl = 'https://pokedex2.p.rapidapi.com/pokedex/uk';
-    private apiKey = environment.apiKey;
+    // private apiKey = environment.apiKey;
+    private apiKey = 'd8adc9738emsh581515b396e9e0ep1605cajsn21713ff44a9c';
     private apiHost = 'pokedex2.p.rapidapi.com';
 
   constructor(private http: HttpClient) { }
