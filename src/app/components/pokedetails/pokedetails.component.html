@@ -18,9 +18,16 @@
         <!-- **************************************************************** RIGHT SIDE START **************************************************************** -->
         <div class="flex-1 flex flex-col">
             <div class="flex flex-col justify-between items-start gap-5 pb-6">
-                <div class="flex flex-col gap-3">
-                    <p class="text-[35px] text-secondary font-semibold text-white">{{ pokemon.name }}</p>
-                    <p class="text-lg text-gray-100 opacity-50">Category: {{ pokemon.category }}</p>
+                <div class="flex w-full relative">
+                    <div class="flex flex-col gap-3">
+                        <p class="text-[35px] text-secondary font-semibold text-white">{{ pokemon.name }}</p>
+                        <p class="text-lg text-gray-100 opacity-50">Category: {{ pokemon.category }}</p>
+                    </div>
+
+                    <div class="btn cursor-pointer" (click)="catchMessage(pokemon.name)">
+                        <img src="../../../assets/catch.png" alt="catch" [width]="20" [height]="20">
+                        <p>Catch it!</p>
+                    </div>
                 </div>
 
                 <div class="flex items-center gap-3">
@@ -80,4 +87,6 @@
         </div>
         <!-- **************************************************************** RIGHT SIDE END **************************************************************** -->
     </div>
+
+
 </div>

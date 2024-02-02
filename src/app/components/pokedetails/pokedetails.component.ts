@@ -53,6 +53,10 @@ export class PokedetailsComponent implements OnInit {
         return weakness ? weakness.image : '';
     }
 
+    catchMessage(name: string): void {
+        alert("💫 Congtaulations, you caught " + name + " 💫");
+    }
+
     navigateToHome() {
         this.router.navigate(['/']);
     }
