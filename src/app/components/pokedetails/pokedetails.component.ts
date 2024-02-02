@@ -33,7 +33,7 @@ export class PokedetailsComponent implements OnInit {
             const name = params['slug'];
             this.pokemonService.getPokemonDetails(name).subscribe(
                 (data) => {
-                    console.log(data[0]);
+                    // console.log(data[0]);
                     this.pokemon = data[0];
                 },
                 (error) => {
@@ -54,7 +54,7 @@ export class PokedetailsComponent implements OnInit {
     }
 
     catchMessage(name: string): void {
-        alert("💫 Congtaulations, you caught " + name + " 💫");
+        ("💫 Congraulations, you caught " + name + " 💫");
     }
 
     navigateToHome() {
