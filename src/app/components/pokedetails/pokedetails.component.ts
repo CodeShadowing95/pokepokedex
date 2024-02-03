@@ -3,6 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { DataService } from '../../services/data/data.service';
 import { pokemonTypes } from '../../../constants';
+import { ShuffleService } from '../../services/shuffle/shuffle.service';
+import { PokemonProps } from '../../../types';
 
 interface PokemonDetail {
     abilities: string;
@@ -26,15 +28,23 @@ interface PokemonDetail {
 export class PokedetailsComponent implements OnInit {
     pokemon!: PokemonDetail;
 
-    constructor(private route: ActivatedRoute, private pokemonService: DataService, private router: Router) {}
+    shuffledPokemons!: PokemonProps[];
+    pokemons!:PokemonProps[];
+
+    constructor(private route: ActivatedRoute, private pokemonService: DataService, private router: Router, private shuffleService: ShuffleService) {}
 
     ngOnInit(): void {
         this.route.params.subscribe((params) => {
             const name = params['slug'];
             this.pokemonService.getPokemonDetails(name).subscribe(
                 (data) => {
-                    // console.log(data[0]);
                     this.pokemon = data[0];
+                    // console.log(this.pokemon);
+                    this.pokemonService.getPokemons().subscribe((res) => {
+                        this.shuffledPokemons = this.shuffleService.shuffleArray(res);
+                        
+                        this.pokemons = this.get_5_firstTypes(this.shuffledPokemons, this.pokemon.type).slice(0, 5);
+                    })
                 },
                 (error) => {
                     console.log(error);
@@ -53,12 +63,16 @@ export class PokedetailsComponent implements OnInit {
         return weakness ? weakness.image : '';
     }
 
-    getSimilarTypes(types: string[]) {
+    get_5_firstTypes(data: PokemonProps[], types: string[]): PokemonProps[] {
+        const pkms = data.filter((pkm) => (
+            types.some((type) => pkm.type.includes(type.toLowerCase()))
+        ));
 
+        return pkms;
     }
 
     catchMessage(name: string): void {
-        ("💫 Congraulations, you caught " + name + " 💫");
+        alert("💫 Congraulations, you caught " + name + " 💫");
     }
 
     navigateToHome() {

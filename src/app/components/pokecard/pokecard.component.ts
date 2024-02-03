@@ -10,6 +10,9 @@ import { pokemonTypes } from '../../../constants';
 })
 export class PokecardComponent {
     @Input() data: PokemonProps | undefined;
+    @Input() imgDimension: number = 250;
+    @Input() typeImgDimensions: number = 100;
+    @Input() showButton: boolean = false;
 
     constructor(private router: Router) {}
 
