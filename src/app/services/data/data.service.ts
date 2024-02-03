@@ -17,7 +17,7 @@ export class DataService {
   getPokemons(): Observable<any> {
     const headers = new HttpHeaders({
         'Content-Type': 'application/json',
-        'X-RapidAPI-Key': this.apiKey ?? '',
+        'X-RapidAPI-Key': this.apiKey,
         'X-RapidAPI-Host': this.apiHost,
     });
 
@@ -29,7 +29,7 @@ export class DataService {
   getPokemonDetails(name: string): Observable<any> {
     const headers = new HttpHeaders({
         'Content-Type': 'application/json',
-        'X-RapidAPI-Key': this.apiKey ?? '',
+        'X-RapidAPI-Key': this.apiKey,
         'X-RapidAPI-Host': this.apiHost,
     });
 
