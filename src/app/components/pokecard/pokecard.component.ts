@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { PokemonProps } from '../../../types';
@@ -9,10 +9,12 @@ import { pokemonTypes } from '../../../constants';
   templateUrl: './pokecard.component.html',
 })
 export class PokecardComponent {
-    @Input() data: PokemonProps | undefined;
+    @Input() data!: PokemonProps;
     @Input() imgDimension: number = 250;
     @Input() typeImgDimensions: number = 100;
     @Input() showButton: boolean = false;
+
+    @Output() openModalEvent: EventEmitter<string> = new EventEmitter<string>();
 
     constructor(private router: Router) {}
 
@@ -23,5 +25,9 @@ export class PokecardComponent {
 
     navigateToPokemonDetails(slug: string): void {
         this.router.navigate(['pokemon/', slug]);
+    }
+
+    openModal(name: string): void{
+        this.openModalEvent.emit(name);
     }
 }

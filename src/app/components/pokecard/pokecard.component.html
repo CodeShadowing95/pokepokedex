@@ -1,7 +1,7 @@
 <div class="poke-card group">
     <div class="poke-card__content">
         <h2 class="poke-card__content-title">
-            {{ data?.name }}
+            {{ data.name }}
         </h2>
     </div>
     
@@ -13,8 +13,8 @@
 
     <div class="relative w-full h-50 my-3 flex justify-center">
         <img
-            [src]="data?.ThumbnailImage"
-            alt="{{ data?.ThumbnailAltText }}"
+            [src]="data.ThumbnailImage"
+            alt="{{ data.ThumbnailAltText }}"
             [width]="imgDimension"
             [height]="imgDimension"
             class="object-contain"
@@ -27,7 +27,7 @@
         </div>
     </div>
 
-    <div *ngIf="showButton" class="flex justify-center items-center py-2 px-2 w-full mt-8 gap-2 rounded-lg bg-red-800 active:bg-red-900 cursor-pointer">
+    <div *ngIf="showButton" class="flex justify-center items-center py-2 px-2 w-full mt-8 gap-2 rounded-lg bg-red-800 active:bg-red-900 cursor-pointer" (click)="openModal(data.name)">
         <img src="../../../assets/shake_ball.gif" alt="detail" class="w-6 h-6 object-contain" />
         <p class="font-semibold text-base text-white">Show</p>
     </div>

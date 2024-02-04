@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { DataService } from '../../services/data/data.service';
+import { DataService } from '../../services/api/data.service';
 import { PokemonProps } from '../../../types';
 
 @Component({
@@ -24,7 +24,7 @@ export class PokepanelComponent implements OnInit {
         const startIndex = (this.currentPage - 1) * 10;
         const endIndex = startIndex + 10;
     
-        this.dataService.getPokemons().subscribe((response: PokemonProps[]) => {
+        this.dataService.getPokemons().subscribe((response: PokemonProps[]) => {            
             const res = response.slice(0, 100);
             this.pokemons = res;
             this.data = res.slice(startIndex, endIndex);

@@ -121,9 +121,16 @@
                     [imgDimension]="150"
                     [typeImgDimensions]="70"
                     [showButton]="true"
+                    (openModalEvent)="toggleModal($event)"
                 />
             </div>
         </div>
     </div>
     <!-- **************************************************************** SIMILAR TYPES END **************************************************************** -->
+
+    <app-modal
+        *ngIf="isModalOpen"
+        [pokemonName]="pokemonName"
+        (closeModalEvent)="toggleModal($event)"
+    />
 </div>

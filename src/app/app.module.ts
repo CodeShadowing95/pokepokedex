@@ -13,6 +13,7 @@ import { PaginationComponent } from './components/pagination/pagination.componen
 import { HomeComponent } from './components/home/home.component';
 import { BackbuttonComponent } from './components/backbutton/backbutton.component';
 import { SearchbarComponent } from './components/searchbar/searchbar.component';
+import { ModalComponent } from './components/modal/modal.component';
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { SearchbarComponent } from './components/searchbar/searchbar.component';
     HomeComponent,
     BackbuttonComponent,
     SearchbarComponent,
+    ModalComponent,
   ],
   imports: [
     BrowserModule,

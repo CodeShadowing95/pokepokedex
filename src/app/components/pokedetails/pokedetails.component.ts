@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { DataService } from '../../services/data/data.service';
+import { DataService } from '../../services/api/data.service';
 import { pokemonTypes } from '../../../constants';
 import { ShuffleService } from '../../services/shuffle/shuffle.service';
 import { PokemonProps } from '../../../types';
@@ -30,6 +30,9 @@ export class PokedetailsComponent implements OnInit {
 
     shuffledPokemons!: PokemonProps[];
     pokemons!:PokemonProps[];
+
+    isModalOpen: boolean = false;
+    pokemonName!: string;
 
     constructor(private route: ActivatedRoute, private pokemonService: DataService, private router: Router, private shuffleService: ShuffleService) {}
 
@@ -77,5 +80,10 @@ export class PokedetailsComponent implements OnInit {
 
     navigateToHome() {
         this.router.navigate(['/']);
+    }
+
+    toggleModal(name: string): void {
+        this.isModalOpen = !this.isModalOpen;
+        this.pokemonName = name;
     }
 }

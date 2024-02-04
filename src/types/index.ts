@@ -4,6 +4,7 @@ export interface PokemonProps {
     abilities: string[];
     height: string;
     name: string;
+    number: number;
     slug: string;
     type: string[];
     weakness: string[];
