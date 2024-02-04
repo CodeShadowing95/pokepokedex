@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 import { DataService } from '../../services/api/data.service';
 import { PokemonProps } from '../../../types';
+import { pokemonTypes } from '../../../constants';
 
 
 @Component({
@@ -21,6 +22,16 @@ export class ModalComponent implements OnInit {
             // console.log(pokemon);
             this.pokemonInfo = info;
         })
+    }
+    
+    getPokemonType(typeName: string): string {
+        const pokeType = pokemonTypes.find((type) => type.name.toLowerCase() === typeName.toLowerCase());
+        return pokeType ? pokeType.image : '';
+    }
+
+    getPokemonWeakness(weaknessType: string): string {
+        const weakness = pokemonTypes.find((type) => type.name.toLowerCase() === weaknessType.toLowerCase());
+        return weakness ? weakness.image : '';
     }
 
     closeModal(): void{
