@@ -20,13 +20,20 @@
         </div>
     </section>
 
-    <section *ngIf="typeProperty !== 'all types'" class="grid xl:grid-cols-3 lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 grid-cols-1 gap-10">
-        <div *ngFor="let pokemon of filteredDatasByType.length ? filteredDatasByType : data">
-            <app-pokecard [data]="pokemon"></app-pokecard>
+    <section *ngIf="typeProperty !== 'all types'">
+        <div class="grid xl:grid-cols-3 lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 grid-cols-1 gap-10" *ngIf="filteredDatasByType.length != 0; else elseBlock">
+            <div *ngFor="let pokemon of filteredDatasByType">
+                <app-pokecard [data]="pokemon"></app-pokecard>
+            </div>
         </div>
+        <ng-template #elseBlock>
+            <div class="flex justify-center items-center my-4">
+                <p class="text-lg font-semibold">Oops!!! No Pokemon found for this type.</p>
+            </div>
+        </ng-template>
     </section>
 
-    <app-pagination
+    <app-pagination *ngIf="typeProperty === 'all types'"
         [currentPage]="currentPage"
         [numberOfPages]="numberOfPages"
         (pageChange)="onPageChange($event)"

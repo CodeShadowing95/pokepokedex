@@ -11,6 +11,9 @@ export class PokepanelComponent implements OnInit {
     pokemons: PokemonProps[] = [];
     data: PokemonProps[] = [];
     filteredPokemons: PokemonProps[] = [];
+
+    // Inputs
+    searchParam: string = '';
     typeProperty: string = 'all types'
 
     currentPage = 1;
@@ -83,7 +86,7 @@ export class PokepanelComponent implements OnInit {
 
     onTypeSearch(type: string): void {
         this.typeProperty = type;
-        // this.filterItemsByType(this.typeProperty);
+        this.filterPokemonsByType(this.typeProperty);
     }
 
     private filterItemsByName(searchTerm: string): any[] {
@@ -95,16 +98,13 @@ export class PokepanelComponent implements OnInit {
         return this.data;
     }
 
-    // private filterItemsByType(type: string): void {
-    //     this.pokemonService.getPokemons().subscribe((result) => {
-    //         const shuffledPokemons: PokemonProps[] = this.shuffleService.shuffleArray(result);
+    private filterPokemonsByType(type: string): void {
+        const shuffledPokemons: PokemonProps[] = this.shuffleService.shuffleArray(this.pokemons);
 
-    //         if (type !== 'all types') {
-    //             this.filteredDatasByType = shuffledPokemons.filter((pokemon) => pokemon.type.includes(type));
-    //             this.loadFilteredPokemonsByType();
-    //         } else {
-    //             this.loadPokemons();
-    //         }
-    //     })
-    // }
+        if (type !== 'all types') {
+            this.filteredDatasByType = shuffledPokemons.filter((pokemon) => pokemon.type.includes(type));
+        } else {
+            this.loadPokemons();
+        }
+    }
 }
