@@ -1,6 +1,6 @@
 <div class="flex flex-col gap-2">
     <div class="flex sm:flex-row flex-col justify-center items-center gap-2">
-        <p class="text-base text-white">Filter By: </p>
+        <p class="text-base text-white">Filter by type: </p>
 
         <button
             id="dropdownDividerButton"
@@ -20,11 +20,11 @@
                 <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">All</a>
             </div> -->
             <ul class="py-2 text-sm text-gray-700 dark:text-gray-200 max-h-[200px] overflow-auto custom-scrollbar" aria-labelledby="dropdownDividerButton">
-                <li class="pb-1 border-b border-b-gray-500 cursor-pointer">
-                    <p class="block capitalize px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" (click)="getType('all types')">All Types</p>
+                <li class="border-b border-b-gray-500 cursor-pointer" (click)="getType('all types')">
+                    <p class="block capitalize px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">All Types</p>
                 </li>
-                <li *ngFor="let type of types" class="cursor-pointer">
-                    <p class="block capitalize px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" (click)="getType(type.name)">{{type.name}}</p>
+                <li *ngFor="let type of types" class="cursor-pointer" (click)="getType(type.name)">
+                    <p class="block capitalize px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{type.name}}</p>
                 </li>
             </ul>
         </div>
