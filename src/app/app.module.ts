@@ -13,8 +13,8 @@ import { PaginationComponent } from './components/pagination/pagination.componen
 import { HomeComponent } from './components/home/home.component';
 import { BackbuttonComponent } from './components/backbutton/backbutton.component';
 import { SearchbarComponent } from './components/searchbar/searchbar.component';
-import { ModalComponent } from './components/modal/modal.component';
 import { DropdownFilterComponent } from './components/dropdown-filter/dropdown-filter.component';
+import { DialogBoxComponent } from './components/dialog-box/dialog-box.component';
 
 @NgModule({
   declarations: [
@@ -27,8 +27,8 @@ import { DropdownFilterComponent } from './components/dropdown-filter/dropdown-f
     HomeComponent,
     BackbuttonComponent,
     SearchbarComponent,
-    ModalComponent,
     DropdownFilterComponent,
+    DialogBoxComponent,
   ],
   imports: [
     BrowserModule,

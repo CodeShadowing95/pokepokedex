@@ -1,15 +1,14 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-
-import { DataService } from '../../services/api/data.service';
-import { PokemonProps } from '../../../types';
 import { pokemonTypes } from '../../../constants';
-
+import { PokemonProps } from '../../../types';
+import { DataService } from '../../services/api/data.service';
 
 @Component({
-  selector: 'app-modal',
-  templateUrl: './modal.component.html',
+  selector: 'app-dialog-box',
+  templateUrl: './dialog-box.component.html',
+  styleUrl: './dialog-box.component.css'
 })
-export class ModalComponent implements OnInit {
+export class DialogBoxComponent implements OnInit {
     pokemonInfo: PokemonProps | undefined;
     @Input() pokemonName!: string;
     @Output() closeModalEvent: EventEmitter<string> = new EventEmitter<string>();
