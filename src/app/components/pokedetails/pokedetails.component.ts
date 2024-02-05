@@ -75,7 +75,7 @@ export class PokedetailsComponent implements OnInit {
     }
 
     catchMessage(name: string): void {
-        alert("💫 Congraulations, you caught " + name + " 💫");
+        alert("💫 Congratulations, you caught " + name + " 💫");
     }
 
     navigateToHome() {

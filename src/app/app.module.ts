@@ -14,6 +14,7 @@ import { HomeComponent } from './components/home/home.component';
 import { BackbuttonComponent } from './components/backbutton/backbutton.component';
 import { SearchbarComponent } from './components/searchbar/searchbar.component';
 import { ModalComponent } from './components/modal/modal.component';
+import { DropdownFilterComponent } from './components/dropdown-filter/dropdown-filter.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { ModalComponent } from './components/modal/modal.component';
     BackbuttonComponent,
     SearchbarComponent,
     ModalComponent,
+    DropdownFilterComponent,
   ],
   imports: [
     BrowserModule,

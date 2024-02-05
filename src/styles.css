@@ -13,6 +13,59 @@ body {
   background-color: #000;
 }
 
+body {
+    --sb-track-color: #232E33;
+    --sb-thumb-color: #6b7280;
+    --sb-size: 10px;
+}
+  
+body::-webkit-scrollbar {
+    width: var(--sb-size)
+}
+
+body::-webkit-scrollbar-track {
+    background: var(--sb-track-color);
+    border-radius: 10px;
+}
+
+body::-webkit-scrollbar-thumb {
+    background: var(--sb-thumb-color);
+    border-radius: 10px;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+    body {
+        scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+    }
+}
+
+/* CUSTOM SCROLLBAR */
+.custom-scrollbar {
+    --sb-track-color: #232E33;
+    --sb-thumb-color: #6b7280;
+    --sb-size: 7px;
+}
+  
+.custom-scrollbar::-webkit-scrollbar {
+    width: var(--sb-size)
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: var(--sb-track-color);
+    border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--sb-thumb-color);
+    border-radius: 3px;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+    .custom-scrollbar {
+        scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+    }
+}
+
 .red-gradient {
   background: linear-gradient(92deg, #ff5956 2.87%, #ee1e38 96.18%);
   background-clip: text;

@@ -4,15 +4,24 @@
             <h2 class="text-3xl text-white font-bold">My Pokedex</h2>
             <p>Discover the Pokemon you might like or <span class="text-red-500 font-semibold">catch</span></p>
         </div>
-        
-
-        <!-- Searchbar -->
-        <app-searchbar (searchChange) = "onSearchChange($event)"></app-searchbar>
     </div>
 
+    <div class="flex sm:flex-row flex-col justify-between items-center gap-6">
+        <!-- Searchbar -->
+        <app-searchbar (searchChange)="onSearchChange($event)"></app-searchbar>
+    
+        <!-- Dorpdown Menu -->
+        <app-dropdown-filter (searchByType)="onTypeSearch($event)" />
+    </div>
 
-    <section class="grid xl:grid-cols-3 lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 grid-cols-1 gap-10">
+    <section *ngIf="typeProperty === 'all types'" class="grid xl:grid-cols-3 lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 grid-cols-1 gap-10">
         <div *ngFor="let pokemon of filteredDatas.length ? filteredDatas : data">
+            <app-pokecard [data]="pokemon"></app-pokecard>
+        </div>
+    </section>
+
+    <section *ngIf="typeProperty !== 'all types'" class="grid xl:grid-cols-3 lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 grid-cols-1 gap-10">
+        <div *ngFor="let pokemon of filteredDatasByType.length ? filteredDatasByType : data">
             <app-pokecard [data]="pokemon"></app-pokecard>
         </div>
     </section>
