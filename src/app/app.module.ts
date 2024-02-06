@@ -15,6 +15,7 @@ import { BackbuttonComponent } from './components/backbutton/backbutton.componen
 import { SearchbarComponent } from './components/searchbar/searchbar.component';
 import { DropdownFilterComponent } from './components/dropdown-filter/dropdown-filter.component';
 import { DialogBoxComponent } from './components/dialog-box/dialog-box.component';
+import { LikeComponent } from './components/like/like.component';
 
 @NgModule({
   declarations: [
@@ -29,6 +30,7 @@ import { DialogBoxComponent } from './components/dialog-box/dialog-box.component
     SearchbarComponent,
     DropdownFilterComponent,
     DialogBoxComponent,
+    LikeComponent,
   ],
   imports: [
     BrowserModule,
