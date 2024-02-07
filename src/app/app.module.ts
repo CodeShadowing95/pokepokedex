@@ -16,6 +16,7 @@ import { SearchbarComponent } from './components/searchbar/searchbar.component';
 import { DropdownFilterComponent } from './components/dropdown-filter/dropdown-filter.component';
 import { DialogBoxComponent } from './components/dialog-box/dialog-box.component';
 import { LikeComponent } from './components/like/like.component';
+import { DialogCatchComponent } from './components/dialog-catch/dialog-catch.component';
 
 @NgModule({
   declarations: [
@@ -31,6 +32,7 @@ import { LikeComponent } from './components/like/like.component';
     DropdownFilterComponent,
     DialogBoxComponent,
     LikeComponent,
+    DialogCatchComponent,
   ],
   imports: [
     BrowserModule,

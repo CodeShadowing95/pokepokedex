@@ -34,6 +34,8 @@ export class PokedetailsComponent implements OnInit {
     isModalOpen: boolean = false;
     pokemonName!: string;
 
+    isDialogOpen: boolean = false;
+
     constructor(private route: ActivatedRoute, private pokemonService: DataService, private router: Router, private shuffleService: ShuffleService) {}
 
     ngOnInit(): void {
@@ -74,8 +76,9 @@ export class PokedetailsComponent implements OnInit {
         return pkms;
     }
 
-    catchMessage(name: string): void {
-        alert("💫 Congratulations, you caught " + name + " 💫");
+    catchPokemon(name: string): void {
+        // alert("💫 Congratulations, you caught " + name + " 💫");
+        this.isDialogOpen = !this.isDialogOpen;
     }
 
     navigateToHome() {
@@ -84,6 +87,23 @@ export class PokedetailsComponent implements OnInit {
 
     toggleModal(name: string): void {
         this.isModalOpen = !this.isModalOpen;
+        this.pokemonName = name;
+    }
+
+    showMessage(msgState: boolean) {
+        if(msgState) {
+            setTimeout(() => {
+                alert("Sorry, the Pokemon fled 😞. Retry later.");
+            }, 200)
+        } else {
+            setTimeout(() => {
+                alert("💫 Let's go, you caught a " + this.pokemonName + " 💫");
+            }, 200)
+        }
+    }
+
+    toggleDialog(name: string): void {
+        this.isDialogOpen = !this.isDialogOpen;
         this.pokemonName = name;
     }
 }
