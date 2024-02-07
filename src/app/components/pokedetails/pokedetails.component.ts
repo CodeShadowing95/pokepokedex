@@ -68,8 +68,14 @@ export class PokedetailsComponent implements OnInit {
         return weakness ? weakness.image : '';
     }
 
-    get_5_firstTypes(data: PokemonProps[], types: string[]): PokemonProps[] {
-        const pkms = data.filter((pkm) => (
+    get_5_firstTypes(pokemonDatas: PokemonProps[], types: string[]): PokemonProps[] {
+        // Get all the pokemons without the one selected
+        let filteredDatas = pokemonDatas.filter((pokemonData) => (
+            !pokemonData.name.toLowerCase().includes(this.pokemon.name.toLowerCase())
+        ));
+
+        // Get all the pokemons with same types as the selected pokemon
+        const pkms = filteredDatas.filter((pkm) => (
             types.some((type) => pkm.type.includes(type.toLowerCase()))
         ));
 
