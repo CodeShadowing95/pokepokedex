@@ -93,7 +93,7 @@ body::-webkit-scrollbar-thumb {
 
 @layer utilities {
     .btn {
-        @apply absolute top-0 right-0 py-2 px-2 flex justify-center items-center gap-2 bg-red-800 hover:bg-opacity-70 rounded-lg text-white text-lg font-semibold;
+        @apply absolute min-[450px]:top-0 min-[450px]:right-0 -top-12 py-2 px-2 flex justify-center items-center gap-2 bg-red-800 hover:bg-opacity-70 rounded-lg text-white text-lg font-semibold;
     }
 
     .sub_btn {
