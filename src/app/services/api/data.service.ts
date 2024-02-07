@@ -20,9 +20,7 @@ export class DataService {
         'X-RapidAPI-Key': this.apiKey,
         'X-RapidAPI-Host': this.apiHost,
     });
-
-    // const url = `${this.apiUrl}?page=${page}&pageSize=${pageSize}`;
-
+    
     return this.http.get(this.apiUrl, { headers });
   }
 
