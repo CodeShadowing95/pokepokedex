@@ -16,9 +16,10 @@ export class DialogCatchComponent {
   @Output() closeModalEvent: EventEmitter<string> = new EventEmitter<string>();
   @Output() msgState: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-  // To reset the gif image
+  // Useful property to reset the gif image
   @ViewChild('gifImage', { static: false }) gifImage!: ElementRef;
 
+  // Useful to alternate between gif images
   currentImgIndex!: number;
 
   ngOnInit(): void {
@@ -27,8 +28,7 @@ export class DialogCatchComponent {
   }
 
   processCatch() {
-    const chance = getRandomInteger(0, 10);
-    console.log(chance);
+    const chance: number = getRandomInteger(0, 10);
 
     // If chances are odd, Pokemons couldn't be caught
     if(chance % 2 === 1) {
@@ -46,6 +46,7 @@ export class DialogCatchComponent {
       }, 4200);
     }
   }
+
 
   closeModal(id: number): void{
     if(id === 0) {

@@ -93,11 +93,11 @@ export class PokedetailsComponent implements OnInit {
     showMessage(msgState: boolean) {
         if(msgState) {
             setTimeout(() => {
-                alert("Sorry, the Pokemon fled 😞. Retry later.");
+                alert("Sorry, the Pokemon fled 😞. Retry later 😆.");
             }, 200)
         } else {
             setTimeout(() => {
-                alert("💫 Let's go, you caught a " + this.pokemonName + " 💫");
+                alert("💫 Let's go, you caught a " + this.pokemon.name + " 💫");
             }, 200)
         }
     }
