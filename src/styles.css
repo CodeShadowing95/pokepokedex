@@ -43,7 +43,7 @@ body::-webkit-scrollbar-thumb {
 .custom-scrollbar {
     --sb-track-color: #232E33;
     --sb-thumb-color: #6b7280;
-    --sb-size: 7px;
+    --sb-size: 0;
 }
   
 .custom-scrollbar::-webkit-scrollbar {
