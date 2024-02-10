@@ -7,7 +7,7 @@ import { LikeService } from '../../services/like/like.service';
   styleUrl: './like.component.css'
 })
 export class LikeComponent implements OnInit {
-    className: string = 'border border-gray-100 absolute top-5 right-5 flex justify-center items-center py-2 px-2 rounded-lg cursor-pointer hover:bg-opacity3';
+    className: string = 'border border-gray-500 absolute top-5 right-5 flex justify-center items-center py-2 px-2 rounded-lg cursor-pointer hover:bg-opacity3';
     state!: boolean;
 
     likes!: number;
@@ -15,8 +15,6 @@ export class LikeComponent implements OnInit {
     constructor (private likeService: LikeService) {}
 
     ngOnInit(): void {
-        // this.countLikes();
-
         this.state = this.likeService.hasLiked();
 
         if(this.state) {
@@ -34,13 +32,9 @@ export class LikeComponent implements OnInit {
 
         this.likeService.setLiked();
         this.state = this.likeService.hasLiked();
-        this.className = 'absolute top-5 right-5 flex justify-center items-center py-2 px-2 bg-[#EC185D] cursor-pointer rounded-lg';
+        this.className = 'absolute top-5 right-5 flex justify-center items-center py-2 px-2 bg-opacity3 cursor-pointer rounded-lg'; // bg-[#EC185D]
         setTimeout(() => (
             alert("Thanks! I hope you enjoyed 😃")
         ), 300);
     }
-
-    // countLikes = async () => {
-    //     this.likes = await getLikes();
-    // }
 }

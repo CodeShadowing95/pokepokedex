@@ -18,6 +18,7 @@ export class PokepanelComponent implements OnInit {
 
     currentPage = 1;
     numberOfPages = 1;
+    countDatas = 0;
 
     filteredDatas: any[] = [];
     filteredDatasByType: any[] = [];
@@ -29,14 +30,18 @@ export class PokepanelComponent implements OnInit {
     }
 
     loadPokemons(): void {
-        const startIndex = (this.currentPage - 1) * 10;
-        const endIndex = startIndex + 10;
+        const startIndex = (this.currentPage - 1) * 12;
+        const endIndex = startIndex + 12;
     
         this.pokemonService.getPokemons().subscribe((response: PokemonProps[]) => {
-            const res = response.slice(0, 100);
+
+            // const res = this.shuffleService.shuffleArray(response);
+            // const res = response.slice(0, 100);
+            const res = response;
+            this.countDatas = res.length;
             this.pokemons = res;
             this.data = res.slice(startIndex, endIndex);
-            this.numberOfPages = Math.ceil(res.length / 10);
+            this.numberOfPages = Math.ceil(res.length / 12);
         });
     }
 

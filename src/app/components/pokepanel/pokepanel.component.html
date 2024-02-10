@@ -62,6 +62,7 @@
         *ngIf="typeProperty === 'all types' && (filteredDatasByType.length === 0 || filteredDatasByType.length !== 0) && searchParam === false"
         [currentPage]="currentPage"
         [numberOfPages]="numberOfPages"
+        [totalPages]="pokemons.length"
         (pageChange)="onPageChange($event)"
         (nextPageClick)="onNextPageClick()"
         (previousPageClick)="onPreviousPageClick()"
