@@ -23,6 +23,7 @@ export class DialogCatchComponent {
   currentImgIndex!: number;
 
   ngOnInit(): void {
+    // Initialize the first gif image
     this.currentImgIndex = -1;
     this.processCatch();
   }
@@ -33,17 +34,22 @@ export class DialogCatchComponent {
     // If chances are odd, Pokemons couldn't be caught
     if(chance % 2 === 1) {
       setTimeout(() => {
+        this.currentImgIndex = 1;
+        this.reloadGif();
+      }, 4150);
+      
+      setTimeout(() => {
         this.currentImgIndex = 0;
         this.closeModal(0);
         this.reloadGif();
-      }, 4200);
+      }, 9500);
     } else {
     // If chances are even, Pokemons could be caught
       setTimeout(() => {
         this.currentImgIndex = 1;
         this.closeModal(1);
         this.reloadGif();
-      }, 4200);
+      }, 4150);
     }
   }
 
@@ -53,13 +59,13 @@ export class DialogCatchComponent {
       setTimeout(() => {
         this.closeModalEvent.emit(this.pokemonName);
         this.msgState.emit(this.currentImgIndex === 0);
-      }, 1500)
+      }, 1920)
       return;
     }
     setTimeout(() => {
       this.closeModalEvent.emit(this.pokemonName);
       this.msgState.emit(this.currentImgIndex === 0);
-    }, 3500)
+    }, 7340)
   }
 
   // To reset the gif image each time button is clicked
