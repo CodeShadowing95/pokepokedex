@@ -26,8 +26,8 @@
             </div>
         </div>
         <ng-template #none>
-            <div *ngIf="filteredDatas.length !== 0; else nodata" class="grid xl:grid-cols-3 lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 grid-cols-1 gap-10">
-                <div *ngFor="let pokemon of filteredDatas">
+            <div *ngIf="datasFromSearchTerm.length !== 0; else nodata" class="grid xl:grid-cols-3 lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 grid-cols-1 gap-10">
+                <div *ngFor="let pokemon of datasFromSearchTerm">
                     <app-pokecard [data]="pokemon"></app-pokecard>
                 </div>
             </div>
@@ -44,7 +44,7 @@
     <!-- *************************************************** START: FILTERED_DATAS *************************************************** -->
     <section *ngIf="typeProperty !== 'all types'">
         <div class="grid xl:grid-cols-3 lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 grid-cols-1 gap-10" *ngIf="filteredDatasByType.length != 0; else noData">
-            <div *ngFor="let pokemon of filteredDatasByType">
+            <div *ngFor="let pokemon of data">
                 <app-pokecard [data]="pokemon"></app-pokecard>
             </div>
         </div>
@@ -59,7 +59,17 @@
 
     <!-- *************************************************** START: PAGINATION *************************************************** -->
     <app-pagination
-        *ngIf="typeProperty === 'all types' && (filteredDatasByType.length === 0 || filteredDatasByType.length !== 0) && searchParam === false"
+        *ngIf="typeProperty === 'all types' && searchParam === false"
+        [currentPage]="currentPage"
+        [numberOfPages]="numberOfPages"
+        [totalPages]="pokemons.length"
+        (pageChange)="onPageChange($event)"
+        (nextPageClick)="onNextPageClick()"
+        (previousPageClick)="onPreviousPageClick()"
+    ></app-pagination>
+
+    <app-pagination
+        *ngIf="typeProperty !== 'all types' && searchParam === false"
         [currentPage]="currentPage"
         [numberOfPages]="numberOfPages"
         [totalPages]="pokemons.length"
