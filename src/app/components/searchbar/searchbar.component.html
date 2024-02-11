@@ -10,8 +10,9 @@
             class="peer h-full w-full outline-none text-[16px] text-gray-300 pr-2 bg-[#2F3640]"
             type="text"
             id="search"
-            placeholder="Search..."
+            [placeholder]="isDisabled ? 'Search unavailable' : 'Search...'"
             (input)="onSearchChange($event)"
+            [disabled]="isDisabled"
         /> 
     </div>
 </div>

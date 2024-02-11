@@ -10,7 +10,10 @@
     <!-- *************************************************** START: SEARCHBAR & DROPDOWN *************************************************** -->
     <div class="flex sm:flex-row flex-col justify-between items-center gap-6">
         <!-- Searchbar -->
-        <app-searchbar (searchChange)="onSearchChange($event)"></app-searchbar>
+        <app-searchbar
+            [isDisabled]="typeProperty !== 'all types'"
+            (searchChange)="onSearchChange($event)"
+        />
     
         <!-- Dropdown Menu -->
         <app-dropdown-filter (searchByType)="onTypeSearch($event)" />
