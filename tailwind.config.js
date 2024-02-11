@@ -13,6 +13,7 @@ module.exports = {
             },
             colors: {
               opacity1: 'rgba(255, 255, 255, 0.1)',
+              opacity2: 'rgba(255, 255, 255, 0.2)',
               opacity3: 'rgba(255, 255, 255, 0.3)',
               opacity5: 'rgba(255, 255, 255, 0.5)',
             },

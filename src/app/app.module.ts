@@ -18,6 +18,8 @@ import { DialogBoxComponent } from './components/dialog-box/dialog-box.component
 import { LikeComponent } from './components/like/like.component';
 import { DialogCatchComponent } from './components/dialog-catch/dialog-catch.component';
 import { FooterComponent } from './components/footer/footer.component';
+import { NavComponent } from './components/nav/nav.component';
+import { LanguageComponent } from './components/language/language.component';
 
 @NgModule({
   declarations: [
@@ -35,6 +37,8 @@ import { FooterComponent } from './components/footer/footer.component';
     LikeComponent,
     DialogCatchComponent,
     FooterComponent,
+    NavComponent,
+    LanguageComponent,
   ],
   imports: [
     BrowserModule,
