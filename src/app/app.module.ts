@@ -20,6 +20,7 @@ import { DialogCatchComponent } from './components/dialog-catch/dialog-catch.com
 import { FooterComponent } from './components/footer/footer.component';
 import { NavComponent } from './components/nav/nav.component';
 import { LanguageComponent } from './components/language/language.component';
+import { ToTopButtonComponent } from './components/to-top-button/to-top-button.component';
 
 @NgModule({
   declarations: [
@@ -39,6 +40,7 @@ import { LanguageComponent } from './components/language/language.component';
     FooterComponent,
     NavComponent,
     LanguageComponent,
+    ToTopButtonComponent,
   ],
   imports: [
     BrowserModule,
