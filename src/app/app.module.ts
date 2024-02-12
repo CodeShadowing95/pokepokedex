@@ -21,6 +21,7 @@ import { FooterComponent } from './components/footer/footer.component';
 import { NavComponent } from './components/nav/nav.component';
 import { LanguageComponent } from './components/language/language.component';
 import { ToTopButtonComponent } from './components/to-top-button/to-top-button.component';
+import { PortfolioComponent } from './components/portfolio/portfolio.component';
 
 @NgModule({
   declarations: [
@@ -41,6 +42,7 @@ import { ToTopButtonComponent } from './components/to-top-button/to-top-button.c
     NavComponent,
     LanguageComponent,
     ToTopButtonComponent,
+    PortfolioComponent,
   ],
   imports: [
     BrowserModule,
