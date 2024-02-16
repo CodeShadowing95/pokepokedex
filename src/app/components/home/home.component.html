@@ -1,5 +1,10 @@
-<app-hero></app-hero>
+<app-hero (test)="openDialog($event)"></app-hero>
 
 <app-pokepanel></app-pokepanel>
 
 <app-footer></app-footer>
+
+<app-dialog-hint
+    *ngIf="isDialogOpen"
+    (closeModalEvt)="closeDialog($event)"
+/>

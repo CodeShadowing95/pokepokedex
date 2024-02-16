@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 
 @Component({
   selector: 'app-hero',
@@ -6,5 +6,8 @@ import { Component } from '@angular/core';
   styleUrl: './hero.component.css'
 })
 export class HeroComponent {
-
+  @Output() test: EventEmitter<string> = new EventEmitter<string>();
+  toggleDialog(name: string) {
+    this.test.emit(name);
+  }
 }

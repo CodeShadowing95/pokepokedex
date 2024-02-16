@@ -6,5 +6,13 @@ import { Component } from '@angular/core';
   styleUrl: './home.component.css'
 })
 export class HomeComponent {
+  isDialogOpen: boolean = false;
 
+  closeDialog(name: string): void {
+    this.isDialogOpen = !this.isDialogOpen;
+  }
+
+  openDialog(test: string) {
+    if(test === 'test') this.isDialogOpen = !this.isDialogOpen;
+  }
 }
