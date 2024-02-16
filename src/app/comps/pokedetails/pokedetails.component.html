@@ -1,0 +1,143 @@
+<div *ngIf="pokemon" class="pokedetail-container">
+    <app-backbutton></app-backbutton>
+
+    <div class="flex gap-28 xl:flex-row flex-col">
+        <!-- **************************************************************** LEFT SIDE START **************************************************************** -->
+        <div class="pokemon-image">
+            <img
+                [src]="pokemon.thumbnailimage"
+                alt="{{ pokemon.thumbnailalttext }}"
+                [width]="500"
+                [height]="400"
+                class="mx-auto"
+            />
+        </div>
+        <!-- **************************************************************** LEFT SIDE END **************************************************************** -->
+
+
+        <!-- **************************************************************** RIGHT SIDE START **************************************************************** -->
+        <div class="flex-1 flex flex-col">
+            <div class="flex flex-col justify-between items-start gap-5 pb-6">
+                <div class="flex w-full relative">
+                    <div class="flex flex-col gap-3">
+                        <p class="text-[35px] text-secondary font-semibold text-white">{{ pokemon.name }}</p>
+                        <p class="text-lg text-gray-100 opacity-50">Category: {{ pokemon.category }}</p>
+                    </div>
+
+                    <div class="btn cursor-pointer" (click)="catchPokemon(pokemon.name)">
+                        <img src="../../../assets/catch.png" alt="catch" [width]="20" [height]="20">
+                        <p class="text-lg">Catch {{ pokemon.name }}</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div *ngFor="let pokemon_type of pokemon.type">
+                        <div class="p-2 bg-white-200 rounded-10">
+                            <img
+                                [src]="getPokemonType(pokemon_type.toLowerCase())"
+                                alt="{{ pokemon_type }}"
+                                [width]="100"
+                                [height]="100"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="my-3 flex flex-col gap-5 border-y py-6 border-y-gray-700">
+                    <div class="flex gap-5 flex-wrap">
+                        <!-- Weight -->
+                        <div class="pokemon-info_card border-l-gray-600">
+                            <p class="text-base text-black-100">Weight</p>
+                    
+                            <div class="flex gap-1">
+                                <img src="../../../assets/weight.svg" alt="weight" width={24} height={24} />
+                    
+                                <p class="text-2xl font-bold text-secondary">{{ pokemon.weight }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Height -->
+                        <div class="pokemon-info_card border-l-gray-600">
+                            <p class="text-base text-black-100">Height</p>
+                    
+                            <div class="flex gap-1">
+                                <img src="../../../assets/height.svg" alt="weight" width={24} height={24} />
+                    
+                                <p class="text-2xl font-bold text-secondary">{{ pokemon.height }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pokemon-info_card border-l-gray-600 w-full">
+                    <p class="text-base text-black-100">Weaknesses</p>
+
+                    <div class="flex flex-wrap gap-2">
+                        <div *ngFor="let weakness of pokemon.weaknesses">
+                            <img
+                                [src]="getPokemonWeakness(weakness.toLowerCase())"
+                                alt="{{ weakness }}"
+                                [width]="90"
+                                [height]="90"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- **************************************************************** RIGHT SIDE END **************************************************************** -->
+    </div>
+
+    <!-- **************************************************************** DESCRIPTION START **************************************************************** -->
+    <div class="flex flex-col gap-16">
+        <div class="flex flex-col gap-5">
+            <h3 class="text-2xl text-secondary font-semibold text-gray-100">Description</h3>
+
+            <div class="flex flex-col gap-4 text-gray-100 text-base leading-7">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut 
+                labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris 
+                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit 
+                esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt 
+                in culpa qui officia deserunt mollit anim id est laborum.
+            </div>
+        </div>
+
+        <button class="sub_btn w-fit mx-auto flex items-center justify-center gap-3 min-w-[200px]">
+            <a href="/" class="text-base text-white">Show More</a>
+        </button>
+    </div>
+    <!-- **************************************************************** DESCRIPTION END **************************************************************** -->
+
+
+    <!-- **************************************************************** SIMILAR TYPES START **************************************************************** -->
+    <div class="py-14 flex flex-col gap-2 w-full">
+        <p class="section-text">Related Species</p>
+        <p class="text-gray-500 text-base">Some Pokemons of similar types</p>
+
+        <div class="grid lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-3 mt-8">
+            <div *ngFor="let pkm of pokemons">
+                <app-pokecard
+                    [data]="pkm"
+                    [imgDimension]="150"
+                    [typeImgDimensions]="70"
+                    [showButton]="true"
+                    (openModalEvent)="toggleModal($event)"
+                />
+            </div>
+        </div>
+    </div>
+    <!-- **************************************************************** SIMILAR TYPES END **************************************************************** -->
+
+    <app-dialog-box
+        *ngIf="isModalOpen"
+        [pokemonName]="pokemonName"
+        (closeModalEvent)="toggleModal($event)"
+    />
+
+    <app-dialog-catch
+        *ngIf="isDialogOpen"
+        [pokemonName]="pokemonName"
+        (msgState)="showMessage($event)"
+        (closeModalEvent)="toggleDialog($event)"
+    />
+</div>

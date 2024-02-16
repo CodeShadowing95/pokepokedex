@@ -1,0 +1,85 @@
+<main class="sm:p-16 py-16 px-8 flex flex-col gap-10">
+    <div class="flex lg:flex-row flex-col justify-between gap-8">
+        <div class="flex flex-col gap-y-2.5 text-white">
+            <h2 class="text-3xl text-white font-bold">My Pokedex</h2>
+            <p>Discover the Pokemon you might like or <span class="text-red-500 font-semibold">catch</span></p>
+        </div>
+    </div>
+
+
+    <!-- *************************************************** START: SEARCHBAR & DROPDOWN *************************************************** -->
+    <div class="flex sm:flex-row flex-col justify-between items-center gap-6">
+        <!-- Searchbar -->
+        <app-searchbar
+            [isDisabled]="typeProperty !== 'all types'"
+            (searchChange)="onSearchChange($event)"
+        />
+    
+        <!-- Dropdown Menu -->
+        <app-dropdown-filter (searchByType)="onTypeSearch($event)" />
+    </div>
+    <!-- *************************************************** END: SEARCHBAR & DROPDOWN *************************************************** -->
+
+
+    <!-- *************************************************** START: DATAS *************************************************** -->
+    <section *ngIf="typeProperty === 'all types'">
+        <div *ngIf="searchParam === false; else none" class="grid xl:grid-cols-3 lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 grid-cols-1 gap-10">
+            <div *ngFor="let pokemon of data">
+                <app-pokecard [data]="pokemon"></app-pokecard>
+            </div>
+        </div>
+        <ng-template #none>
+            <div *ngIf="datasFromSearchTerm.length !== 0; else nodata" class="grid xl:grid-cols-3 lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 grid-cols-1 gap-10">
+                <div *ngFor="let pokemon of datasFromSearchTerm">
+                    <app-pokecard [data]="pokemon"></app-pokecard>
+                </div>
+            </div>
+            <ng-template #nodata>
+                <div class="flex justify-center items-center my-4">
+                    <p class="text-lg font-semibold text-center">🔍 Oops!!! No Pokemon found for this term. 🔎</p>
+                </div>
+            </ng-template>
+        </ng-template>
+    </section>
+    <!-- *************************************************** END: DATAS *************************************************** -->
+
+
+    <!-- *************************************************** START: FILTERED_DATAS *************************************************** -->
+    <section *ngIf="typeProperty !== 'all types'">
+        <div class="grid xl:grid-cols-3 lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 grid-cols-1 gap-10" *ngIf="filteredDatasByType.length != 0; else noData">
+            <div *ngFor="let pokemon of data">
+                <app-pokecard [data]="pokemon"></app-pokecard>
+            </div>
+        </div>
+        <ng-template #noData>
+            <div class="flex justify-center items-center my-4">
+                <p class="text-lg font-semibold text-center">Oops!!! No Pokemon found for this type.</p>
+            </div>
+        </ng-template>
+    </section>
+    <!-- *************************************************** END: FILTERED_DATAS *************************************************** -->
+
+
+    <!-- *************************************************** START: PAGINATION *************************************************** -->
+    <app-pagination
+        *ngIf="typeProperty === 'all types' && searchParam === false"
+        [currentPage]="currentPage"
+        [numberOfPages]="numberOfPages"
+        [totalPages]="pokemons.length"
+        (pageChange)="onPageChange($event)"
+        (nextPageClick)="onNextPageClick()"
+        (previousPageClick)="onPreviousPageClick()"
+    ></app-pagination>
+
+    <app-pagination
+        *ngIf="typeProperty !== 'all types' && searchParam === false"
+        [currentPage]="currentPage"
+        [numberOfPages]="numberOfPages"
+        [totalPages]="pokemons.length"
+        (pageChange)="onPageChange($event)"
+        (nextPageClick)="onNextPageClick()"
+        (previousPageClick)="onPreviousPageClick()"
+    ></app-pagination>
+    <!-- *************************************************** END: PAGINATION *************************************************** -->
+
+</main>
