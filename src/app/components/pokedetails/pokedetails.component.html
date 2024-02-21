@@ -5,8 +5,8 @@
         <!-- **************************************************************** LEFT SIDE START **************************************************************** -->
         <div class="pokemon-image">
             <img
-                [src]="pokemon.thumbnailimage"
-                alt="{{ pokemon.thumbnailalttext }}"
+                [src]="pokemon.ThumbnailImage"
+                alt="{{ pokemon.ThumbnailAltText }}"
                 [width]="500"
                 [height]="400"
                 class="mx-auto"
@@ -21,7 +21,7 @@
                 <div class="flex w-full relative">
                     <div class="flex flex-col gap-3">
                         <p class="text-[35px] text-secondary font-semibold text-white">{{ pokemon.name }}</p>
-                        <p class="text-lg text-gray-100 opacity-50">Category: {{ pokemon.category }}</p>
+                        <p class="text-lg text-gray-100 opacity-50">Category: {{ pokemon.abilities }}</p>
                     </div>
 
                     <div class="btn cursor-pointer" (click)="catchPokemon(pokemon.name)">
@@ -73,7 +73,7 @@
                     <p class="text-base text-black-100">Weaknesses</p>
 
                     <div class="flex flex-wrap gap-2">
-                        <div *ngFor="let weakness of pokemon.weaknesses">
+                        <div *ngFor="let weakness of pokemon.weakness">
                             <img
                                 [src]="getPokemonWeakness(weakness.toLowerCase())"
                                 alt="{{ weakness }}"
@@ -115,7 +115,7 @@
         <p class="text-gray-500 text-base">Some Pokemons of similar types</p>
 
         <div class="grid lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-3 mt-8">
-            <div *ngFor="let pkm of pokemons">
+            <div *ngFor="let pkm of pokemons_5">
                 <app-pokecard
                     [data]="pkm"
                     [imgDimension]="150"

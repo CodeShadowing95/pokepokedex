@@ -6,30 +6,16 @@ import { pokemonTypes } from '../../../constants';
 import { ShuffleService } from '../../services/shuffle/shuffle.service';
 import { PokemonProps } from '../../../types';
 
-interface PokemonDetail {
-    abilities: string;
-    category: string;
-    height: string;
-    name: string;
-    sex: string[];
-    slug: string;
-    thumbnailalttext: string;
-    thumbnailimage: string;
-    type: string[];
-    weaknesses: string[];
-    weight: string;
-}
-
 @Component({
   selector: 'app-pokedetails',
   templateUrl: './pokedetails.component.html',
   styleUrl: './pokedetails.component.css'
 })
 export class PokedetailsComponent implements OnInit {
-    pokemon!: PokemonDetail;
+    pokemon!: PokemonProps;
 
     shuffledPokemons!: PokemonProps[];
-    pokemons!:PokemonProps[];
+    pokemons_5!:PokemonProps[];
 
     isModalOpen: boolean = false;
     pokemonName!: string;
@@ -41,20 +27,32 @@ export class PokedetailsComponent implements OnInit {
     ngOnInit(): void {
         this.route.params.subscribe((params) => {
             const name = params['slug'];
+            console.log(name);
+
+            this.getPokemonDetail(name);
+            
             this.pokemonService.getPokemonDetails(name).subscribe(
-                (data) => {
-                    this.pokemon = data[0];
-                    // console.log(this.pokemon);
+                () => {
                     this.pokemonService.getPokemons().subscribe((res) => {
                         this.shuffledPokemons = this.shuffleService.shuffleArray(res);
                         
-                        this.pokemons = this.get_5_firstTypes(this.shuffledPokemons, this.pokemon.type).slice(0, 5);
+                        this.pokemons_5 = this.get_5_firstTypes(this.shuffledPokemons, this.pokemon.type).slice(0, 5);
                     })
                 },
                 (error) => {
                     console.log(error);
                 }
             )
+        })
+    }
+
+    getPokemonDetail(name: string): void {
+        this.pokemonService.getPokemons().subscribe((response: PokemonProps[]) => {
+            const res: PokemonProps[] = response;
+
+            this.pokemon = res.filter((p) => (
+                p.name.toLowerCase().includes(name)
+            ))[0]
         })
     }
 
