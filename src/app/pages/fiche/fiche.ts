@@ -26,6 +26,10 @@ export class Fiche {
   protected readonly details = signal<PokemonDetails | undefined>(undefined);
   protected readonly shiny = signal(false);
   protected readonly moving = signal(true);
+  protected readonly aide = signal(false);
+  protected fr(n: number): string {
+    return String(n).replace('.', ',');
+  }
   protected readonly craftCost = CRAFT_COST;
 
   protected readonly view = computed(() => {

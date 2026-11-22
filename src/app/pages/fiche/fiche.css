@@ -40,3 +40,19 @@ h1 { font-size: clamp(48px, 7vw, 92px); margin: 4px 0 2px; }
   .scene-in, .corps { grid-template-columns: 1fr; }
   .portrait { order: -1; }
 }
+
+.titre-info .eyebrow { margin: 0; }
+.titre-info { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.info {
+  width: 28px; height: 28px; flex: none; border-radius: 50%;
+  border: 2.5px solid var(--color-encre); background: var(--color-papier); color: var(--color-encre);
+  font: 700 15px/1 var(--font-mono); cursor: pointer; box-shadow: 2px 2px 0 var(--color-encre);
+}
+.info:hover, .info[aria-expanded='true'] { background: var(--color-jaune); }
+.info:focus-visible { outline: 3px solid var(--color-rouge); outline-offset: 2px; }
+.aide {
+  margin: 10px 0 4px; padding: 12px 14px; border: 2px solid var(--color-encre); border-radius: 10px;
+  background: var(--color-papier); font-size: 14px; line-height: 1.5;
+}
+.aide ul { margin: 6px 0; padding-left: 18px; list-style: disc; }
+.aide li { margin: 2px 0; }

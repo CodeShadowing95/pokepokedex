@@ -55,11 +55,28 @@
       </article>
 
       <article class="card pad">
-        <p class="eyebrow">Face aux types</p>
+        <div class="titre-info">
+          <p class="eyebrow">Face aux types</p>
+          <button type="button" class="info" [attr.aria-expanded]="aide()" aria-controls="aide-types"
+            aria-label="Que veulent dire ×2, ×0,5 et ×0 ?" (click)="aide.set(!aide())">i</button>
+        </div>
+        @if (aide()) {
+          <div class="aide" id="aide-types" role="note">
+            <p>Le chiffre multiplie les dégâts d’une attaque de ce type contre {{ v.p.name }}.</p>
+            <ul>
+              <li><strong class="mono">×4</strong> quatre fois plus de dégâts : ses deux types y sont sensibles.</li>
+              <li><strong class="mono">×2</strong> deux fois plus de dégâts : c’est une faiblesse.</li>
+              <li><strong class="mono">×0,5</strong> moitié moins de dégâts : il résiste.</li>
+              <li><strong class="mono">×0,25</strong> quatre fois moins : ses deux types résistent.</li>
+              <li><strong class="mono">×0</strong> aucun dégât : il est immunisé.</li>
+            </ul>
+            <p>Les types absents des deux listes font des dégâts normaux (×1).</p>
+          </div>
+        }
         <h3>Il craint</h3>
         <div class="types">
           @for (m of v.weak; track m.type.id) {
-            <span class="chip" [style.background]="m.type.color" [style.color]="m.type.text">{{ m.type.label }} ×{{ m.factor }}</span>
+            <span class="chip" [style.background]="m.type.color" [style.color]="m.type.text">{{ m.type.label }} ×{{ fr(m.factor) }}</span>
           } @empty {
             <span>Aucune faiblesse.</span>
           }
@@ -67,7 +84,7 @@
         <h3>Il résiste à</h3>
         <div class="types">
           @for (m of v.strong; track m.type.id) {
-            <span class="chip" [style.background]="m.type.color" [style.color]="m.type.text">{{ m.type.label }} ×{{ m.factor }}</span>
+            <span class="chip" [style.background]="m.type.color" [style.color]="m.type.text">{{ m.type.label }} ×{{ fr(m.factor) }}</span>
           } @empty {
             <span>Aucune résistance.</span>
           }
