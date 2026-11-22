@@ -76,7 +76,7 @@
         <h3>Il craint</h3>
         <div class="types">
           @for (m of v.weak; track m.type.id) {
-            <span class="chip" [style.background]="m.type.color" [style.color]="m.type.text">{{ m.type.label }} ×{{ fr(m.factor) }}</span>
+            <span class="chip" [style.background]="m.type.color" [style.color]="m.type.text"><img class="ti" [src]="m.type.icon" alt="" width="22" height="22" />{{ m.type.label }} ×{{ fr(m.factor) }}</span>
           } @empty {
             <span>Aucune faiblesse.</span>
           }
@@ -84,7 +84,7 @@
         <h3>Il résiste à</h3>
         <div class="types">
           @for (m of v.strong; track m.type.id) {
-            <span class="chip" [style.background]="m.type.color" [style.color]="m.type.text">{{ m.type.label }} ×{{ fr(m.factor) }}</span>
+            <span class="chip" [style.background]="m.type.color" [style.color]="m.type.text"><img class="ti" [src]="m.type.icon" alt="" width="22" height="22" />{{ m.type.label }} ×{{ fr(m.factor) }}</span>
           } @empty {
             <span>Aucune résistance.</span>
           }

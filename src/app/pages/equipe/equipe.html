@@ -44,7 +44,7 @@
       <tbody>
         @for (c of coverage(); track c.type.id) {
           <tr [class.trou]="c.weak >= 2">
-            <th scope="row"><span class="chip" [style.background]="c.type.color" [style.color]="c.type.text">{{ c.type.label }}</span></th>
+            <th scope="row"><span class="chip" [style.background]="c.type.color" [style.color]="c.type.text"><img class="ti" [src]="c.type.icon" alt="" width="22" height="22" />{{ c.type.label }}</span></th>
             <td class="mono">{{ c.weak || '·' }}</td>
             <td class="mono">{{ c.resist || '·' }}</td>
             <td class="mono">{{ c.hit ? 'oui' : '·' }}</td>

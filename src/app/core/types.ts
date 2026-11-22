@@ -7,10 +7,12 @@ export interface TypeInfo {
   color: string;
   /** Couleur du texte posé sur cette encre (contraste AA vérifié). */
   text: string;
+  /** Symbole du type (public/types/<key>.webp). */
+  icon: string;
 }
 
 const INK = '#1E2340';
-const t = (id: number, key: string, label: string, color: string, text = INK): TypeInfo => ({ id, key, label, color, text });
+const t = (id: number, key: string, label: string, color: string, text = INK): TypeInfo => ({ id, key, label, color, text, icon: `types/${key}.webp` });
 
 export const TYPES: readonly TypeInfo[] = [
   t(1, 'normal', 'Normal', '#B8B08D'),

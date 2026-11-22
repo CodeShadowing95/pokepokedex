@@ -20,7 +20,7 @@
       <li class="etape" [class]="'etape ' + s.state">
         <span class="num disp">{{ s.n === league ? '★' : s.n }}</span>
         @if (s.type; as t) {
-          <span class="chip" [style.background]="t.color" [style.color]="t.text">{{ t.label }}</span>
+          <span class="chip" [style.background]="t.color" [style.color]="t.text"><img class="ti" [src]="t.icon" alt="" width="22" height="22" />{{ t.label }}</span>
         } @else {
           <span class="chip on">Tous types</span>
         }

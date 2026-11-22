@@ -5,7 +5,7 @@ import { typeOf } from '../core/types';
 @Component({
   selector: 'app-type-chip',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `<span class="chip" [style.background]="info().color" [style.color]="info().text">{{ info().label }}</span>`,
+  template: `<span class="chip" [style.background]="info().color" [style.color]="info().text"><img class="ti" [src]="info().icon" alt="" width="22" height="22" />{{ info().label }}</span>`,
 })
 export class TypeChip {
   readonly type = input.required<number>();

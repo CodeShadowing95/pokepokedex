@@ -21,7 +21,7 @@
       <span class="scene dots" [style.background-color]="o.ink.color">
         <img [src]="o.art" [alt]="o.p.name" width="240" height="240" [class]="chosen() === o.p.id ? o.gesture : ''" [style.--periode]="o.period" />
       </span>
-      <span class="chip" [style.background]="o.ink.color" [style.color]="o.ink.text">{{ o.ink.label }}</span>
+      <span class="chip" [style.background]="o.ink.color" [style.color]="o.ink.text"><img class="ti" [src]="o.ink.icon" alt="" width="22" height="22" />{{ o.ink.label }}</span>
       <strong class="disp nom">{{ o.p.name }}</strong>
       <span class="mono stats">PV {{ o.card.hp }} · ATQ {{ o.card.atk }} · VIT {{ o.card.spd }}</span>
       <span>Technique : {{ o.card.tech.name }}</span>

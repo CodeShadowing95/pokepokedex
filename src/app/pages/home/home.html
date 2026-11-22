@@ -39,7 +39,7 @@
   <div class="marq">
     @for (pass of [0, 1]; track pass) {
       @for (t of types; track t.id) {
-        <span class="chip" [style.background]="t.color" [style.color]="t.text">{{ t.label }}</span>
+        <span class="chip" [style.background]="t.color" [style.color]="t.text"><img class="ti" [src]="t.icon" alt="" width="22" height="22" />{{ t.label }}</span>
       }
     }
   </div>

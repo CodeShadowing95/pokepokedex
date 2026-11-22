@@ -30,7 +30,7 @@
   <div class="rang" role="group" aria-label="Filtrer par type">
     @for (t of types; track t.id) {
       <button type="button" class="chip" [attr.aria-pressed]="activeType() === t.id" [class.eteint]="activeType() && activeType() !== t.id" [style.background]="t.color" [style.color]="t.text" (click)="toggleType(t.id)">
-        {{ t.label }}
+        <img class="ti" [src]="t.icon" alt="" width="22" height="22" />{{ t.label }}
       </button>
     }
   </div>
