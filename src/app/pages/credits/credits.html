@@ -1,0 +1,106 @@
+<!-- Ouverture : la Pokéball s'ouvre et le titre en sort. -->
+<section class="ouverture">
+  <div class="balle" aria-hidden="true">
+    <span class="haut"></span>
+    <span class="bas"></span>
+    <span class="bouton"></span>
+    <span class="eclair"></span>
+  </div>
+  <p class="eyebrow apparait" style="--d: 1.1s">Crédits</p>
+  <h1 class="apparait" style="--d: 1.3s">Avant d’être un site,<br />c’était <span class="hl">une consigne</span>.</h1>
+  <p class="defile apparait mono" style="--d: 1.9s" aria-hidden="true">↓ faites défiler</p>
+</section>
+
+<!-- L'histoire, en courts tableaux. -->
+<section class="page recit">
+  <div class="tableau reveler">
+    <span class="num mono">01</span>
+    <p class="grand">Quelques lignes dans un test technique.</p>
+    <p>Un poste de développeur full stack, Java et Angular. Et cette demande, presque trop simple : <strong>développer un site Pokémon</strong>. Y mettre de la créativité. Un peu d’innovation.</p>
+  </div>
+
+  <div class="tableau reveler droite">
+    <span class="num mono">02</span>
+    <p class="grand">J’aurais pu rendre une liste.</p>
+    <p>Une recherche, une fiche, une pagination. Propre, attendu, vite oublié. C’est ce qu’on rend quand on veut cocher une case.</p>
+  </div>
+
+  <div class="tableau reveler">
+    <span class="num mono">03</span>
+    <p class="grand">Alors je me suis posé une autre question.</p>
+    <p>Qu’est-ce qui faisait battre le cœur, enfant, devant un écran Pokémon ? Pas un tableau de statistiques. <strong>Le choix du premier compagnon.</strong> Le frisson d’une capture. Un combat gagné de justesse. L’attente du lendemain pour continuer.</p>
+  </div>
+
+  <blockquote class="citation reveler">
+    <p>« Je ne voulais pas qu’on consulte ce site. Je voulais qu’on y revienne. »</p>
+  </blockquote>
+
+  <div class="tableau reveler droite">
+    <span class="num mono">04</span>
+    <p class="grand">Alors chaque Pokémon a reçu sa façon de bouger.</p>
+    <p>Aucune animation dessinée à la main : leur poids, leur vitesse et leur silhouette décident s’ils planent, flottent, sautillent ou respirent lourdement. Mille vingt-cinq personnalités, une seule règle.</p>
+  </div>
+
+  <div class="tableau reveler">
+    <span class="num mono">05</span>
+    <p class="grand">Puis est venue l’arène.</p>
+    <p>Un duel de cartes où tout se joue en trois gestes, Frappe, Technique ou Garde. Face à une machine qui <strong>observe vos habitudes</strong> et apprend à vous contrer. Pour la battre, il faut cesser d’être prévisible.</p>
+  </div>
+
+  <div class="tableau reveler droite">
+    <span class="num mono">06</span>
+    <p class="grand">Et enfin, une raison de revenir demain.</p>
+    <p>Un booster chaque jour, des quêtes, une série à tenir, un Pokémon mystère à deviner, des cartes qui grandissent et évoluent, neuf régions à conquérir. Le genre de petits rendez-vous qui transforment une visite en habitude.</p>
+  </div>
+</section>
+
+<!-- Les chiffres. -->
+<section class="chiffres">
+  <div class="page grille">
+    <div class="chiffre reveler"><strong class="disp">1 025</strong><span>Pokémon, tous en français</span></div>
+    <div class="chiffre reveler" style="--d: 0.1s"><strong class="disp">{{ gyms }}</strong><span>arènes, une par type et par région</span></div>
+    <div class="chiffre reveler" style="--d: 0.2s"><strong class="disp">3</strong><span>gestes pour gagner un duel</span></div>
+    <div class="chiffre reveler" style="--d: 0.3s"><strong class="disp">0</strong><span>compte à créer pour jouer</span></div>
+  </div>
+  <div class="frise" aria-hidden="true">
+    @for (src of lignee; track src; let i = $index) {
+      <img [src]="src" alt="" width="84" height="84" loading="lazy" class="reveler" [style.--d]="i * 0.07 + 's'" />
+    }
+  </div>
+</section>
+
+<!-- Le générique. -->
+<section class="page generique">
+  <p class="eyebrow reveler">Générique</p>
+
+  <dl class="roles">
+    <div class="reveler"><dt>Idée, conception et développement</dt><dd>Vastolorde</dd></div>
+    <div class="reveler"><dt>Pour</dt><dd>L’équipe qui a lu ces lignes jusqu’ici</dd></div>
+    <div class="reveler"><dt>Données des 1 025 Pokémon, images et cris</dt><dd>PokéAPI et la communauté qui la fait vivre</dd></div>
+    <div class="reveler"><dt>Sprites animés de l’arène</dt><dd>La collection Pokémon Showdown, via PokéAPI</dd></div>
+    <div class="reveler"><dt>Typographies</dt><dd>Bricolage Grotesque, DM Sans et Space Mono, via Google Fonts</dd></div>
+    <div class="reveler"><dt>Construit avec</dt><dd>Angular, TypeScript, Tailwind CSS et Vitest</dd></div>
+    <div class="reveler"><dt>Hébergement</dt><dd>Netlify</dd></div>
+    <div class="reveler"><dt>Univers Pokémon</dt><dd>Nintendo, Game Freak et Creatures, à qui tout revient</dd></div>
+  </dl>
+
+  <p class="mention reveler">
+    Ce site est un projet de fan, réalisé dans le cadre d’un test technique, sans aucun but commercial. Pokémon et les noms de Pokémon sont des marques de
+    leurs propriétaires respectifs. Les champions et les badges de la campagne sont des personnages inventés pour l’occasion.
+  </p>
+</section>
+
+<!-- Fin. -->
+<section class="page fin reveler">
+  <div class="trio" aria-hidden="true">
+    @for (src of trio; track src; let i = $index) {
+      <img [src]="src" alt="" width="150" height="150" loading="lazy" [style.--d]="i * 0.15 + 's'" />
+    }
+  </div>
+  <h2>Merci d’avoir joué.</h2>
+  <p>Et si vous lisez ceci en tant que recruteur : j’espère vous avoir donné envie de choisir votre premier Pokémon.</p>
+  <div class="actions">
+    <a class="btn" routerLink="/bienvenue">Choisir mon premier Pokémon</a>
+    <a class="btn ghost" routerLink="/">Retour à l’accueil</a>
+  </div>
+</section>

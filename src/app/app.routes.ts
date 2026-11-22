@@ -14,5 +14,6 @@ export const routes: Routes = [
   { path: 'qg', title: 'Mon QG', loadComponent: () => import('./pages/qg/qg').then((m) => m.Qg) },
   { path: 'equipe', title: 'Atelier d’équipe', loadComponent: () => import('./pages/equipe/equipe').then((m) => m.Equipe) },
   { path: 'campagne', title: 'Campagne', loadComponent: () => import('./pages/campagne/campagne').then((m) => m.Campagne) },
+  { path: 'credits', title: 'Crédits · L’histoire de ce Pokédex', loadComponent: () => import('./pages/credits/credits').then((m) => m.Credits) },
   { path: '**', redirectTo: '' },
 ];
