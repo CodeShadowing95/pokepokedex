@@ -58,3 +58,7 @@ h2 { font-size: clamp(30px, 3.6vw, 46px); margin: 8px 0 0; }
   .hero { grid-template-columns: 1fr; gap: 36px; padding-top: 36px; }
   .trio, .monde { grid-template-columns: 1fr; }
 }
+
+.duel-x { padding: 56px 0 64px; border-block: var(--trait); background: var(--color-papier-fort); }
+.duel-x h2 { margin: 6px 0 10px; }
+.intro-x { max-width: 640px; margin: 0 0 24px; font-size: 17px; }

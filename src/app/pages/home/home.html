@@ -35,7 +35,14 @@
   </div>
 </section>
 
-<app-type-forces [depart]="dailyType.id" />
+<section class="duel-x" aria-labelledby="titre-duel-x">
+  <div class="page">
+    <p class="eyebrow">Les types en un coup de tampon</p>
+    <h2 id="titre-duel-x">Duel express</h2>
+    <p class="intro-x">Choisis un type qui attaque et un Pokémon qui encaisse, avec un ou deux types. Le tampon dit combien de dégâts l’attaque inflige. En mode quiz, c’est à toi de deviner.</p>
+    <app-duel-express />
+  </div>
+</section>
 
 <section class="page bloc">
   <div class="tete">

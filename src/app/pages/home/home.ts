@@ -5,11 +5,11 @@ import { PokedexService } from '../../core/pokedex.service';
 import { artwork } from '../../core/pokemon';
 import { typeOf } from '../../core/types';
 import { PokeCard } from '../../ui/poke-card';
-import { TypeForces } from '../../ui/type-forces';
+import { DuelExpress } from '../../ui/duel-express';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, PokeCard, TypeForces],
+  imports: [RouterLink, PokeCard, DuelExpress],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './home.html',
   styleUrl: './home.css',
