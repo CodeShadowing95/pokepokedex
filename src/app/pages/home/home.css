@@ -9,12 +9,16 @@ h1 { font-size: clamp(44px, 6.4vw, 88px); margin: 14px 0 22px; }
 
 .hero-stage { position: relative; aspect-ratio: 1 / 1.05; border: var(--trait); border-radius: 28px; box-shadow: 8px 8px 0 var(--color-encre); overflow: hidden; animation: encre 16s infinite; background-color: #f7d02c; }
 @keyframes encre { 0%, 23% { background-color: #f7d02c; } 25%, 48% { background-color: #f2762e; } 50%, 73% { background-color: #5aa0ec; } 75%, 98% { background-color: #6a5a9c; } 100% { background-color: #f7d02c; } }
-.disc { position: absolute; left: 50%; top: 44%; width: 78%; aspect-ratio: 1; transform: translate(-50%, -50%); border: var(--trait); border-radius: 50%; background: var(--color-papier); animation: tourner 16s linear infinite; }
-.disc::after { content: ''; position: absolute; left: -3px; right: -3px; top: calc(50% - 5px); height: 10px; background: var(--color-encre); }
-@keyframes tourner { to { transform: translate(-50%, -50%) rotate(360deg); } }
+.disc { position: absolute; left: 50%; top: 80%; width: 36%; z-index: 1; aspect-ratio: 1; transform: translate(-50%, -50%); border: var(--trait); border-radius: 50%; background: linear-gradient(var(--color-rouge) 0 50%, var(--color-papier) 50%); animation: secousse-capture 4s ease-in-out infinite; }
+/* La bande d'encre qui sépare les deux moitiés. */
+.disc::before { content: ''; position: absolute; left: -3px; right: -3px; top: calc(50% - 5px); height: 10px; background: var(--color-encre); }
+/* Le bouton central, posé sur la bande. */
+.disc::after { content: ''; position: absolute; left: 50%; top: 50%; width: 30%; aspect-ratio: 1; transform: translate(-50%, -50%); border: 6px solid var(--color-encre); border-radius: 50%; background: var(--color-papier); box-shadow: inset 0 0 0 4px var(--color-papier), inset 0 0 0 6px var(--color-encre); }
+/* La Pokéball tremble comme pendant une capture, puis se repose. */
+@keyframes secousse-capture { 0%, 52%, 100% { transform: translate(-50%, -50%) rotate(0); } 58% { transform: translate(-50%, -50%) rotate(-14deg); } 66% { transform: translate(-50%, -50%) rotate(11deg); } 74% { transform: translate(-50%, -50%) rotate(-6deg); } 80% { transform: translate(-50%, -50%) rotate(0); } }
 .slide { position: absolute; inset: 0; opacity: 0; animation: defiler 16s infinite; }
-.slide img { position: absolute; left: 50%; top: 44%; width: 74%; height: auto; transform: translate(-50%, -50%); filter: drop-shadow(6px 6px 0 rgba(30, 35, 64, 0.9)); }
-.cap { position: absolute; left: 20px; bottom: 20px; display: flex; flex-direction: column; padding: 10px 18px; border: var(--trait); border-radius: 16px; background: #fff; box-shadow: 4px 4px 0 var(--color-encre); }
+.slide img { position: absolute; left: 50%; top: 40%; width: 66%; height: auto; transform: translate(-50%, -50%); filter: drop-shadow(6px 6px 0 rgba(30, 35, 64, 0.9)); }
+.cap { position: absolute; left: 20px; top: 20px; display: flex; flex-direction: column; padding: 10px 18px; border: var(--trait); border-radius: 16px; background: #fff; box-shadow: 4px 4px 0 var(--color-encre); }
 .cap strong { font-size: 24px; }
 .cap span { font-size: 14px; color: var(--color-encre-douce); }
 @keyframes defiler { 0% { opacity: 0; transform: translateY(60px) scale(0.7) rotate(-6deg); } 3% { opacity: 1; transform: translateY(-8px) scale(1.04) rotate(1deg); } 5%, 21% { opacity: 1; transform: none; } 24% { opacity: 0; transform: translateY(-40px) scale(0.9); } 100% { opacity: 0; } }
