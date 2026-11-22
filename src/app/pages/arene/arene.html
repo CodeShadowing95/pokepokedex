@@ -64,44 +64,62 @@
       @if (me(); as m) {
         @if (foe(); as f) {
           <section class="page duel-zone">
-            <div class="plateau dots">
-              <div class="cote eux">
-                <div class="info card">
-                  <div class="ligne"><strong class="disp">{{ f.f.card.name }}</strong><span class="mono">{{ f.f.hp }} / {{ f.f.card.hp }} PV</span></div>
-                  <div class="bar" role="img" [attr.aria-label]="'Points de vie adverses : ' + f.f.hp"><i [style.width.%]="f.hpPct" [class.bas]="f.hpPct < 30"></i></div>
-                  <div class="ligne">
-                    <span class="pips" [attr.aria-label]="f.energy + ' énergies'">@for (on of f.pips; track $index) {<i [class.on]="on"></i>}</span>
-                    <span class="banc">@for (t of f.team; track t.card.id) {<i [class.ko]="!alive(t)"></i>}</span>
-                  </div>
-                </div>
-                <div class="combattant" [class.touche]="fxOn('machine')">
+            @let sc = scene();
+            <div class="plateau dots" (click)="accelerer()" [attr.title]="busy() ? 'Clique pour accélérer' : null">
+              <div class="poste eux" [class.elan]="sc.elan === 'machine'">
+                <app-etiquette [nom]="f.f.card.name" [type]="f.ink" [pv]="f.hp" [max]="f.f.card.hp" [fantome]="f.hpPct" [energie]="f.pips" [equipe]="f.vivants" />
+                <div class="combattant" [class.touche]="sc.degats?.cible === 'machine'">
                   <span class="socle" [style.background]="f.ink.color"></span>
                   <img [src]="f.sprite" [alt]="f.f.card.name" (error)="fallback($event, f.f.card.id)" />
-                  @if (fxOn('machine'); as e) {
-                    <span class="fx" [class]="'fx ' + e.shape" [style.--c]="e.color"></span>
-                    <span class="degats disp">−{{ e.amount }}</span>
+                  @if (sc.gardes.includes('machine')) {
+                    <app-effet class="bouclier" [class.brise]="sc.brise === 'machine'" nom="garde" [taille]="150" [boucle]="true" />
+                  }
+                  @if (sc.effet?.cible === 'machine') {
+                    @for (k of [sc.effet!.cle]; track k) { <app-effet class="impact" [nom]="sc.effet!.nom" [taille]="140" /> }
+                  }
+                  @if (sc.degats?.cible === 'machine') {
+                    @for (k of [sc.degats!.cle]; track k) { <span class="degats disp">−{{ sc.degats!.montant }}</span> }
+                  }
+                  @if (sc.tampon?.cible === 'machine') {
+                    <span class="tampon-scene mono">{{ sc.tampon!.texte }}</span>
+                  }
+                  @if (sc.revelation; as rv) {
+                    <span class="carte-geste" [class.gagne]="rv.gagnant === 'machine'" [class.perd]="rv.gagnant && rv.gagnant !== 'machine'">
+                      <small class="mono">Machine</small><strong class="disp">{{ labels[rv.machine] }}</strong>
+                    </span>
                   }
                 </div>
               </div>
-
-              <div class="cote moi">
-                <div class="combattant" [class.touche]="fxOn('player')">
+              <div class="poste moi" [class.elan]="sc.elan === 'player'">
+                <app-etiquette [nom]="m.f.card.name" [type]="m.ink" [pv]="m.hp" [max]="m.f.card.hp" [fantome]="m.hpPct" [energie]="m.pips" [equipe]="m.vivants" />
+                <div class="combattant" [class.touche]="sc.degats?.cible === 'player'">
                   <span class="socle" [style.background]="m.ink.color"></span>
                   <img [src]="m.sprite" [alt]="m.f.card.name" (error)="fallback($event, m.f.card.id)" />
-                  @if (fxOn('player'); as e) {
-                    <span class="fx" [class]="'fx ' + e.shape" [style.--c]="e.color"></span>
-                    <span class="degats disp">−{{ e.amount }}</span>
+                  @if (sc.gardes.includes('player')) {
+                    <app-effet class="bouclier" [class.brise]="sc.brise === 'player'" nom="garde" [taille]="150" [boucle]="true" />
+                  }
+                  @if (sc.effet?.cible === 'player') {
+                    @for (k of [sc.effet!.cle]; track k) { <app-effet class="impact" [nom]="sc.effet!.nom" [taille]="140" /> }
+                  }
+                  @if (sc.degats?.cible === 'player') {
+                    @for (k of [sc.degats!.cle]; track k) { <span class="degats disp">−{{ sc.degats!.montant }}</span> }
+                  }
+                  @if (sc.tampon?.cible === 'player') {
+                    <span class="tampon-scene mono">{{ sc.tampon!.texte }}</span>
+                  }
+                  @if (sc.revelation; as rv) {
+                    <span class="carte-geste" [class.gagne]="rv.gagnant === 'player'" [class.perd]="rv.gagnant && rv.gagnant !== 'player'">
+                      <small class="mono">Toi</small><strong class="disp">{{ labels[rv.player] }}</strong>
+                    </span>
                   }
                 </div>
-                <div class="info card">
-                  <div class="ligne"><strong class="disp">{{ m.f.card.name }}</strong><span class="mono">{{ m.f.hp }} / {{ m.f.card.hp }} PV</span></div>
-                  <div class="bar" role="img" [attr.aria-label]="'Tes points de vie : ' + m.f.hp"><i [style.width.%]="m.hpPct" [class.bas]="m.hpPct < 30"></i></div>
-                  <div class="ligne">
-                    <span class="pips" [attr.aria-label]="m.energy + ' énergies'">@for (on of m.pips; track $index) {<i [class.on]="on"></i>}</span>
-                    <span class="banc">@for (t of m.team; track t.card.id) {<i [class.ko]="!alive(t)"></i>}</span>
-                  </div>
-                </div>
               </div>
+              @if (sc.bandeau; as bd) {
+                <div class="bandeau" [class.de-eux]="bd.cote === 'machine'" role="status">
+                  @if (bd.icone) { <img [src]="bd.icone" alt="" width="30" height="30" /> }
+                  <span class="disp">{{ bd.texte }}</span>
+                </div>
+              }
             </div>
 
             <div class="commandes">
@@ -113,6 +131,9 @@
                 <p class="message">Manche 1. Choisis ton geste en secret : la machine choisit en même temps.</p>
               }
               <p class="humeur mono">La machine {{ mood() }}.</p>
+              @if (historique().length) {
+                <ol class="histo mono">@for (h of historique(); track $index) {<li>{{ h }}</li>}</ol>
+              }
             </div>
 
             <div class="gestes">

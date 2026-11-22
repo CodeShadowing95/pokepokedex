@@ -26,47 +26,41 @@ h1 { font-size: clamp(38px, 5vw, 64px); margin: 8px 0 16px; }
   .commandes .geste strong { font-size: 22px; }
 }
 .plateau { position: relative; display: grid; gap: 8px; padding: 22px; border: var(--trait); border-radius: 28px; background-color: var(--color-papier-fort); box-shadow: 8px 8px 0 var(--color-encre); }
-.cote { display: flex; align-items: center; gap: 24px; }
-.eux { justify-content: flex-end; }
-.info { flex: 0 1 360px; padding: 14px 18px; display: grid; gap: 8px; box-shadow: 4px 4px 0 var(--color-encre); border-radius: 18px; }
-.ligne { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.ligne strong { font-size: 22px; }
-.ligne .mono { font-size: 13px; }
-.bar > i { background: #4fae4a; }
-.bar > i.bas { background: var(--color-rouge); }
-.pips, .banc { display: flex; gap: 5px; }
-.pips i { width: 16px; height: 16px; border: 2px solid var(--color-encre); border-radius: 4px; background: #fff; transition: background 0.2s; }
-.pips i.on { background: var(--color-jaune); }
-.banc i { width: 14px; height: 14px; border: 2px solid var(--color-encre); border-radius: 50%; background: var(--color-rouge); }
-.banc i.ko { background: #fff; opacity: 0.5; }
+.plateau { grid-template-areas: 'eux' 'moi'; min-height: 440px; cursor: default; overflow: hidden; }
+.poste { display: flex; flex-direction: column; align-items: center; gap: 4px; transition: transform 0.25s var(--ease-ressort); }
+.poste.eux { grid-area: eux; justify-self: end; margin-right: 8%; }
+.poste.moi { grid-area: moi; justify-self: start; margin-left: 8%; }
+.poste.elan.moi { transform: translate(60px, -30px); }
+.poste.elan.eux { transform: translate(-60px, 30px); }
 .combattant { position: relative; width: 220px; height: 190px; display: grid; place-items: end center; }
+.combattant > app-effet { position: absolute; left: 50%; bottom: 36px; translate: -50% 0; z-index: 2; }
+.bouclier { opacity: 0.85; transition: opacity 0.3s; }
+.bouclier.brise { animation: briser 0.5s forwards; }
+@keyframes briser { 30% { transform: rotate(-6deg) scale(1.05); } to { transform: rotate(8deg) scale(0.6); opacity: 0; } }
+.tampon-scene { position: absolute; top: 6px; left: 50%; z-index: 4; padding: 5px 10px; border: 3px solid var(--color-rouge); border-radius: 6px; background: #fff; color: var(--color-rouge); font-size: 15px; font-weight: 700; white-space: nowrap; transform: translateX(-50%) rotate(-8deg); animation: frapper 0.35s var(--ease-ressort); }
+@keyframes frapper { from { transform: translateX(-50%) rotate(-20deg) scale(2); opacity: 0; } }
+.carte-geste { position: absolute; top: 30%; left: -104px; z-index: 3; display: grid; justify-items: center; gap: 2px; width: 96px; padding: 8px 6px; border: var(--trait); border-radius: 12px; background: #fff; box-shadow: 3px 3px 0 var(--color-encre); animation: retourner 0.45s var(--ease-ressort) both; }
+.carte-geste small { font-size: 10px; color: var(--color-encre-douce); }
+.carte-geste strong { font-size: 18px; }
+.carte-geste.gagne { background: var(--color-jaune); box-shadow: 3px 3px 0 var(--color-encre), 0 0 0 6px rgb(255 201 60 / 0.4); }
+.carte-geste.perd { opacity: 0.75; clip-path: polygon(0 0, 100% 0, 100% 100%, 58% 100%, 50% 60%, 42% 100%, 0 100%); }
+.moi .carte-geste { left: auto; right: -104px; animation-delay: 0.12s; }
+@keyframes retourner { from { transform: rotateY(90deg); } }
+.bandeau { position: absolute; left: -4%; right: -4%; top: 50%; z-index: 6; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 12px 20px; border-block: var(--trait); background: var(--color-encre); color: #fff; font-size: 24px; transform: translateY(-50%) rotate(-4deg); animation: glisser-g 0.35s var(--ease-ressort); }
+.bandeau.de-eux { transform: translateY(-50%) rotate(4deg); animation-name: glisser-d; }
+.bandeau img { border-radius: 50%; box-shadow: 0 0 0 2px #fff; }
+@keyframes glisser-g { from { translate: -100% 0; } }
+@keyframes glisser-d { from { translate: 100% 0; } }
+.histo { margin: 10px 0 0; padding: 10px 0 0 18px; border-top: 1.5px dashed var(--color-encre-douce); font-size: 11px; line-height: 1.5; color: var(--color-encre-douce); }
+.histo li:first-child { color: var(--color-encre); font-weight: 700; }
 .combattant img { position: relative; max-width: 190px; max-height: 160px; min-height: 90px; margin-bottom: 20px; object-fit: contain; object-position: bottom; image-rendering: pixelated; }
 .socle { position: absolute; bottom: 6px; left: 12%; width: 76%; height: 34px; border: var(--trait); border-radius: 50%; box-shadow: 0 5px 0 var(--color-encre); }
 /* Ombre de contact : le Pokémon pèse sur son socle. */
 .socle::after { content: ''; position: absolute; left: 22%; right: 22%; top: 30%; height: 40%; border-radius: 50%; background: rgb(30 35 64 / 0.35); filter: blur(2px); }
 .touche img { animation: secousse 0.5s 0.15s; }
 @keyframes secousse { 20% { transform: translateX(-12px) rotate(-4deg); filter: brightness(2); } 40% { transform: translateX(10px) rotate(3deg); } 60% { transform: translateX(-6px); filter: none; } 80% { transform: translateX(4px); } }
-.degats { position: absolute; top: 0; right: 0; font-size: 34px; color: var(--color-rouge); -webkit-text-stroke: 1.5px var(--color-encre); animation: monter 0.95s var(--ease-ressort) forwards; }
+.degats { position: absolute; top: 0; right: 0; z-index: 5; font-size: 34px; color: var(--color-rouge); -webkit-text-stroke: 1.5px var(--color-encre); animation: monter 0.95s var(--ease-ressort) forwards; }
 @keyframes monter { from { transform: translateY(24px) scale(0.5); opacity: 0; } 30% { opacity: 1; transform: translateY(-6px) scale(1.15); } to { transform: translateY(-34px); opacity: 0; } }
-
-/* Effets d'encre : une forme par famille de types, teintée par la couleur du type (--c). */
-.fx { position: absolute; inset: 0; pointer-events: none; }
-.fx::before, .fx::after { content: ''; position: absolute; }
-.fx.coup::before { left: 10%; right: 10%; top: 48%; height: 10px; background: var(--c); border-radius: 6px; transform: rotate(-28deg) scaleX(0); animation: trancher 0.45s var(--ease-ressort) forwards; }
-@keyframes trancher { 50% { transform: rotate(-28deg) scaleX(1.1); opacity: 1; } to { transform: rotate(-28deg) scaleX(1.2); opacity: 0; } }
-.fx.eclat::before { inset: 14%; background: var(--c); border: var(--trait); clip-path: polygon(50% 0, 62% 32%, 100% 22%, 74% 50%, 100% 78%, 62% 68%, 50% 100%, 38% 68%, 0 78%, 26% 50%, 0 22%, 38% 32%); animation: eclater 0.7s var(--ease-ressort) forwards; }
-@keyframes eclater { from { transform: scale(0.1) rotate(-30deg); } 55% { transform: scale(1.25) rotate(8deg); opacity: 1; } to { transform: scale(1.5) rotate(18deg); opacity: 0; } }
-.fx.vague::before, .fx.vague::after { left: -10%; width: 120%; height: 26px; border: var(--trait); border-radius: 999px; background: var(--c); animation: deferler 0.75s ease-out forwards; }
-.fx.vague::before { top: 30%; }
-.fx.vague::after { top: 56%; animation-delay: 0.1s; }
-@keyframes deferler { from { transform: translateX(-110%); } 60% { opacity: 1; } to { transform: translateX(110%); opacity: 0; } }
-.fx.foudre::before { left: 34%; top: -6%; width: 32%; height: 112%; background: var(--c); clip-path: polygon(55% 0, 100% 0, 62% 40%, 96% 40%, 18% 100%, 42% 54%, 8% 54%); animation: foudroyer 0.6s steps(2, jump-none) forwards; }
-@keyframes foudroyer { 0% { opacity: 0; } 15%, 45% { opacity: 1; } 30% { opacity: 0.2; } 100% { opacity: 0; transform: scaleY(1.06); } }
-.fx.gravats::before { left: 46%; top: 0; width: 18px; height: 18px; background: var(--c); border: 2px solid #1e2340; box-shadow: -64px 20px 0 -2px var(--c), 58px 34px 0 1px var(--c), -28px 52px 0 -4px var(--c), 30px -6px 0 -3px var(--c), -78px -8px 0 -5px var(--c); animation: tomber 0.7s cubic-bezier(0.5, 0, 1, 0.6) forwards; }
-@keyframes tomber { from { transform: translateY(-80px) rotate(0); opacity: 1; } 70% { opacity: 1; } to { transform: translateY(120px) rotate(160deg); opacity: 0; } }
-.fx.anneaux::before, .fx.anneaux::after { inset: 22%; border: 7px solid var(--c); border-radius: 50%; outline: 2px solid #1e2340; animation: onde 0.8s ease-out forwards; }
-.fx.anneaux::after { animation-delay: 0.16s; }
-@keyframes onde { from { transform: scale(0.2); opacity: 1; } to { transform: scale(1.7); opacity: 0; } }
 
 .journal { margin-top: 22px; padding: 16px 22px; border-radius: 18px; }
 .journal p { margin: 0; }
@@ -92,10 +86,19 @@ h1 { font-size: clamp(38px, 5vw, 64px); margin: 8px 0 16px; }
   .geste { align-items: center; padding: 10px 6px; text-align: center; border-radius: 14px; box-shadow: 3px 3px 0 var(--color-encre); }
   .geste strong { font-size: 16px; }
   .geste span { font-size: 11px; line-height: 1.2; }
-  .cote { flex-direction: column; }
   .commandes { display: contents; }
-  .info { flex: none; width: 100%; }
-  .cote .combattant { height: 160px; }
+  .plateau { min-height: 0; grid-template-areas: 'eux' 'moi'; }
+  .poste.eux, .poste.moi { justify-self: center; margin: 0; }
+  .carte-geste { left: -64px; width: 74px; padding: 6px 4px; }
+  .carte-geste strong { font-size: 14px; }
+  .moi .carte-geste { right: -64px; }
+  .poste.elan.moi { transform: translateY(-24px) scale(1.04); }
+  .poste.elan.eux { transform: translateY(24px) scale(1.04); }
+  .combattant { height: 160px; }
+  .bandeau { font-size: 17px; }
   .plateau { padding: 14px; }
-  .moi { flex-direction: column-reverse; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .poste, .carte-geste, .bandeau, .tampon-scene { animation: none; transition: none; }
 }

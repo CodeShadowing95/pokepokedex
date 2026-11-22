@@ -7,26 +7,32 @@ import { PlayerStore } from '../../core/player.store';
 import { PokedexService } from '../../core/pokedex.service';
 import { animated, artwork } from '../../core/pokemon';
 import { REGIONS, typeOf } from '../../core/types';
+import { sequence } from '../../core/game/sequence';
+import { EffetSprite } from '../../ui/effet-sprite';
+import { Etiquette } from '../../ui/etiquette';
 
 type Phase = 'prep' | 'fight' | 'end';
-/** Cinq gestes d'encre : chaque type en utilise un, teinté de sa couleur. */
-type FxShape = 'eclat' | 'vague' | 'foudre' | 'gravats' | 'anneaux' | 'coup';
-const SHAPES: Record<string, FxShape> = {
-  normal: 'eclat', combat: 'eclat', feu: 'eclat', dragon: 'eclat',
-  eau: 'vague', glace: 'vague', vol: 'vague',
-  electrik: 'foudre', acier: 'foudre',
-  roche: 'gravats', sol: 'gravats', insecte: 'gravats', plante: 'gravats',
-  psy: 'anneaux', fee: 'anneaux', spectre: 'anneaux', tenebres: 'anneaux', poison: 'anneaux',
-};
 const LABELS: Record<Action, string> = { frappe: 'Frappe', tech: 'Technique', garde: 'Garde' };
 const KO_XP = 40;
 const PLAY_XP = 10;
+const fr = (n: number) => String(n).replace('.', ',');
 
-interface Fx { target: Who; shape: FxShape; color: string; amount: number }
+/** Ce que la scène montre pendant la mise en scène d'un tour. */
+interface Scene {
+  revelation: { player: Action; machine: Action; gagnant: Who | null } | null;
+  bandeau: { texte: string; cote: Who | null; icone: string | null } | null;
+  elan: Who | null;
+  effet: { cible: Who; nom: string; cle: number } | null;
+  tampon: { cible: Who; texte: string } | null;
+  degats: { cible: Who; montant: number; cle: number } | null;
+  gardes: Who[];
+  brise: Who | null;
+}
+const SCENE_VIDE: Scene = { revelation: null, bandeau: null, elan: null, effet: null, tampon: null, degats: null, gardes: [], brise: null };
 
 @Component({
   selector: 'app-arene',
-  imports: [RouterLink],
+  imports: [RouterLink, EffetSprite, Etiquette],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './arene.html',
   styleUrl: './arene.css',
@@ -43,7 +49,12 @@ export class Arene {
   protected readonly duel = signal<DuelState | null>(null);
   protected readonly report = signal<TurnReport | null>(null);
   protected readonly busy = signal(false);
-  protected readonly fx = signal<Fx[]>([]);
+  protected readonly scene = signal<Scene>(SCENE_VIDE);
+  /** Dégâts déjà montrés pendant la mise en scène, avant d'appliquer le nouvel état. */
+  private readonly encaisse = signal<Record<Who, number>>({ player: 0, machine: 0 });
+  protected readonly historique = signal<string[]>([]);
+  private vitesse = 1;
+  private cle = 0;
   protected readonly gains = signal<{ name: string; xp: number; level: number; leveled: boolean }[]>([]);
   private kos: Record<number, number> = {};
   private rival: Card[] | null = null;
@@ -94,10 +105,12 @@ export class Arene {
     const d = this.duel();
     if (!d) return null;
     const side = d[who], f = active(side);
+    const hp = Math.max(0, f.hp - this.encaisse()[who]);
     return {
-      f, energy: side.energy, team: side.team,
+      f, hp, energy: side.energy, team: side.team,
+      vivants: side.team.map((t) => t.hp > 0),
       pips: Array.from({ length: d.rules.maxEnergy }, (_, i) => i < side.energy),
-      hpPct: (f.hp / f.card.hp) * 100,
+      hpPct: (hp / f.card.hp) * 100,
       ink: typeOf(f.card.types[0]),
       techInk: typeOf(f.card.tech.type),
       sprite: animated(f.card.id, who === 'player'),
@@ -107,7 +120,6 @@ export class Arene {
   protected art(card: Card): string { return artwork(card.id); }
   protected ink(card: Card) { return typeOf(card.types[0]); }
   protected alive(f: Fighter): boolean { return f.hp > 0; }
-  protected fxOn(who: Who): Fx | undefined { return this.fx().find((f) => f.target === who); }
 
   /** Certains Pokémon récents n'ont pas de sprite animé : on retombe sur l'illustration. */
   protected fallback(event: Event, id: number): void {
@@ -123,6 +135,8 @@ export class Arene {
   protected start(): void {
     this.kos = {};
     this.report.set(null);
+    this.historique.set([]);
+    this.scene.set(SCENE_VIDE);
     this.duel.set(createDuel(this.myCards(), this.theirCards()));
     this.phase.set('fight');
   }
@@ -131,29 +145,69 @@ export class Arene {
     const state = this.duel();
     if (!state || this.busy() || state.winner) return;
     const machine = chooseMachineAction(state, Math.random, this.challenge()?.skill ?? 0.6);
-    const before = { p: active(state.player).card, m: active(state.machine).card };
+    const before = { player: active(state.player).card, machine: active(state.machine).card };
     const { state: next, report } = resolve(state, action, machine);
     if (report.scorer) this.kos[report.scorer] = (this.kos[report.scorer] ?? 0) + 1;
-
-    // 1. On montre les deux choix et l'effet d'encre. 2. Les PV descendent. 3. La main revient au joueur.
     this.busy.set(true);
-    this.report.set(report);
-    const effects: Fx[] = [];
-    if (report.toMachine) effects.push(this.makeFx('machine', report.player, before.p, report.toMachine));
-    if (report.toPlayer) effects.push(this.makeFx('player', report.machine, before.m, report.toPlayer));
-    this.fx.set(effects);
-    setTimeout(() => this.duel.set(next), 420);
-    setTimeout(() => {
-      this.fx.set([]);
-      this.busy.set(false);
-      if (next.winner) this.finish(next.winner === 'player');
-    }, 1050);
+    this.vitesse = 1;
+    void this.mettreEnScene(state.turn, before, next, report);
   }
 
-  private makeFx(target: Who, action: Action, attacker: Card, amount: number): Fx {
-    if (action !== 'tech') return { target, shape: 'coup', color: '#1E2340', amount };
-    const type = typeOf(attacker.tech.type);
-    return { target, shape: SHAPES[type.key], color: type.color, amount };
+  /** Un clic sur la scène accélère la mise en scène en cours. */
+  protected accelerer(): void {
+    if (this.busy()) this.vitesse = 0.15;
+  }
+
+  private attendre(ms: number): Promise<void> {
+    return new Promise((ok) => setTimeout(ok, ms * this.vitesse));
+  }
+
+  private maj(p: Partial<Scene>): void {
+    this.scene.update((s) => ({ ...s, ...p }));
+  }
+
+  /** Révélation des deux gestes, puis pour chaque coup : bandeau, élan, effet, tampon et dégâts. */
+  private async mettreEnScene(manche: number, before: Record<Who, Card>, next: DuelState, report: TurnReport): Promise<void> {
+    const reduit = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const seq = sequence(report);
+    const gardes = (['player', 'machine'] as Who[]).filter((w) => report[w] === 'garde');
+    this.maj({ gardes });
+    if (!reduit) {
+      this.maj({ revelation: { player: report.player, machine: report.machine, gagnant: seq.gagnant } });
+      await this.attendre(1000);
+    }
+    const lignes: string[] = [];
+    for (const c of seq.coups) {
+      const carte = before[c.attaquant];
+      const tech = c.action === 'tech' ? typeOf(carte.tech.type) : null;
+      this.maj({ revelation: null, bandeau: { texte: tech ? `${carte.name} lance ${carte.tech.name} !` : `${carte.name} frappe !`, cote: c.attaquant, icone: tech?.icon ?? null } });
+      await this.attendre(reduit ? 900 : 700);
+      this.maj({ bandeau: reduit ? this.scene().bandeau : null, elan: reduit ? null : c.attaquant, effet: reduit ? null : { cible: c.cible, nom: tech?.key ?? 'impact', cle: ++this.cle } });
+      await this.attendre(260);
+      if (c.tampon) this.maj({ tampon: { cible: c.cible, texte: c.tampon }, brise: c.tampon === 'GARDE PERCÉE !' ? c.cible : null });
+      if (c.degats > 0) {
+        this.encaisse.update((e) => ({ ...e, [c.cible]: e[c.cible] + c.degats }));
+        this.maj({ degats: { cible: c.cible, montant: c.degats, cle: ++this.cle } });
+      }
+      await this.attendre(900);
+      this.maj({ elan: null, effet: null, tampon: null, degats: null, bandeau: null });
+      const geste = tech ? `${carte.tech.name}${c.efficacite !== 1 ? ' ×' + fr(c.efficacite) : ''}` : 'Frappe';
+      lignes.push(`${carte.name} · ${geste} · ${c.degats > 0 ? '−' + c.degats + ' PV' : c.tampon === 'PARÉ !' ? 'paré' : 'sans effet'}`);
+    }
+    if (seq.note) {
+      this.maj({ bandeau: { texte: seq.note, cote: null, icone: null } });
+      await this.attendre(900);
+      lignes.push('Deux Gardes · on recharge');
+    }
+    if (report.koMachine) lignes.push(`${before.machine.name} K.O.`);
+    if (report.koPlayer) lignes.push(`${before.player.name} K.O.`);
+    this.historique.update((h) => [`Manche ${manche} : ${lignes.join(' ; ')}`, ...h].slice(0, 6));
+    this.scene.set(SCENE_VIDE);
+    this.encaisse.set({ player: 0, machine: 0 });
+    this.duel.set(next);
+    this.report.set(report);
+    this.busy.set(false);
+    if (next.winner) this.finish(next.winner === 'player');
   }
 
   private finish(won: boolean): void {
