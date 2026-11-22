@@ -1,0 +1,155 @@
+@if (!myCards().length) {
+  <section class="page vide">
+    <div class="card pad">
+      <p class="eyebrow">Arène · Duel Éclair</p>
+      <h1>Il te faut une première carte.</h1>
+      <p>Choisis ton premier Pokémon : il arrive avec deux compagnons, de quoi former une équipe de trois.</p>
+      <a class="btn" routerLink="/bienvenue">Choisir mon premier Pokémon</a>
+    </div>
+  </section>
+} @else {
+  @switch (phase()) {
+    @case ('prep') {
+      <section class="page prep">
+        <p class="eyebrow">{{ challenge()?.subtitle ?? 'Duel libre' }}</p>
+        <h1>{{ challenge()?.title ?? 'Duel Éclair' }}</h1>
+        <div class="face">
+          <div class="camp">
+            <h2>Ton équipe</h2>
+            <div class="rangee">
+              @for (c of myCards(); track c.id) {
+                <div class="carte" [style.--encre-type]="ink(c).color">
+                  <div class="haut dots"><img [src]="art(c)" [alt]="c.name" width="120" height="120" /></div>
+                  <strong class="disp">{{ c.name }}</strong>
+                  <span class="mono">PV {{ c.hp }} · ATQ {{ c.atk }} · VIT {{ c.spd }}</span>
+                  <span class="tech">{{ c.tech.name }} · {{ c.tech.cost }} én.</span>
+                </div>
+              }
+            </div>
+            <a class="lien" routerLink="/equipe">Changer mon équipe</a>
+          </div>
+          <span class="vs disp" aria-hidden="true">VS</span>
+          <div class="camp">
+            <h2>{{ challenge() ? 'Son équipe' : 'La machine' }}</h2>
+            <div class="rangee">
+              @for (c of theirCards(); track c.id) {
+                <div class="carte" [style.--encre-type]="ink(c).color">
+                  <div class="haut dots"><img [src]="art(c)" [alt]="c.name" width="120" height="120" /></div>
+                  <strong class="disp">{{ c.name }}</strong>
+                  <span class="mono">PV {{ c.hp }} · ATQ {{ c.atk }} · VIT {{ c.spd }}</span>
+                  <span class="tech">{{ c.tech.name }} · {{ c.tech.cost }} én.</span>
+                </div>
+              }
+            </div>
+            @if (!challenge()) {
+              <button type="button" class="lien" (click)="reroll()">Un autre adversaire</button>
+            }
+          </div>
+        </div>
+        <button type="button" class="btn" [disabled]="!theirCards().length" (click)="start()">Commencer le duel</button>
+
+        <div class="regles card">
+          <h3>Les règles en vingt secondes</h3>
+          <ul>
+            <li><strong>Frappe</strong> perce la Garde (dégâts ×1,5).</li>
+            <li><strong>Technique</strong> écrase la Frappe. Elle coûte de l’énergie, et c’est la seule à jouer avec les types.</li>
+            <li><strong>Garde</strong> absorbe la Technique et rend 2 énergies.</li>
+            <li>Même geste des deux côtés : les deux touchent, le plus rapide d’abord.</li>
+          </ul>
+        </div>
+      </section>
+    }
+
+    @case ('fight') {
+      @if (me(); as m) {
+        @if (foe(); as f) {
+          <section class="page duel-zone">
+            <div class="plateau dots">
+              <div class="cote eux">
+                <div class="info card">
+                  <div class="ligne"><strong class="disp">{{ f.f.card.name }}</strong><span class="mono">{{ f.f.hp }} / {{ f.f.card.hp }} PV</span></div>
+                  <div class="bar" role="img" [attr.aria-label]="'Points de vie adverses : ' + f.f.hp"><i [style.width.%]="f.hpPct" [class.bas]="f.hpPct < 30"></i></div>
+                  <div class="ligne">
+                    <span class="pips" [attr.aria-label]="f.energy + ' énergies'">@for (on of f.pips; track $index) {<i [class.on]="on"></i>}</span>
+                    <span class="banc">@for (t of f.team; track t.card.id) {<i [class.ko]="!alive(t)"></i>}</span>
+                  </div>
+                </div>
+                <div class="combattant" [class.touche]="fxOn('machine')">
+                  <span class="socle" [style.background]="f.ink.color"></span>
+                  <img [src]="f.sprite" [alt]="f.f.card.name" (error)="fallback($event, f.f.card.id)" />
+                  @if (fxOn('machine'); as e) {
+                    <span class="fx" [class]="'fx ' + e.shape" [style.--c]="e.color"></span>
+                    <span class="degats disp">−{{ e.amount }}</span>
+                  }
+                </div>
+              </div>
+
+              <div class="cote moi">
+                <div class="combattant" [class.touche]="fxOn('player')">
+                  <span class="socle" [style.background]="m.ink.color"></span>
+                  <img [src]="m.sprite" [alt]="m.f.card.name" (error)="fallback($event, m.f.card.id)" />
+                  @if (fxOn('player'); as e) {
+                    <span class="fx" [class]="'fx ' + e.shape" [style.--c]="e.color"></span>
+                    <span class="degats disp">−{{ e.amount }}</span>
+                  }
+                </div>
+                <div class="info card">
+                  <div class="ligne"><strong class="disp">{{ m.f.card.name }}</strong><span class="mono">{{ m.f.hp }} / {{ m.f.card.hp }} PV</span></div>
+                  <div class="bar" role="img" [attr.aria-label]="'Tes points de vie : ' + m.f.hp"><i [style.width.%]="m.hpPct" [class.bas]="m.hpPct < 30"></i></div>
+                  <div class="ligne">
+                    <span class="pips" [attr.aria-label]="m.energy + ' énergies'">@for (on of m.pips; track $index) {<i [class.on]="on"></i>}</span>
+                    <span class="banc">@for (t of m.team; track t.card.id) {<i [class.ko]="!alive(t)"></i>}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="journal card" aria-live="polite">
+              @if (report(); as r) {
+                <p class="choix mono">Toi : {{ labels[r.player] }} · Machine : {{ labels[r.machine] }}</p>
+                <p class="message">{{ r.message }}</p>
+              } @else {
+                <p class="message">Manche 1. Choisis ton geste en secret : la machine choisit en même temps.</p>
+              }
+              <p class="humeur mono">La machine {{ mood() }}.</p>
+            </div>
+
+            <div class="gestes">
+              <button type="button" class="geste" [disabled]="busy()" (click)="play('frappe')">
+                <strong class="disp">Frappe</strong><span>Perce la Garde, dégâts ×1,5</span>
+              </button>
+              <button type="button" class="geste tech" [disabled]="busy() || !techReady()" [style.--c]="m.techInk.color" [style.--t]="m.techInk.text" (click)="play('tech')">
+                <strong class="disp">{{ m.f.card.tech.name }}</strong><span>Technique {{ m.techInk.label }} · {{ m.f.card.tech.cost }} énergie{{ m.f.card.tech.cost > 1 ? 's' : '' }}</span>
+              </button>
+              <button type="button" class="geste" [disabled]="busy()" (click)="play('garde')">
+                <strong class="disp">Garde</strong><span>Absorbe la Technique, +2 énergies</span>
+              </button>
+            </div>
+          </section>
+        }
+      }
+    }
+
+    @case ('end') {
+      <section class="page fin">
+        <div class="card pad" [class.gagne]="won()">
+          <p class="eyebrow">{{ challenge()?.title ?? 'Duel libre' }}</p>
+          <h1>{{ won() ? 'Victoire !' : 'Défaite.' }}</h1>
+          <p>{{ won() ? 'La machine n’a pas su te lire. +60 XP de dresseur et 40 poussière.' : 'Elle t’a lu cette fois. +15 XP de dresseur : varie tes gestes.' }}</p>
+          <ul class="gains">
+            @for (g of gains(); track g.name) {
+              <li><strong>{{ g.name }}</strong><span class="mono">+{{ g.xp }} XP</span>@if (g.leveled) {<span class="chip on">Niveau {{ g.level }}</span>}</li>
+            }
+          </ul>
+          <div class="actions">
+            <button type="button" class="btn" (click)="again()">{{ won() && challenge() ? 'Rejouer cette arène' : 'Revanche' }}</button>
+            <a class="btn ghost" routerLink="/cartes">Voir mes cartes</a>
+            @if (challenge()) {
+              <a class="btn ghost" routerLink="/campagne">Retour à la campagne</a>
+            }
+          </div>
+        </div>
+      </section>
+    }
+  }
+}

@@ -1,27 +1,69 @@
-# Test
+# Pokédex · papier & encre
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.1.1.
+Les 1 025 Pokémon en français, un duel de cartes contre la machine et une collection qui grandit chaque jour.
+Site de fans, sans but commercial.
 
-## Development server
+## Démarrer
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+```bash
+npm install
+npm start        # http://localhost:4200
+npm test         # tests unitaires (Vitest)
+npm run build    # version de production dans dist/
+```
 
-## Code scaffolding
+Il faut Node.js 22 ou plus récent.
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Ce que contient le site
 
-## Build
+| Page | Adresse | Rôle |
+| --- | --- | --- |
+| Accueil | `/` | Scène animée, type du jour, accès aux jeux |
+| Pokédex | `/pokedex` | Recherche, filtres par type, région et collection, défilement infini |
+| Fiche | `/pokemon/:id` | Description, statistiques, cri, chromatique, signature de mouvement, lignée |
+| Bienvenue | `/bienvenue` | Choix du premier Pokémon, par région |
+| Arène | `/arene` | Duel Éclair contre la machine (Frappe, Technique, Garde) |
+| Campagne | `/campagne` | 9 régions, 8 arènes mono-type et une Ligue par région |
+| Mes cartes | `/cartes` | Collection, expérience et évolution des cartes |
+| Équipe | `/equipe` | Choix des trois cartes et couverture des 18 types |
+| Mon QG | `/qg` | Booster du jour, quêtes, série, Pokémon mystère, Devine le cri, badges |
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+## D'où viennent les données
 
-## Running unit tests
+Tout vient de [PokéAPI](https://pokeapi.co), projet libre et sans clé.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+- `npm run data` lit les fichiers CSV officiels de PokéAPI sur GitHub et fabrique deux fichiers statiques :
+  `public/data/pokedex.json` (l'index des 1 025 Pokémon) et `public/data/details.json` (descriptions et talents).
+  Ces fichiers sont livrés avec le site : aucune API n'est appelée pendant la navigation, donc la liste,
+  la recherche et le jeu sont instantanés.
+- Les images, sprites animés et cris sont chargés depuis les dépôts GitHub `PokeAPI/sprites` et `PokeAPI/cries`.
+- Relancer `npm run data` suffit pour intégrer de nouveaux Pokémon.
 
-## Running end-to-end tests
+La progression du joueur (cartes, série, quêtes) est enregistrée dans le navigateur (`localStorage`).
+Il n'y a ni compte ni serveur.
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+## Organisation du code
 
-## Further help
+```
+scripts/build-data.mjs     fabrique les fichiers de données
+public/data/               données générées
+src/styles.css             charte graphique : couleurs, polices, boutons, cartes, mouvements
+src/app/core/              logique sans interface : types, données, joueur, mouvement
+src/app/core/game/         cartes, moteur du duel, campagne (fonctions pures, testées)
+src/app/ui/                petits composants réutilisés (pastille de type, carte de Pokémon)
+src/app/pages/             une page par dossier
+```
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+## Charte graphique
+
+Papier `#F5F0E6`, encre `#1E2340`, rouge `#D63A26`, jaune `#FFC93C`, une encre par type.
+Titres en Bricolage Grotesque, texte en DM Sans, données en Space Mono.
+Contours de 2,5 px, ombres dures sans flou, animations à ressort, respect de « réduire les animations ».
+
+Ce qu'on ne fait pas : pas de dégradés violets, pas de fond noir partout, pas de glassmorphism,
+pas d'illustrations 3D génériques.
+
+## Mentions
+
+Pokémon et les noms de Pokémon sont des marques de Nintendo, Game Freak et Creatures.
+Ce site n'est ni affilié ni approuvé par eux.

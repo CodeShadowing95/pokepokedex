@@ -1,168 +1,272 @@
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&family=Palanquin:wght@100;200;300;400;500;600;700&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Palanquin:wght@100;200;300;400;500;600;700&display=swap");
+@import 'tailwindcss';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/*
+ * Charte « papier & encre ».
+ * Les jetons ci-dessous deviennent des classes Tailwind (bg-papier, text-encre, font-titre…)
+ * et des variables CSS (var(--color-encre)). On ne choisit jamais une couleur ailleurs qu'ici.
+ */
+@theme {
+  --color-papier: #f5f0e6;
+  --color-papier-fort: #eae2d2;
+  --color-encre: #1e2340;
+  --color-encre-douce: #5b5f78;
+  --color-rouge: #d63a26;
+  --color-jaune: #ffc93c;
 
-* {
-    font-family: Montserrat, Palanquin, "Helvetica Neue", sans-serif;
-}
+  --font-titre: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-texte: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, monospace;
 
-body {
-  background-color: #000;
-}
-
-body {
-    --sb-track-color: #232E33;
-    --sb-thumb-color: #6b7280;
-    --sb-size: 10px;
-}
-  
-body::-webkit-scrollbar {
-    width: var(--sb-size)
-}
-
-body::-webkit-scrollbar-track {
-    background: var(--sb-track-color);
-    border-radius: 10px;
-}
-
-body::-webkit-scrollbar-thumb {
-    background: var(--sb-thumb-color);
-    border-radius: 10px;
-}
-
-@supports not selector(::-webkit-scrollbar) {
-    body {
-        scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
-    }
-}
-
-/* CUSTOM SCROLLBAR */
-.custom-scrollbar {
-    --sb-track-color: #232E33;
-    --sb-thumb-color: #6b7280;
-    --sb-size: 0;
-}
-  
-.custom-scrollbar::-webkit-scrollbar {
-    width: var(--sb-size)
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: var(--sb-track-color);
-    border-radius: 3px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: var(--sb-thumb-color);
-    border-radius: 3px;
-}
-
-@supports not selector(::-webkit-scrollbar) {
-    .custom-scrollbar {
-        scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
-    }
-}
-
-.red-gradient {
-  background: linear-gradient(92deg, #ff5956 2.87%, #ee1e38 96.18%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.black-gradient {
-    background: #000000; /* fallback for old browsers */
-    background: -webkit-linear-gradient(
-        to right,
-        #434343,
-        #000000
-    ); /* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient(
-        to right,
-        #434343,
-        #000000
-    ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  --ease-ressort: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 :root {
-  color-scheme: dark;
+  --trait: 2.5px solid var(--color-encre);
 }
 
-@layer utilities {
-    .btn {
-        @apply absolute min-[450px]:top-0 min-[450px]:right-0 -top-12 py-2 px-2 flex justify-center items-center gap-2 bg-red-800 hover:bg-opacity-70 rounded-lg text-white text-lg font-semibold;
-    }
+html {
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  background: var(--color-papier);
+  color: var(--color-encre);
+  font-family: var(--font-texte);
+  font-size: 17px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, .disp {
+  font-family: var(--font-titre);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+}
+.mono {
+  font-family: var(--font-mono);
+}
+a {
+  color: inherit;
+}
+:focus-visible {
+  outline: 3px solid var(--color-rouge);
+  outline-offset: 3px;
+}
+img {
+  max-width: 100%;
+}
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
 
-    .sub_btn {
-        @apply py-2 px-2 flex justify-center items-center gap-2 bg-red-800 hover:bg-opacity-70 rounded-lg text-white text-lg font-semibold;
-    }
+.page {
+  width: min(1240px, 100% - 40px);
+  margin-inline: auto;
+}
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-encre-douce);
+}
 
-    .section-text {
-      @apply text-white text-[28px] font-bold;
-    }
+/* ---- Motifs ------------------------------------------------------------- */
+.dots {
+  background-image: radial-gradient(rgba(30, 35, 64, 0.22) 1.3px, transparent 1.5px);
+  background-size: 12px 12px;
+}
 
-    /* START: Pokemon Card styles */
-    .poke-card {
-        @apply relative flex flex-col p-6 justify-center items-start text-white bg-slate-900 hover:bg-slate-800 hover:shadow-lg hover:shadow-gray-600 rounded-3xl transition-all;
-    }
+/* ---- Bouton tampon ------------------------------------------------------ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 0 26px;
+  border: var(--trait);
+  border-radius: 999px;
+  background: var(--color-rouge);
+  color: #fff;
+  font-weight: 700;
+  font-size: 16px;
+  text-decoration: none;
+  box-shadow: 5px 5px 0 var(--color-encre);
+  transition: transform 0.28s var(--ease-ressort), box-shadow 0.28s var(--ease-ressort);
+}
+.btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 7px 7px 0 var(--color-encre);
+}
+.btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: 2px 2px 0 var(--color-encre);
+}
+.btn.ghost {
+  background: var(--color-papier);
+  color: var(--color-encre);
+}
+.btn.ghost:hover {
+  background: #fff;
+}
+.btn.jaune {
+  background: var(--color-jaune);
+  color: var(--color-encre);
+}
+.btn.sm {
+  min-height: 42px;
+  padding: 0 18px;
+  font-size: 14px;
+  box-shadow: 4px 4px 0 var(--color-encre);
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 3px 3px 0 var(--color-encre);
+}
 
-    .poke-card__content {
-        @apply w-full flex justify-between items-start gap-2;
-    }
+/* ---- Pastilles ---------------------------------------------------------- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 13px;
+  border: 2px solid var(--color-encre);
+  border-radius: 999px;
+  background: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+}
+button.chip {
+  transition: transform 0.2s var(--ease-ressort);
+}
+button.chip:hover {
+  transform: translateY(-2px);
+}
+.chip.on {
+  background: var(--color-encre);
+  color: #fff;
+}
 
-    .poke-card__content-title {
-        @apply text-[22px] leading-[26px] font-bold capitalize;
-    }
+/* ---- Cartes ------------------------------------------------------------- */
+.card {
+  border: var(--trait);
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 6px 6px 0 var(--color-encre);
+}
+.pc {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: var(--trait);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 5px 5px 0 var(--color-encre);
+  overflow: hidden;
+  text-decoration: none;
+  transition: transform 0.3s var(--ease-ressort), box-shadow 0.3s var(--ease-ressort);
+  animation: pop 0.45s var(--ease-ressort) backwards;
+}
+.pc:hover {
+  transform: translate(-3px, -4px) rotate(-1.2deg);
+  box-shadow: 9px 9px 0 var(--color-encre);
+}
+.pc .art {
+  position: relative;
+  height: 160px;
+  border-bottom: var(--trait);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pc .art img {
+  width: 140px;
+  height: 140px;
+  object-fit: contain;
+  transition: transform 0.35s var(--ease-ressort);
+}
+.pc:hover .art img {
+  transform: scale(1.14) translateY(-6px);
+}
+.pc.unknown .art img {
+  filter: brightness(0) opacity(0.82);
+}
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.94);
+  }
+}
 
-    .poke-card__image {
-        @apply relative w-full h-40 my-3 object-contain;
-    }
+.field {
+  height: 52px;
+  padding: 0 20px;
+  border: var(--trait);
+  border-radius: 999px;
+  background: #fff;
+  font: inherit;
+  color: inherit;
+  box-shadow: 4px 4px 0 var(--color-encre);
+}
+.bar {
+  height: 14px;
+  border: 2px solid var(--color-encre);
+  border-radius: 999px;
+  background: #fff;
+  overflow: hidden;
+}
+.bar > i {
+  display: block;
+  height: 100%;
+  background: var(--color-encre);
+  transition: width 0.45s var(--ease-ressort);
+}
 
-    .poke-card__icon-container {
-        @apply flex group-hover:invisible w-full justify-between text-gray-50;
-    }
+/* ---- Signatures de mouvement (voir core/motion.ts) ---------------------- */
+.g-respire { animation: g-respire var(--periode, 4s) ease-in-out infinite; transform-origin: 50% 100%; }
+.g-plane { animation: g-plane var(--periode, 4s) ease-in-out infinite; }
+.g-flotte { animation: g-flotte var(--periode, 4s) ease-in-out infinite; }
+.g-vif { animation: g-vif var(--periode, 2s) var(--ease-ressort) infinite; }
+.g-bondit { animation: g-bondit var(--periode, 2s) cubic-bezier(0.3, 0, 0.5, 1) infinite; transform-origin: 50% 100%; }
+.g-ondule { animation: g-ondule var(--periode, 4s) ease-in-out infinite; }
+.g-nage { animation: g-nage var(--periode, 4s) ease-in-out infinite; }
+@keyframes g-respire { 50% { transform: scale(1.03, 0.97); } }
+@keyframes g-plane { 25% { transform: translate(8px, -14px) rotate(2deg); } 50% { transform: translate(0, -20px); } 75% { transform: translate(-8px, -10px) rotate(-2deg); } }
+@keyframes g-flotte { 0%, 100% { opacity: 1; } 40% { transform: translateY(-16px); opacity: 0.55; } 70% { transform: translate(6px, -8px); opacity: 0.9; } }
+@keyframes g-vif { 0%, 55%, 100% { transform: none; } 62% { transform: translateX(26px) skewX(-8deg); } 70% { transform: translateX(-18px) skewX(6deg); } 78% { transform: none; } }
+@keyframes g-bondit { 0%, 100% { transform: scale(1.06, 0.94); } 20% { transform: translateY(-26px) scale(0.96, 1.05); } 40% { transform: scale(1.06, 0.94); } 55% { transform: translateY(-10px); } 70% { transform: none; } }
+@keyframes g-ondule { 25% { transform: translateX(8px) skewX(4deg); } 75% { transform: translateX(-8px) skewX(-4deg); } }
+@keyframes g-nage { 25% { transform: translate(10px, -6px) rotate(-4deg); } 75% { transform: translate(-10px, 6px) rotate(4deg); } }
 
-    .poke-card__icon {
-        @apply flex flex-col justify-center items-center gap-2;
-    }
+.float { animation: flotter 5s ease-in-out infinite; }
+@keyframes flotter { 50% { transform: translateY(-12px); } }
+.pulse { animation: pulser 1.6s ease-in-out infinite; }
+@keyframes pulser { 50% { transform: scale(1.06); } }
 
-    .poke-card__icon-text {
-        @apply text-[14px] leading-[17px];
-    }
+/* La charte l'exige : quand la personne a demandé moins d'animations, tout s'arrête. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 
-    .poke-card__btn-container {
-        @apply hidden group-hover:flex absolute bottom-0 w-full z-10;
-    }
-    /* END: Pokemon Card styles */
-
-
-    /* START: Pokemon Detail style */
-    .pokedetail-container {
-        @apply flex flex-col gap-16 flex-wrap px-6 md:px-20 py-6 my-auto;
-    }
-
-    .pokemon-image {
-        @apply flex /*flex-grow*/ xl:max-w-[50%] max-w-full py-16 border border-[#CDDBFF] rounded-[17px];
-    }
-
-    .pokemon-info_card {
-        @apply flex-1 min-w-[200px] flex flex-col gap-2 border-l-[3px] rounded-lg bg-slate-700 px-5 py-4;
-    }
-    /* END: Pokemon Detail style */
-
-    /* SEARCHBAR INPUT */
-    .searchbar-input {
-        @apply flex-1 bg-slate-800 min-w-[200px] w-full p-3 border border-gray-500 rounded-lg shadow-sm text-base text-gray-200 focus:outline-none;
-    }
-
-    .searchbar-btn {
-        @apply  bg-gray-500 border border-gray-900 rounded-lg shadow-sm px-5 py-3 text-white text-base font-semibold hover:opacity-90 disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-40;
-    }
-    
-    .footer__copyrights-link {
-        @apply flex-1 flex sm:justify-end justify-center max-sm:mt-4 gap-10 flex-wrap;
-    }
+/* Texte lu par les lecteurs d'écran mais invisible à l'œil. */
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

@@ -1,0 +1,133 @@
+<section class="page tete">
+  <p class="eyebrow">Mon QG</p>
+  <h1>Niveau {{ player.level() }}</h1>
+  <div class="niveau">
+    <span class="bar" role="img" [attr.aria-label]="'Progression vers le niveau suivant : ' + player.levelProgress() + ' %'"><i [style.width.%]="player.levelProgress()"></i></span>
+    <span class="mono">{{ player.ownedCount() }} cartes · {{ player.seenCount() }} vus · {{ player.snapshot().wins }} victoires · {{ player.dust() }} poussière</span>
+  </div>
+</section>
+
+<section class="page grille">
+  <article class="card pad serie">
+    <p class="eyebrow">Série</p>
+    <h2>{{ player.streak() }} jour{{ player.streak() > 1 ? 's' : '' }} d’affilée</h2>
+    <div class="semaine" aria-hidden="true">
+      @for (on of week(); track $index) {
+        <i [class.on]="on"></i>
+      }
+    </div>
+    <p class="petit">Un joker par semaine : si tu manques un jour, ta série continue quand même.</p>
+  </article>
+
+  <article class="card pad booster-zone">
+    <p class="eyebrow">Booster du jour</p>
+    @if (pulls().length) {
+      <h2>Tes cinq cartes</h2>
+      <div class="tirage">
+        @for (p of pulls(); track $index; let i = $index) {
+          <a class="tire" [routerLink]="['/pokemon', p.pokemon.id]" [style.animation-delay.ms]="i * 220" [class.brille]="p.shiny">
+            <span class="img dots" [style.background-color]="p.ink"><img [src]="p.art" [alt]="p.pokemon.name" width="96" height="96" /></span>
+            <strong>{{ p.pokemon.name }}</strong>
+            <span class="mono">{{ p.shiny ? 'Chromatique' : p.rarity }}</span>
+            <span class="mono etat">{{ p.isNew ? 'Nouvelle' : 'Doublon · +20' }}</span>
+          </a>
+        }
+      </div>
+    } @else if (player.boosterReady()) {
+      <h2>Cinq cartes t’attendent</h2>
+      <p class="petit">Une peu commune au minimum. Une chance sur quarante qu’une carte soit chromatique.</p>
+      <button type="button" class="paquet pulse" (click)="open()"><span class="disp">Ouvrir</span></button>
+    } @else {
+      <h2>Déjà ouvert aujourd’hui</h2>
+      <p>Le prochain booster arrive demain. Reviens pour garder ta série.</p>
+    }
+  </article>
+
+  <article class="card pad">
+    <p class="eyebrow">Quêtes du jour</p>
+    <ul class="quetes">
+      @for (q of quests(); track q.id) {
+        <li [class.fait]="q.done">
+          <span class="coche" aria-hidden="true">{{ q.done ? '✓' : '' }}</span>
+          <span class="texte"><strong>{{ q.label }}</strong><span class="mono">{{ q.progress }} / {{ q.goal }} · {{ q.reward }}</span></span>
+        </li>
+      }
+    </ul>
+    <a class="lien" routerLink="/pokedex" [queryParams]="{ type: dailyType.id }">Voir les Pokémon {{ dailyType.label }}</a>
+  </article>
+
+  <article class="card pad mystere" id="mystere">
+    <p class="eyebrow">Qui est-ce ?</p>
+    @if (mystery(); as m) {
+      <div class="mystere-in">
+        <div class="ombre dots"><img [src]="m.art" [alt]="m.over ? m.p.name : 'Silhouette mystère'" [class.cache]="!m.over" width="200" height="200" /></div>
+        <div class="jeu">
+          @if (m.over) {
+            <h2>{{ m.solved ? 'Bravo, c’est ' + m.p.name + ' !' : 'C’était ' + m.p.name + '.' }}</h2>
+            <p>{{ m.solved ? 'Sa carte rejoint ta collection. Nouveau mystère demain.' : 'Nouveau mystère demain.' }}</p>
+            <a class="btn ghost sm" [routerLink]="['/pokemon', m.p.id]">Voir sa fiche</a>
+          } @else {
+            <h2>Le Pokémon mystère du jour</h2>
+            <form (submit)="tryGuess($event)">
+              <label class="sr" for="devine">Ton idée</label>
+              <input id="devine" class="field" list="noms" autocomplete="off" placeholder="Son nom…" [value]="guess()" (input)="typed($event)" />
+              <datalist id="noms">
+                @for (n of names(); track n) {
+                  <option [value]="n"></option>
+                }
+              </datalist>
+              <button class="btn sm" type="submit">Valider</button>
+            </form>
+            <p class="mono petit" aria-live="polite">{{ wrong() ? 'Ce n’est pas lui. ' : '' }}{{ m.left }} essai{{ m.left > 1 ? 's' : '' }} restant{{ m.left > 1 ? 's' : '' }}.</p>
+          }
+          @for (h of m.hints; track h) {
+            <p class="indice">{{ h }}</p>
+          }
+        </div>
+      </div>
+    }
+  </article>
+
+  <article class="card pad cri">
+    <p class="eyebrow">Devine le cri</p>
+    @if (round(); as r) {
+      <div class="ligne">
+        <button type="button" class="btn ghost sm" (click)="listen()">Réécouter</button>
+        <span class="mono">{{ score().good }} / {{ score().played }} trouvés</span>
+      </div>
+      <div class="choix">
+        @for (c of r.choices; track c.id) {
+          <button type="button" class="rep" [disabled]="!!r.picked" [class.bon]="r.picked && c.id === r.answer.id" [class.faux]="r.picked === c.id && c.id !== r.answer.id" (click)="answer(c.id)">
+            <img [src]="art(c)" alt="" width="64" height="64" [class.cache]="!r.picked" />
+            <span>{{ c.name }}</span>
+          </button>
+        }
+      </div>
+      @if (r.picked) {
+        <button type="button" class="btn sm" (click)="newRound()">Cri suivant</button>
+      }
+    } @else {
+      <h2>Reconnais-tu un Pokémon à l’oreille ?</h2>
+      <p class="petit">Un cri, quatre propositions. Monte le son.</p>
+      <button type="button" class="btn sm" (click)="newRound()">Écouter un cri</button>
+    }
+  </article>
+
+  <article class="card pad large">
+    <p class="eyebrow">Badges</p>
+    @for (region of badges(); track region.name) {
+      <div class="badges">
+        <strong class="disp">{{ region.name }}</strong>
+        @for (b of region.list; track b.label) {
+          <span class="badge" [class.acquis]="b.has" [style.--c]="b.color" [title]="'Badge ' + b.label"><span class="sr">Badge {{ b.label }}{{ b.has ? ', obtenu' : ', à gagner' }}</span></span>
+        }
+      </div>
+    }
+    <a class="lien" routerLink="/campagne">Aller à la campagne</a>
+  </article>
+</section>
+
+<section class="page bas">
+  <button type="button" class="lien" (click)="reset()">Effacer ma progression sur cet appareil</button>
+  <span class="mono petit">Ta progression est enregistrée dans ce navigateur. Aucun compte, aucune donnée envoyée.</span>
+</section>

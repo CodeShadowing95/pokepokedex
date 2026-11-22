@@ -1,0 +1,28 @@
+.tete { padding: 48px 0 24px; }
+h1 { font-size: clamp(40px, 5.6vw, 72px); margin: 8px 0 12px; }
+.lead { max-width: 46em; color: var(--color-encre-douce); }
+.grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 24px; }
+.carte { display: flex; flex-direction: column; border: var(--trait); border-radius: 20px; background: #fff; box-shadow: 5px 5px 0 var(--color-encre); overflow: hidden; animation: pop 0.45s var(--ease-ressort) backwards; }
+.haut { position: relative; display: grid; place-items: center; height: 180px; border-bottom: var(--trait); }
+.haut img { width: 150px; height: 150px; object-fit: contain; transition: transform 0.35s var(--ease-ressort); }
+.haut:hover img { transform: scale(1.12) rotate(-3deg); }
+.niv, .etoile { position: absolute; top: 10px; padding: 2px 9px; border: 2px solid var(--color-encre); border-radius: 999px; background: #fff; font-size: 11px; font-weight: 700; }
+.niv { left: 10px; }
+.etoile { right: 10px; background: var(--color-jaune); }
+.bas { display: flex; flex-direction: column; gap: 7px; padding: 14px 16px 16px; }
+.ligne { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.ligne strong { font-size: 22px; }
+.petit { font-size: 11.5px; color: var(--color-encre-douce); }
+.suite { margin-top: 4px; }
+.bas .btn { margin-top: 6px; align-self: flex-start; }
+.vide { padding: 34px; max-width: 520px; }
+.vide h2 { margin: 0 0 8px; font-size: 28px; }
+
+.voile { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; background: var(--color-papier); }
+.rituel { display: grid; justify-items: center; gap: 14px; text-align: center; padding: 24px; }
+.rituel h2 { font-size: clamp(30px, 4.4vw, 54px); margin: 0; }
+.halo { width: 340px; height: 340px; display: grid; place-items: center; border: var(--trait); border-radius: 50%; background: var(--color-jaune); box-shadow: 8px 8px 0 var(--color-encre); }
+.halo img { animation: muer 1.4s ease-in forwards; }
+.halo.fait img { animation: surgir 0.7s var(--ease-ressort); }
+@keyframes muer { 0% { filter: none; transform: scale(1); } 30% { filter: brightness(0) invert(1); transform: scale(0.9); } 50% { transform: scale(1.12); } 70% { transform: scale(0.86); } 100% { filter: brightness(0) invert(1); transform: scale(1.3); } }
+@keyframes surgir { from { filter: brightness(0) invert(1); transform: scale(1.3); } to { filter: none; transform: none; } }

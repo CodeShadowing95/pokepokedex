@@ -1,0 +1,64 @@
+<section class="page tete">
+  <p class="eyebrow">Pokédex national</p>
+  <h1>{{ results().length }} Pokémon</h1>
+  <p class="compte mono">{{ player.ownedCount() }} capturés · {{ player.seenCount() }} vus · {{ 1025 - player.seenCount() }} à rencontrer</p>
+
+  <div class="outils">
+    <label class="cherche">
+      <span class="sr">Chercher un Pokémon par nom ou numéro</span>
+      <input class="field" type="search" placeholder="Nom ou numéro : Évoli, 133…" [value]="query()" (input)="query.set(value($event))" />
+    </label>
+    <label>
+      <span class="sr">Région</span>
+      <select class="field" [value]="region()" (change)="region.set(+value($event))">
+        <option value="0">Toutes les régions</option>
+        @for (r of regions; track r; let i = $index) {
+          <option [value]="i + 1">{{ r }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      <span class="sr">Tri</span>
+      <select class="field" [value]="sort()" (change)="sort.set(asSort(value($event)))">
+        <option value="numero">Par numéro</option>
+        <option value="nom">Par nom</option>
+        <option value="puissance">Par puissance</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="rang" role="group" aria-label="Filtrer par type">
+    @for (t of types; track t.id) {
+      <button type="button" class="chip" [attr.aria-pressed]="activeType() === t.id" [class.eteint]="activeType() && activeType() !== t.id" [style.background]="t.color" [style.color]="t.text" (click)="toggleType(t.id)">
+        {{ t.label }}
+      </button>
+    }
+  </div>
+  <div class="rang" role="group" aria-label="Filtrer par collection">
+    @for (c of collections; track c.key) {
+      <button type="button" class="chip" [class.on]="collection() === c.key" [attr.aria-pressed]="collection() === c.key" (click)="collection.set(c.key)">{{ c.label }}</button>
+    }
+  </div>
+</section>
+
+<section class="page" aria-live="polite">
+  @if (!ready()) {
+    <p class="vide mono">Ouverture du Pokédex…</p>
+  } @else if (!results().length) {
+    <div class="vide card">
+      <h2>Aucun Pokémon ne correspond.</h2>
+      <p>Essaie un autre nom, ou retire un filtre.</p>
+      <button type="button" class="btn sm" (click)="clear()">Tout réafficher</button>
+    </div>
+  } @else {
+    <div class="grille">
+      @for (p of visible(); track p.id; let i = $index) {
+        <app-poke-card [pokemon]="p" [hideUnknown]="true" [delay]="(i % 48) * 18" />
+      }
+    </div>
+  }
+  <div #sentinel class="repere" aria-hidden="true"></div>
+  @if (hasMore()) {
+    <p class="vide mono">Suite du Pokédex…</p>
+  }
+</section>

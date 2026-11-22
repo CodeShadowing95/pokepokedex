@@ -1,0 +1,31 @@
+<a class="skip" href="#contenu">Aller au contenu</a>
+<header class="top">
+  <div class="page bar-top">
+    <a routerLink="/" class="logo disp" aria-label="Accueil du Pokédex">
+      <span class="ball" aria-hidden="true"></span>Pokédex
+    </a>
+    <nav aria-label="Navigation principale">
+      @for (link of links; track link.path) {
+        <a [routerLink]="link.path" routerLinkActive="actif" class="navl">{{ link.label }}</a>
+      }
+    </nav>
+    <a routerLink="/qg" class="qg" routerLinkActive="actif" [attr.aria-label]="'Mon QG, série de ' + player.streak() + ' jours, niveau ' + player.level()">
+      <span class="mono serie">{{ player.streak() }} j</span>
+      <span>Mon QG</span>
+      @if (player.boosterReady()) {
+        <span class="point pulse" aria-hidden="true"></span>
+      }
+    </a>
+  </div>
+</header>
+
+<main id="contenu">
+  <router-outlet />
+</main>
+
+<footer class="pied">
+  <div class="page pied-in">
+    <span class="disp">Pokédex · papier & encre</span>
+    <span>Site de fans, sans but commercial. Pokémon et les noms de Pokémon sont des marques de Nintendo, Game Freak et Creatures. Données et images : PokéAPI.</span>
+  </div>
+</footer>

@@ -1,0 +1,142 @@
+@if (view(); as v) {
+  <section class="scene dots" [style.background-color]="v.ink.color">
+    <div class="page scene-in">
+      <div class="identite">
+        <a class="retour chip" routerLink="/pokedex">← Pokédex</a>
+        <p class="mono num">{{ v.num }} · {{ v.region }} · {{ v.rarity }}</p>
+        <h1>{{ v.p.name }}</h1>
+        <p class="genre">{{ details()?.genus }}</p>
+        <div class="types">
+          @for (t of v.p.types; track t) {
+            <app-type-chip [type]="t" />
+          }
+        </div>
+        <div class="boutons">
+          <button type="button" class="btn ghost sm" (click)="playCry()">Écouter son cri</button>
+          <button type="button" class="btn ghost sm" [attr.aria-pressed]="shiny()" (click)="shiny.set(!shiny())">{{ shiny() ? 'Couleurs normales' : 'Version chromatique' }}</button>
+          <button type="button" class="btn ghost sm" [attr.aria-pressed]="!moving()" (click)="moving.set(!moving())">{{ moving() ? 'Figer' : 'Animer' }}</button>
+        </div>
+      </div>
+      <div class="portrait">
+        <div class="demi" aria-hidden="true"></div>
+        <img [src]="art()" [alt]="v.p.name" width="460" height="460" [class]="moving() ? 'g-' + v.sig.gesture : ''" [style.--periode]="v.sig.period + 's'" />
+      </div>
+    </div>
+  </section>
+
+  <section class="page corps">
+    <div class="col">
+      <article class="card pad">
+        <p class="eyebrow">Description</p>
+        <p class="texte">{{ details()?.text ?? '…' }}</p>
+        <dl class="mesures mono">
+          <div><dt>Taille</dt><dd>{{ v.p.height }} m</dd></div>
+          <div><dt>Poids</dt><dd>{{ v.p.weight }} kg</dd></div>
+          <div><dt>Capture</dt><dd>{{ details()?.capture ?? '…' }} / 255</dd></div>
+        </dl>
+        @if (details()?.abilities; as abilities) {
+          <p class="eyebrow">Talents</p>
+          <div class="types">
+            @for (a of abilities; track a.name) {
+              <span class="chip">{{ a.name }}{{ a.hidden ? ' · caché' : '' }}</span>
+            }
+          </div>
+        }
+      </article>
+
+      <article class="card pad">
+        <p class="eyebrow">Signature de mouvement</p>
+        <h2>{{ v.sig.reason }}</h2>
+        <p>Un cycle dure <strong class="mono">{{ v.sig.period }} s</strong>, calculé à partir de son poids ({{ v.p.weight }} kg) et de sa vitesse ({{ v.p.stats[5] }}). Rien n’est dessiné à la main : le mouvement vient des données.</p>
+        <div class="vivant">
+          <img [src]="v.sprite" alt="" loading="lazy" (error)="hideBroken($event)" />
+          <span class="mono">Sprite animé, tel qu’il apparaît dans l’arène</span>
+        </div>
+      </article>
+
+      <article class="card pad">
+        <p class="eyebrow">Face aux types</p>
+        <h3>Il craint</h3>
+        <div class="types">
+          @for (m of v.weak; track m.type.id) {
+            <span class="chip" [style.background]="m.type.color" [style.color]="m.type.text">{{ m.type.label }} ×{{ m.factor }}</span>
+          } @empty {
+            <span>Aucune faiblesse.</span>
+          }
+        </div>
+        <h3>Il résiste à</h3>
+        <div class="types">
+          @for (m of v.strong; track m.type.id) {
+            <span class="chip" [style.background]="m.type.color" [style.color]="m.type.text">{{ m.type.label }} ×{{ m.factor }}</span>
+          } @empty {
+            <span>Aucune résistance.</span>
+          }
+        </div>
+      </article>
+    </div>
+
+    <div class="col">
+      <article class="card pad">
+        <p class="eyebrow">Statistiques de base · total {{ v.sum }}</p>
+        <div class="stats">
+          @for (s of v.stats; track s.label) {
+            <span>{{ s.label }}</span>
+            <span class="mono val">{{ s.value }}</span>
+            <span class="bar" role="img" [attr.aria-label]="s.label + ' ' + s.value"><i [style.width.%]="s.pct" [style.background]="v.ink.color"></i></span>
+          }
+        </div>
+      </article>
+
+      <article class="card pad carte" [style.--encre-type]="v.ink.color">
+        <p class="eyebrow">Sa carte de duel</p>
+        <div class="carte-in">
+          <div>
+            <h3>{{ v.card.name }}</h3>
+            <p class="mono">PV {{ v.card.hp }} · ATQ {{ v.card.atk }} · VIT {{ v.card.spd }}</p>
+            <p><strong>{{ v.card.tech.name }}</strong> · puissance {{ v.card.tech.power }} · coûte {{ v.card.tech.cost }} énergie</p>
+          </div>
+          @if (owned(); as o) {
+            <span class="chip on">Capturé · niv. {{ o.level }}</span>
+          } @else {
+            <button type="button" class="btn sm" [disabled]="player.dust() < craftCost" (click)="craft()">Fabriquer ({{ craftCost }} poussière)</button>
+          }
+        </div>
+        @if (!owned()) {
+          <p class="mono petit">Tu as {{ player.dust() }} poussière. Les doublons des boosters en donnent 20.</p>
+        }
+      </article>
+
+      @if (v.family.length > 1) {
+        <article class="card pad">
+          <p class="eyebrow">Sa lignée</p>
+          <div class="lignee">
+            @for (f of v.family; track f.p.id) {
+              <a [routerLink]="['/pokemon', f.p.id]" class="maillon" [class.ici]="f.p.id === v.p.id">
+                <img [src]="f.art" [alt]="" width="96" height="96" loading="lazy" />
+                <strong>{{ f.p.name }}</strong>
+                @if (f.p.from) {
+                  <span class="mono">{{ f.level ? 'niv. ' + f.level : 'condition spéciale' }}</span>
+                }
+              </a>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <nav class="page voisins" aria-label="Pokémon voisins">
+    @if (v.prev; as p) {
+      <a class="btn ghost sm" [routerLink]="['/pokemon', p.id]">← {{ p.name }}</a>
+    } @else {
+      <span></span>
+    }
+    @if (v.next; as n) {
+      <a class="btn ghost sm" [routerLink]="['/pokemon', n.id]">{{ n.name }} →</a>
+    }
+  </nav>
+} @else {
+  <section class="page attente">
+    <p class="mono">Ouverture de la fiche…</p>
+  </section>
+}

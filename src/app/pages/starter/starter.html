@@ -1,0 +1,40 @@
+<section class="page tete">
+  <p class="eyebrow">Bienvenue, dresseur</p>
+  <h1>Choisis ton premier Pokémon.</h1>
+  <p class="lead">Il devient ta première carte. Elle gagnera de l’expérience en duel et pourra évoluer.</p>
+  <label class="region">
+    <span>Ta région de cœur</span>
+    <select class="field" [value]="region()" (change)="pickRegion($event)">
+      @for (r of regions; track r; let i = $index) {
+        <option [value]="i + 1">{{ r }}</option>
+      }
+    </select>
+  </label>
+  @if (already()) {
+    <p class="mono note">Tu as déjà un premier Pokémon. En choisir un autre l’ajoute simplement à ta collection.</p>
+  }
+</section>
+
+<section class="page trio" role="radiogroup" aria-label="Pokémon de départ">
+  @for (o of options(); track o.p.id) {
+    <button type="button" class="choix" role="radio" [attr.aria-checked]="chosen() === o.p.id" [class.pris]="chosen() === o.p.id" [class.autre]="chosen() && chosen() !== o.p.id" (click)="chosen.set(o.p.id)">
+      <span class="scene dots" [style.background-color]="o.ink.color">
+        <img [src]="o.art" [alt]="o.p.name" width="240" height="240" [class]="chosen() === o.p.id ? o.gesture : ''" [style.--periode]="o.period" />
+      </span>
+      <span class="chip" [style.background]="o.ink.color" [style.color]="o.ink.text">{{ o.ink.label }}</span>
+      <strong class="disp nom">{{ o.p.name }}</strong>
+      <span class="mono stats">PV {{ o.card.hp }} · ATQ {{ o.card.atk }} · VIT {{ o.card.spd }}</span>
+      <span>Technique : {{ o.card.tech.name }}</span>
+    </button>
+  }
+</section>
+
+<section class="page fin">
+  <div class="amis">
+    <span class="eyebrow">Deux compagnons t’accompagnent</span>
+    @for (f of friends(); track f.p.id) {
+      <span class="ami"><img [src]="f.art" alt="" width="56" height="56" />{{ f.p.name }}</span>
+    }
+  </div>
+  <button type="button" class="btn" [disabled]="!chosen()" (click)="confirm()">Partir avec lui</button>
+</section>

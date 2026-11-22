@@ -1,0 +1,16 @@
+.tete { padding: 48px 0 28px; }
+h1 { font-size: clamp(44px, 6.4vw, 88px); margin: 8px 0 12px; }
+.lead { max-width: 44em; color: var(--color-encre-douce); }
+.regions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.regions .chip:disabled { opacity: 0.4; cursor: not-allowed; }
+.avis { padding: 18px 22px; margin-bottom: 24px; }
+.chemin { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 24px; }
+.etape { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 22px; border: var(--trait); border-radius: 22px; background: #fff; box-shadow: 5px 5px 0 var(--color-encre); animation: pop 0.45s var(--ease-ressort) backwards; }
+.etape strong { font-size: 28px; }
+.etape .btn { margin-top: 10px; }
+.num { position: absolute; top: 14px; right: 18px; font-size: 44px; color: var(--color-papier-fort); -webkit-text-stroke: 2px var(--color-encre); }
+.sub, .verrou { font-size: 12px; color: var(--color-encre-douce); }
+.etape.gagne { background: var(--color-jaune); }
+.etape.gagne .num { color: #fff; }
+.etape.ferme { background: transparent; border-style: dashed; box-shadow: none; opacity: 0.7; }
+.etape.ouvert { transform: rotate(-1deg); box-shadow: 8px 8px 0 var(--color-rouge); }
