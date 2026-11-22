@@ -19,7 +19,7 @@ nav { display: flex; gap: 22px; margin-left: auto; overflow-x: auto; }
 main { min-height: 70vh; }
 .pied { margin-top: 96px; border-top: var(--trait); background: var(--color-papier-fort); }
 .pied-in { display: flex; flex-wrap: wrap; gap: 12px 32px; align-items: baseline; padding: 28px 0; font-size: 14px; color: var(--color-encre-douce); }
-.pied-in .disp { color: var(--color-encre); font-size: 18px; }
+.marque { display: inline-flex; padding: 6px 4px; text-decoration: none; }
 .pied-in { align-items: center; }
 .mention { flex: 1 1 320px; }
 .credits { margin-left: auto; }
