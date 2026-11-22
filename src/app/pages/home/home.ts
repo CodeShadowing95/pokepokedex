@@ -3,12 +3,13 @@ import { RouterLink } from '@angular/router';
 import { PlayerStore, dailyNumber, dayKey } from '../../core/player.store';
 import { PokedexService } from '../../core/pokedex.service';
 import { artwork } from '../../core/pokemon';
-import { TYPES, typeOf } from '../../core/types';
+import { typeOf } from '../../core/types';
 import { PokeCard } from '../../ui/poke-card';
+import { TypeForces } from '../../ui/type-forces';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, PokeCard],
+  imports: [RouterLink, PokeCard, TypeForces],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './home.html',
   styleUrl: './home.css',
@@ -17,7 +18,6 @@ export class Home {
   private readonly dex = inject(PokedexService);
   protected readonly player = inject(PlayerStore);
 
-  protected readonly types = TYPES;
   /** Les vedettes de la scène d'accueil : Pikachu, Dracaufeu, Tortank, Ectoplasma. */
   protected readonly stage = [
     { id: 25, name: 'Pikachu', line: 'Vif comme l’éclair' },

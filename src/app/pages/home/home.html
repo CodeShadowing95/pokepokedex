@@ -35,15 +35,7 @@
   </div>
 </section>
 
-<div class="ruban" aria-hidden="true">
-  <div class="marq">
-    @for (pass of [0, 1]; track pass) {
-      @for (t of types; track t.id) {
-        <span class="chip" [style.background]="t.color" [style.color]="t.text"><img class="ti" [src]="t.icon" alt="" width="22" height="22" />{{ t.label }}</span>
-      }
-    }
-  </div>
-</div>
+<app-type-forces [depart]="dailyType.id" />
 
 <section class="page bloc">
   <div class="tete">

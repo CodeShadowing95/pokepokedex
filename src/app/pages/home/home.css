@@ -22,9 +22,6 @@ h1 { font-size: clamp(44px, 6.4vw, 88px); margin: 14px 0 22px; }
 .cap span { font-size: 14px; color: var(--color-encre-douce); }
 @keyframes defiler { 0% { opacity: 0; transform: translateY(60px) scale(0.7) rotate(-6deg); } 3% { opacity: 1; transform: translateY(-8px) scale(1.04) rotate(1deg); } 5%, 21% { opacity: 1; transform: none; } 24% { opacity: 0; transform: translateY(-40px) scale(0.9); } 100% { opacity: 0; } }
 
-.ruban { border-block: var(--trait); background: var(--color-papier-fort); overflow: hidden; padding: 14px 0; }
-.marq { display: flex; gap: 14px; width: max-content; animation: glisser 38s linear infinite; }
-@keyframes glisser { to { transform: translateX(-50%); } }
 
 .bloc { padding-top: 72px; }
 .tete { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 20px; margin-bottom: 28px; }
