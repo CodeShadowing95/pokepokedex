@@ -1,9 +1,7 @@
 <a class="skip" href="#contenu">Aller au contenu</a>
 <header class="top">
   <div class="page bar-top">
-    <a routerLink="/" class="logo disp" aria-label="Accueil du Pokédex">
-      <span class="ball" aria-hidden="true"></span>Pokédex
-    </a>
+    <a routerLink="/" class="logo"><app-logotype compact /></a>
     <nav aria-label="Navigation principale">
       @for (link of links; track link.path) {
         <a [routerLink]="link.path" routerLinkActive="actif" class="navl">{{ link.label }}</a>

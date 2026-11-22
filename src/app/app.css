@@ -2,12 +2,7 @@
 .skip:focus { left: 12px; top: 12px; z-index: 50; background: #fff; padding: 8px 14px; border: var(--trait); border-radius: 999px; }
 .top { position: sticky; top: 0; z-index: 30; background: var(--color-papier); border-bottom: var(--trait); }
 .bar-top { display: flex; align-items: center; gap: 28px; height: 72px; }
-.logo { display: flex; align-items: center; gap: 10px; font-size: 24px; text-decoration: none; }
-.ball { position: relative; flex: none; width: 30px; height: 30px; border: var(--trait); border-radius: 50%; background: linear-gradient(var(--color-rouge) 0 44%, var(--color-encre) 44% 56%, #fff 56%); }
-/* Le bouton central, signature de la Pokéball. */
-.ball::after { content: ''; position: absolute; left: 50%; top: 50%; width: 11px; height: 11px; transform: translate(-50%, -50%); border: 2.5px solid var(--color-encre); border-radius: 50%; background: #fff; }
-.logo:hover .ball { animation: secouer 0.6s var(--ease-ressort); }
-@keyframes secouer { 25% { transform: rotate(-18deg); } 60% { transform: rotate(12deg); } }
+.logo { display: flex; align-items: center; flex: none; padding: 4px 2px; text-decoration: none; }
 nav { display: flex; gap: 22px; margin-left: auto; overflow-x: auto; }
 .navl { text-decoration: none; font-weight: 700; font-size: 15px; padding: 8px 2px; border-bottom: 2.5px solid transparent; white-space: nowrap; }
 .navl:hover, .navl.actif { border-bottom-color: var(--color-rouge); }

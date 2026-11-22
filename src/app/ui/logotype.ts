@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, booleanAttribute, input } from '@angular/core';
 
 /**
  * Logotype maison : un clin d'œil au logo d'origine (lettres jaunes cernées d'encre),
@@ -14,7 +14,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   `,
   styles: `
     :host { --t: 46px; display: inline-flex; flex-direction: column; align-items: center; gap: 2px; line-height: 1; user-select: none; }
-    :host(.compact) { --t: 30px; }
+    :host(.compact) { --t: 27px; }
     .mot {
       display: inline-flex; align-items: center;
       font: 800 var(--t) / 1 var(--font-titre); letter-spacing: -0.02em;
@@ -45,5 +45,5 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   `,
 })
 export class Logotype {
-  readonly compact = input(false);
+  readonly compact = input(false, { transform: booleanAttribute });
 }
