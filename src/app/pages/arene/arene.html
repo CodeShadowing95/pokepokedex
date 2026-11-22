@@ -104,6 +104,7 @@
               </div>
             </div>
 
+            <div class="commandes">
             <div class="journal card" aria-live="polite">
               @if (report(); as r) {
                 <p class="choix mono">Toi : {{ labels[r.player] }} · Machine : {{ labels[r.machine] }}</p>
@@ -124,6 +125,7 @@
               <button type="button" class="geste" [disabled]="busy()" (click)="play('garde')">
                 <strong class="disp">Garde</strong><span>Absorbe la Technique, +2 énergies</span>
               </button>
+            </div>
             </div>
           </section>
         }
