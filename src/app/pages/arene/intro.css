@@ -3,14 +3,11 @@
    sa Pokéball, la balle s'ouvre dans un éclat et le Pokémon apparaît, d'abord tout blanc. */
 .combattant.cache img:not(.dresseur) { opacity: 0; transform: scale(0.2); }
 .combattant img.dresseur { position: absolute; left: 50%; bottom: 24px; z-index: 3; max-width: none; max-height: none; min-height: 0; height: 160px; margin: 0; translate: -50% 0; image-rendering: pixelated; filter: drop-shadow(4px 4px 0 rgb(30 35 64 / 0.35)); animation: arriver-d 1s cubic-bezier(0.2, 0.75, 0.25, 1) both; transition: none; }
-.combattant img.d-moi { animation-name: arriver-g; }
+/* Ton dresseur est retourné en miroir (terrain.css) : il reprend les mouvements de l'adversaire, qui deviennent les siens vus dans la glace. */
 /* Il prend son élan, lance, puis quitte la scène. */
 .combattant img.dresseur.lance { animation: lancer-d 0.75s ease-in forwards; }
-.combattant img.d-moi.lance { animation-name: lancer-g; }
 @keyframes arriver-d { from { transform: translateX(340px); opacity: 0; } 70% { opacity: 1; } }
-@keyframes arriver-g { from { transform: translateX(-340px); opacity: 0; } 70% { opacity: 1; } }
 @keyframes lancer-d { 25% { transform: translateX(-14px) rotate(-6deg); } 40% { transform: translateX(8px) rotate(4deg); opacity: 1; } to { transform: translateX(300px); opacity: 0; } }
-@keyframes lancer-g { 25% { transform: translateX(14px) rotate(6deg); } 40% { transform: translateX(-8px) rotate(-4deg); opacity: 1; } to { transform: translateX(-300px); opacity: 0; } }
 
 /* La balle envoyée : un arc depuis la main du dresseur jusqu'au socle, puis l'éclat. */
 .envoi { position: absolute; left: 50%; bottom: 40px; z-index: 4; width: 26px; height: 26px; margin-left: -13px; font-size: 26px; pointer-events: none; --sens: -1; }
