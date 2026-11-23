@@ -16,6 +16,8 @@ export interface Pokemon {
   chain: number;
   /** Niveau d'évolution dans les jeux (0 = autre condition). */
   level: number;
+  /** Ses quatre capacités de combat (identifiants PokéAPI, voir core/game/capacites.ts). */
+  moves: number[];
 }
 
 export interface PokemonDetails {

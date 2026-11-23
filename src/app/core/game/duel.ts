@@ -1,131 +1,128 @@
 import { effectiveness } from '../types';
-import { Card } from './cards';
+import { Card, Move } from './cards';
 
 /**
- * Moteur du Duel Éclair. Aucune dépendance à Angular ni au navigateur :
- * des fonctions pures (mêmes entrées, mêmes sorties), donc faciles à tester et à simuler.
+ * Moteur du duel, à la manière des jeux : chacun choisit une capacité, la plus prioritaire puis
+ * la plus rapide part en premier, et chaque attaque peut rater ou faire un coup critique.
+ * Aucune dépendance à Angular ni au navigateur : des fonctions pures, le hasard est passé en paramètre.
  */
-export type Action = 'frappe' | 'tech' | 'garde';
 export type Who = 'player' | 'machine';
+export type Rand = () => number;
 
 export interface Fighter {
   card: Card;
   hp: number;
+  /** PP restants, dans l'ordre des capacités de la carte. */
+  pp: number[];
 }
 
 export interface Side {
   team: Fighter[];
   active: number;
-  energy: number;
-}
-
-export interface DuelRules {
-  startEnergy: number;
-  energyPerTurn: number;
-  maxEnergy: number;
 }
 
 export interface DuelState {
   player: Side;
   machine: Side;
   turn: number;
-  /** Actions du joueur, de la plus ancienne à la plus récente. L'IA s'en sert pour le lire. */
-  history: Action[];
   winner: Who | null;
-  rules: DuelRules;
+}
+
+/** Un coup porté pendant la manche. */
+export interface Coup {
+  attaquant: Who;
+  cible: Who;
+  move: Move;
+  touche: boolean;
+  critique: boolean;
+  /** Multiplicateur des types (1 = normal). */
+  efficacite: number;
+  degats: number;
+  ko: boolean;
 }
 
 export interface TurnReport {
-  player: Action;
-  machine: Action;
-  toPlayer: number;
-  toMachine: number;
-  /** Efficacité de la technique lancée par chacun (1 si aucune technique). */
-  playerEffect: number;
-  machineEffect: number;
-  first: Who | null;
+  /** Dans l'ordre où ils ont été joués. */
+  coups: Coup[];
   koPlayer: boolean;
   koMachine: boolean;
-  /** Carte qui a porté le coup fatal côté joueur, pour lui donner son expérience. */
+  /** Carte du joueur qui a mis l'adversaire K.O., pour lui donner son expérience. */
   scorer: number | null;
   message: string;
 }
 
-export const DEFAULT_RULES: DuelRules = { startEnergy: 1, energyPerTurn: 1, maxEnergy: 5 };
-const BEATS: Record<Action, Action> = { frappe: 'garde', tech: 'frappe', garde: 'tech' };
-const COUNTER: Record<Action, Action> = { frappe: 'tech', tech: 'garde', garde: 'frappe' };
+/** Choix « Lutte » : quand plus aucune capacité n'a de PP. */
+export const STRUGGLE = -1;
+export const LUTTE: Move = { id: 165, nom: 'Lutte', type: 1, puissance: 50, precision: null, pp: 1, classe: 'physique', priorite: 0 };
+export const CRITIQUE = 1 / 24;
 
-export function createDuel(player: Card[], machine: Card[], rules: Partial<DuelRules> = {}): DuelState {
-  const r = { ...DEFAULT_RULES, ...rules };
-  const side = (cards: Card[]): Side => ({ team: cards.map((card) => ({ card, hp: card.hp })), active: 0, energy: r.startEnergy });
-  return { player: side(player), machine: side(machine), turn: 1, history: [], winner: null, rules: r };
+export function createDuel(player: Card[], machine: Card[]): DuelState {
+  const side = (cards: Card[]): Side => ({ team: cards.map((card) => ({ card, hp: card.hp, pp: card.moves.map((m) => m.pp) })), active: 0 });
+  return { player: side(player), machine: side(machine), turn: 1, winner: null };
 }
 
 export const active = (side: Side): Fighter => side.team[side.active];
-export const canUseTech = (side: Side): boolean => side.energy >= active(side).card.tech.cost;
+export const other = (w: Who): Who => (w === 'player' ? 'machine' : 'player');
 
-export function strikeDamage(att: Card, guardBroken = false): number {
-  return Math.round(att.atk * 0.22 * (guardBroken ? 1.5 : 1));
+/** Indices des capacités encore utilisables ; vide = il ne reste que Lutte. */
+export const usable = (f: Fighter): number[] => f.pp.flatMap((pp, i) => (pp > 0 ? [i] : []));
+
+const moveFor = (f: Fighter, choice: number): Move => (choice === STRUGGLE ? LUTTE : f.card.moves[choice]);
+
+/** Efficacité d'une capacité sur une carte (Lutte n'a pas de type). */
+export const typeFactor = (move: Move, def: Card): number => (move === LUTTE ? 1 : effectiveness(move.type, def.types));
+
+/** Dégâts de base de la formule des jeux, avant critique, hasard, bonus de même type et types. */
+export function baseDamage(att: Card, def: Card, move: Move): number {
+  const physique = move.classe === 'physique';
+  const A = physique ? att.atk : att.spa;
+  const D = physique ? def.def : def.spdef;
+  return Math.floor(Math.floor((Math.floor((2 * att.level) / 5 + 2) * move.puissance * A) / D) / 50) + 2;
 }
 
-export function techDamage(att: Card, def: Card): number {
-  return Math.round(((att.atk * att.tech.power) / 100) * 0.5 * effectiveness(att.tech.type, def.types));
+export const stab = (att: Card, move: Move): number => (move !== LUTTE && att.types.includes(move.type) ? 1.5 : 1);
+
+export function damage(att: Card, def: Card, move: Move, critique: boolean, rand: Rand): number {
+  const eff = typeFactor(move, def);
+  if (eff === 0) return 0;
+  const hasard = (85 + Math.floor(rand() * 16)) / 100;
+  return Math.max(1, Math.floor(baseDamage(att, def, move) * (critique ? 1.5 : 1) * hasard * stab(att, move) * eff));
 }
 
 /** Joue une manche et renvoie le nouvel état sans modifier l'ancien. */
-export function resolve(state: DuelState, playerAction: Action, machineAction: Action): { state: DuelState; report: TurnReport } {
+export function resolve(state: DuelState, playerChoice: number, machineChoice: number, rand: Rand = Math.random): { state: DuelState; report: TurnReport } {
   if (state.winner) throw new Error('Le duel est terminé.');
   const next: DuelState = structuredClone(state);
-  const P = active(next.player), M = active(next.machine);
-  if (playerAction === 'tech' && !canUseTech(next.player)) throw new Error('Énergie insuffisante.');
-  if (machineAction === 'tech' && !canUseTech(next.machine)) throw new Error('Énergie insuffisante (machine).');
+  const fighters: Record<Who, Fighter> = { player: active(next.player), machine: active(next.machine) };
+  const choices: Record<Who, number> = { player: playerChoice, machine: machineChoice };
+  for (const w of ['player', 'machine'] as Who[]) {
+    const f = fighters[w], c = choices[w];
+    if (c === STRUGGLE ? usable(f).length > 0 : !(f.pp[c] > 0)) throw new Error(`Capacité indisponible (${w}).`);
+  }
+  const moves: Record<Who, Move> = { player: moveFor(fighters.player, playerChoice), machine: moveFor(fighters.machine, machineChoice) };
 
-  if (playerAction === 'tech') next.player.energy -= P.card.tech.cost;
-  if (machineAction === 'tech') next.machine.energy -= M.card.tech.cost;
+  // Ordre : priorité, puis vitesse, puis pile ou face.
+  const p = moves.player.priorite - moves.machine.priorite;
+  const v = fighters.player.card.spd - fighters.machine.card.spd;
+  const first: Who = p > 0 || (p === 0 && (v > 0 || (v === 0 && rand() < 0.5))) ? 'player' : 'machine';
 
-  const hit = (att: Card, def: Card, action: Action, broken = false) => (action === 'tech' ? techDamage(att, def) : strikeDamage(att, broken));
-  let toPlayer = 0, toMachine = 0, first: Who | null = null, message: string;
-
-  if (playerAction === machineAction) {
-    if (playerAction === 'garde') message = 'Deux Gardes : personne ne bouge, tout le monde recharge.';
-    else {
-      first = P.card.spd >= M.card.spd ? 'player' : 'machine';
-      if (first === 'player') {
-        toMachine = hit(P.card, M.card, playerAction);
-        if (M.hp - toMachine > 0) toPlayer = hit(M.card, P.card, machineAction);
-      } else {
-        toPlayer = hit(M.card, P.card, machineAction);
-        if (P.hp - toPlayer > 0) toMachine = hit(P.card, M.card, playerAction);
-      }
-      message = `Échange de coups ! ${(first === 'player' ? P : M).card.name} est plus rapide.`;
-    }
-  } else if (BEATS[playerAction] === machineAction) {
-    if (playerAction === 'garde') { next.player.energy += 2; message = `Ta Garde absorbe ${M.card.tech.name} !`; }
-    else if (playerAction === 'frappe') { toMachine = hit(P.card, M.card, 'frappe', true); message = 'Ta Frappe perce sa Garde !'; }
-    else { toMachine = hit(P.card, M.card, 'tech'); message = `${P.card.tech.name} écrase sa Frappe !`; }
-  } else {
-    if (machineAction === 'garde') { next.machine.energy += 2; message = 'Sa Garde absorbe ta technique.'; }
-    else if (machineAction === 'frappe') { toPlayer = hit(M.card, P.card, 'frappe', true); message = 'Sa Frappe perce ta Garde.'; }
-    else { toPlayer = hit(M.card, P.card, 'tech'); message = `${M.card.tech.name} écrase ta Frappe.`; }
+  const coups: Coup[] = [];
+  for (const w of [first, other(first)]) {
+    const att = fighters[w], def = fighters[other(w)];
+    if (att.hp === 0) continue;
+    if (choices[w] !== STRUGGLE) att.pp[choices[w]] -= 1;
+    const move = moves[w];
+    const touche = move.precision === null || rand() * 100 < move.precision;
+    const critique = touche && rand() < CRITIQUE;
+    const efficacite = typeFactor(move, def.card);
+    const degats = touche ? Math.min(def.hp, damage(att.card, def.card, move, critique, rand)) : 0;
+    def.hp -= degats;
+    coups.push({ attaquant: w, cible: other(w), move, touche, critique, efficacite, degats, ko: def.hp === 0 });
   }
 
-  const playerEffect = playerAction === 'tech' ? effectiveness(P.card.tech.type, M.card.types) : 1;
-  const machineEffect = machineAction === 'tech' ? effectiveness(M.card.tech.type, P.card.types) : 1;
-  if (playerAction === 'tech' && toMachine > 0 && playerEffect >= 2) message += ` Super efficace ×${playerEffect} !`;
-  if (playerAction === 'tech' && toMachine > 0 && playerEffect < 1) message += ' Peu efficace.';
-  if (playerAction === 'tech' && playerEffect === 0) message = `Aucun effet sur ${M.card.name}… change de plan.`;
-
-  if (playerAction === 'garde') next.player.energy += 1;
-  if (machineAction === 'garde') next.machine.energy += 1;
-  const { energyPerTurn, maxEnergy } = next.rules;
-  next.player.energy = Math.min(maxEnergy, next.player.energy + energyPerTurn);
-  next.machine.energy = Math.min(maxEnergy, next.machine.energy + energyPerTurn);
-
-  M.hp = Math.max(0, M.hp - toMachine);
-  P.hp = Math.max(0, P.hp - toPlayer);
-  next.history.push(playerAction);
-
+  const P = fighters.player, M = fighters.machine;
   const koMachine = M.hp === 0, koPlayer = P.hp === 0;
+  let message = coups.map(phrase).join(' ');
   if (koMachine) {
     const i = next.machine.team.findIndex((f) => f.hp > 0);
     message = `${M.card.name} est K.O. !`;
@@ -140,37 +137,29 @@ export function resolve(state: DuelState, playerAction: Action, machineAction: A
   }
   if (!next.winner) next.turn += 1;
 
-  return {
-    state: next,
-    report: { player: playerAction, machine: machineAction, toPlayer, toMachine, playerEffect, machineEffect, first, koPlayer, koMachine, scorer: koMachine ? P.card.id : null, message },
-  };
+  return { state: next, report: { coups, koPlayer, koMachine, scorer: koMachine ? P.card.id : null, message } };
+}
+
+function phrase(c: Coup): string {
+  if (!c.touche) return `${c.move.nom} rate sa cible.`;
+  if (c.efficacite === 0) return `${c.move.nom} n'a aucun effet.`;
+  const bits = [c.critique ? 'Coup critique !' : '', c.efficacite >= 2 ? "C'est super efficace !" : c.efficacite < 1 ? "Ce n'est pas très efficace." : ''];
+  return `${c.move.nom} : −${c.degats} PV. ${bits.filter(Boolean).join(' ')}`.trim();
+}
+
+/** Dégâts moyens espérés d'une capacité, précision comprise : ce que la machine compare. */
+export function expected(att: Card, def: Card, move: Move): number {
+  return baseDamage(att, def, move) * 0.925 * stab(att, move) * typeFactor(move, def) * ((move.precision ?? 100) / 100);
 }
 
 /**
- * Choix de la machine. Elle regarde les 4 dernières actions du joueur, parie sur la plus fréquente
- * et joue ce qui la bat. `skill` (0 à 1) règle la part de lecture face au hasard.
+ * Choix de la machine. Avec une probabilité `skill` (0 à 1), elle prend la capacité qui fait
+ * le plus de dégâts espérés ; sinon elle joue une capacité au hasard.
  */
-export function chooseMachineAction(state: DuelState, random: () => number = Math.random, skill = 0.6): Action {
-  const can = canUseTech(state.machine);
-  const options: Action[] = can ? ['frappe', 'tech', 'garde'] : ['frappe', 'garde'];
-  const recent = state.history.slice(-4);
-  if (recent.length >= 2 && random() < skill) {
-    const count = (a: Action) => recent.filter((h) => h === a).length;
-    const predicted = (['garde', 'tech', 'frappe'] as Action[]).reduce((best, a) => (count(a) > count(best) ? a : best), 'frappe' as Action);
-    const answer = COUNTER[predicted];
-    if (options.includes(answer)) return answer;
-  }
-  if (can && state.machine.energy >= 4 && random() < 0.6) return 'tech';
-  return options[Math.floor(random() * options.length)];
-}
-
-/** Ce que la machine « pense » du joueur, affiché dans l'arène. */
-export function machineMood(history: Action[]): string {
-  const recent = history.slice(-4);
-  if (recent.length < 2) return 'observe';
-  const count = (a: Action) => recent.filter((h) => h === a).length;
-  if (count('garde') >= 2) return 'te croit prudent';
-  if (count('tech') >= 2) return 'attend ta technique';
-  if (count('frappe') >= 2) return 'te trouve agressif';
-  return 'hésite';
+export function chooseMachineMove(state: DuelState, rand: Rand = Math.random, skill = 0.6): number {
+  const me = active(state.machine), foe = active(state.player);
+  const options = usable(me);
+  if (!options.length) return STRUGGLE;
+  if (rand() < skill) return options.reduce((best, i) => (expected(me.card, foe.card, me.card.moves[i]) > expected(me.card, foe.card, me.card.moves[best]) ? i : best));
+  return options[Math.floor(rand() * options.length)];
 }

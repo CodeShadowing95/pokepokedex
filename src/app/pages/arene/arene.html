@@ -21,8 +21,8 @@
                 <div class="carte" [style.--encre-type]="ink(c).color">
                   <div class="haut dots"><img [src]="art(c)" [alt]="c.name" width="120" height="120" /></div>
                   <strong class="disp">{{ c.name }}</strong>
-                  <span class="mono">PV {{ c.hp }} · ATQ {{ c.atk }} · VIT {{ c.spd }}</span>
-                  <span class="tech">{{ c.tech.name }} · {{ c.tech.cost }} én.</span>
+                  <span class="mono">N.{{ c.level }} · PV {{ c.hp }} · VIT {{ c.spd }}</span>
+                  <ul class="capas">@for (m of c.moves; track m.id) {<li><img [src]="inkOf(m.type).icon" alt="" width="14" height="14" />{{ m.nom }}</li>}</ul>
                 </div>
               }
             </div>
@@ -36,8 +36,8 @@
                 <div class="carte" [style.--encre-type]="ink(c).color">
                   <div class="haut dots"><img [src]="art(c)" [alt]="c.name" width="120" height="120" /></div>
                   <strong class="disp">{{ c.name }}</strong>
-                  <span class="mono">PV {{ c.hp }} · ATQ {{ c.atk }} · VIT {{ c.spd }}</span>
-                  <span class="tech">{{ c.tech.name }} · {{ c.tech.cost }} én.</span>
+                  <span class="mono">N.{{ c.level }} · PV {{ c.hp }} · VIT {{ c.spd }}</span>
+                  <ul class="capas">@for (m of c.moves; track m.id) {<li><img [src]="inkOf(m.type).icon" alt="" width="14" height="14" />{{ m.nom }}</li>}</ul>
                 </div>
               }
             </div>
@@ -51,10 +51,11 @@
         <div class="regles card">
           <h3>Les règles en vingt secondes</h3>
           <ul>
-            <li><strong>Frappe</strong> perce la Garde (dégâts ×1,5).</li>
-            <li><strong>Technique</strong> écrase la Frappe. Elle coûte de l’énergie, et c’est la seule à jouer avec les types.</li>
-            <li><strong>Garde</strong> absorbe la Technique et rend 2 énergies.</li>
-            <li>Même geste des deux côtés : les deux touchent, le plus rapide d’abord.</li>
+            <li>Chaque Pokémon a jusqu’à <strong>quatre capacités</strong>. Toi et la machine choisissez en même temps.</li>
+            <li>La capacité <strong>prioritaire</strong> part d’abord (Vive-Attaque…), sinon c’est le plus <strong>rapide</strong>.</li>
+            <li>Chaque capacité a sa <strong>précision</strong> : elle peut rater. Et parfois, c’est le <strong>coup critique</strong> (×1,5).</li>
+            <li>Les dégâts suivent la formule des jeux : puissance, Attaque contre Défense (ou leurs versions spéciales), <strong>bonus de même type</strong> ×1,5 et table des types.</li>
+            <li>Chaque capacité a ses <strong>PP</strong>. Quand il n’en reste plus aucun, ton Pokémon se débat avec Lutte.</li>
           </ul>
         </div>
       </section>
@@ -67,13 +68,10 @@
             @let sc = scene();
             <div class="plateau dots" (click)="accelerer()" [attr.title]="busy() ? 'Clique pour accélérer' : null">
               <div class="poste eux" [class.elan]="sc.elan === 'machine'">
-                <app-etiquette [nom]="f.f.card.name" [type]="f.ink" [pv]="f.hp" [max]="f.f.card.hp" [fantome]="f.hpPct" [energie]="f.pips" [equipe]="f.vivants" />
+                <app-etiquette [nom]="f.f.card.name" [type]="f.ink" [pv]="f.hp" [max]="f.f.card.hp" [fantome]="f.hpPct" [niveau]="f.f.card.level" [equipe]="f.vivants" />
                 <div class="combattant" [class.touche]="sc.degats?.cible === 'machine'">
                   <span class="socle" [style.background]="f.ink.color"></span>
                   <img [src]="f.sprite" [alt]="f.f.card.name" (error)="fallback($event, f.f.card.id)" />
-                  @if (sc.gardes.includes('machine')) {
-                    <app-effet class="bouclier" [class.brise]="sc.brise === 'machine'" nom="garde" [taille]="150" [boucle]="true" />
-                  }
                   @if (sc.effet?.cible === 'machine') {
                     @for (k of [sc.effet!.cle]; track k) { <app-effet class="impact" [nom]="sc.effet!.nom" [taille]="140" /> }
                   }
@@ -83,21 +81,13 @@
                   @if (sc.tampon?.cible === 'machine') {
                     <span class="tampon-scene mono">{{ sc.tampon!.texte }}</span>
                   }
-                  @if (sc.revelation; as rv) {
-                    <span class="carte-geste" [class.gagne]="rv.gagnant === 'machine'" [class.perd]="rv.gagnant && rv.gagnant !== 'machine'">
-                      <small class="mono">Machine</small><strong class="disp">{{ labels[rv.machine] }}</strong>
-                    </span>
-                  }
                 </div>
               </div>
               <div class="poste moi" [class.elan]="sc.elan === 'player'">
-                <app-etiquette [nom]="m.f.card.name" [type]="m.ink" [pv]="m.hp" [max]="m.f.card.hp" [fantome]="m.hpPct" [energie]="m.pips" [equipe]="m.vivants" />
+                <app-etiquette [nom]="m.f.card.name" [type]="m.ink" [pv]="m.hp" [max]="m.f.card.hp" [fantome]="m.hpPct" [niveau]="m.f.card.level" [equipe]="m.vivants" />
                 <div class="combattant" [class.touche]="sc.degats?.cible === 'player'">
                   <span class="socle" [style.background]="m.ink.color"></span>
                   <img [src]="m.sprite" [alt]="m.f.card.name" (error)="fallback($event, m.f.card.id)" />
-                  @if (sc.gardes.includes('player')) {
-                    <app-effet class="bouclier" [class.brise]="sc.brise === 'player'" nom="garde" [taille]="150" [boucle]="true" />
-                  }
                   @if (sc.effet?.cible === 'player') {
                     @for (k of [sc.effet!.cle]; track k) { <app-effet class="impact" [nom]="sc.effet!.nom" [taille]="140" /> }
                   }
@@ -106,11 +96,6 @@
                   }
                   @if (sc.tampon?.cible === 'player') {
                     <span class="tampon-scene mono">{{ sc.tampon!.texte }}</span>
-                  }
-                  @if (sc.revelation; as rv) {
-                    <span class="carte-geste" [class.gagne]="rv.gagnant === 'player'" [class.perd]="rv.gagnant && rv.gagnant !== 'player'">
-                      <small class="mono">Toi</small><strong class="disp">{{ labels[rv.player] }}</strong>
-                    </span>
                   }
                 </div>
               </div>
@@ -123,30 +108,25 @@
             </div>
 
             <div class="commandes">
-            <div class="journal card" aria-live="polite">
-              @if (report(); as r) {
-                <p class="choix mono">Toi : {{ labels[r.player] }} · Machine : {{ labels[r.machine] }}</p>
-                <p class="message">{{ r.message }}</p>
-              } @else {
-                <p class="message">Manche 1. Choisis ton geste en secret : la machine choisit en même temps.</p>
-              }
-              <p class="humeur mono">La machine {{ mood() }}.</p>
-              @if (historique().length) {
-                <ol class="histo mono">@for (h of historique(); track $index) {<li>{{ h }}</li>}</ol>
-              }
-            </div>
+              <div class="journal card" aria-live="polite">
+                <p class="message">{{ report()?.message ?? 'Manche 1. Choisis une capacité : la machine choisit en même temps.' }}</p>
+              </div>
 
-            <div class="gestes">
-              <button type="button" class="geste" [disabled]="busy()" (click)="play('frappe')">
-                <strong class="disp">Frappe</strong><span>Perce la Garde, dégâts ×1,5</span>
-              </button>
-              <button type="button" class="geste tech" [disabled]="busy() || !techReady()" [style.--c]="m.techInk.color" [style.--t]="m.techInk.text" (click)="play('tech')">
-                <strong class="disp">{{ m.f.card.tech.name }}</strong><span>Technique {{ m.techInk.label }} · {{ m.f.card.tech.cost }} énergie{{ m.f.card.tech.cost > 1 ? 's' : '' }}</span>
-              </button>
-              <button type="button" class="geste" [disabled]="busy()" (click)="play('garde')">
-                <strong class="disp">Garde</strong><span>Absorbe la Technique, +2 énergies</span>
-              </button>
-            </div>
+              <div class="gestes">
+                @if (m.lutte) {
+                  <button type="button" class="geste lutte" [disabled]="busy()" (click)="play(STRUGGLE)">
+                    <strong class="disp">Lutte</strong><span>Plus aucun PP : ton Pokémon se débat.</span>
+                  </button>
+                } @else {
+                  @for (c of m.capacites; track c.i) {
+                    <button type="button" class="geste" [disabled]="busy() || c.pp === 0" [style.--c]="c.ink.color" [style.--t]="c.ink.text" (click)="play(c.i)">
+                      <strong class="disp"><img [src]="c.ink.icon" alt="" width="20" height="20" />{{ c.m.nom }}</strong>
+                      <span class="mono">Puiss. {{ c.m.puissance }} · Préc. {{ c.m.precision ? c.m.precision + ' %' : '—' }}</span>
+                      <span class="mono pp">PP {{ c.pp }}/{{ c.m.pp }} · {{ c.m.classe === 'physique' ? 'physique' : 'spéciale' }}</span>
+                    </button>
+                  }
+                }
+              </div>
             </div>
           </section>
         }
@@ -158,7 +138,7 @@
         <div class="card pad" [class.gagne]="won()">
           <p class="eyebrow">{{ challenge()?.title ?? 'Duel libre' }}</p>
           <h1>{{ won() ? 'Victoire !' : 'Défaite.' }}</h1>
-          <p>{{ won() ? 'La machine n’a pas su te lire. +60 XP de dresseur et 40 poussière.' : 'Elle t’a lu cette fois. +15 XP de dresseur : varie tes gestes.' }}</p>
+          <p>{{ won() ? 'Bien joué. +60 XP de dresseur et 40 poussière.' : 'Pas cette fois. +15 XP de dresseur : regarde les types et la vitesse avant de choisir.' }}</p>
           <ul class="gains">
             @for (g of gains(); track g.name) {
               <li><strong>{{ g.name }}</strong><span class="mono">+{{ g.xp }} XP</span>@if (g.leveled) {<span class="chip on">Niveau {{ g.level }}</span>}</li>

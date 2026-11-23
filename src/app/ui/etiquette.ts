@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { TypeInfo } from '../core/types';
 
-/** Étiquette compacte d'un combattant : type, nom, PV (avec la part perdue en fantôme), énergie, équipe. */
+/** Étiquette compacte d'un combattant : type, nom, PV (avec la part perdue en fantôme), niveau, équipe. */
 @Component({
   selector: 'app-etiquette',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -15,9 +15,7 @@ import { TypeInfo } from '../core/types';
       <b [style.width.%]="fantome()"></b><i [style.width.%]="(pv() / max()) * 100" [class.bas]="pv() / max() < 0.3"></i>
     </div>
     <div class="bas-l">
-      <span class="pips" [attr.aria-label]="charges() + ' énergies'">
-        @for (on of energie(); track $index) {<i [class.on]="on"></i>}
-      </span>
+      <span class="mono niv">N.{{ niveau() }}</span>
       <span class="banc" aria-hidden="true">@for (v of equipe(); track $index) {<i [class.ko]="!v"></i>}</span>
     </div>
   `,
@@ -33,9 +31,8 @@ import { TypeInfo } from '../core/types';
     .jauge i { background: #4fae4a; transition: width 0.35s var(--ease-ressort); }
     .jauge i.bas { background: var(--color-rouge); }
     .bas-l { display: flex; justify-content: space-between; align-items: center; }
-    .pips, .banc { display: flex; gap: 3px; }
-    .pips i { width: 10px; height: 10px; border: 1.5px solid var(--color-encre); border-radius: 3px; background: #fff; }
-    .pips i.on { background: var(--color-jaune); }
+    .niv { font-size: 11px; font-weight: 700; }
+    .banc { display: flex; gap: 3px; }
     .banc i { width: 9px; height: 9px; border: 1.5px solid var(--color-encre); border-radius: 50%; background: var(--color-rouge); }
     .banc i.ko { background: #fff; opacity: 0.5; }
   `,
@@ -47,7 +44,6 @@ export class Etiquette {
   readonly max = input.required<number>();
   /** Largeur (%) de la part perdue encore visible, qui rattrape la barre avec un temps de retard. */
   readonly fantome = input(100);
-  readonly energie = input<boolean[]>([]);
+  readonly niveau = input(1);
   readonly equipe = input<boolean[]>([]);
-  protected readonly charges = computed(() => this.energie().filter((on) => on).length);
 }

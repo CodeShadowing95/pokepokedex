@@ -109,8 +109,8 @@
         <div class="carte-in">
           <div>
             <h3>{{ v.card.name }}</h3>
-            <p class="mono">PV {{ v.card.hp }} · ATQ {{ v.card.atk }} · VIT {{ v.card.spd }}</p>
-            <p><strong>{{ v.card.tech.name }}</strong> · puissance {{ v.card.tech.power }} · coûte {{ v.card.tech.cost }} énergie</p>
+            <p class="mono">N.{{ v.card.level }} · PV {{ v.card.hp }} · ATQ {{ v.card.atk }} · VIT {{ v.card.spd }}</p>
+            <p>@for (m of v.card.moves; track m.id; let last = $last) {<strong>{{ m.nom }}</strong> <span class="mono">{{ m.puissance }}</span>@if (!last) {<span> · </span>}}</p>
           </div>
           @if (owned(); as o) {
             <span class="chip on">Capturé · niv. {{ o.level }}</span>

@@ -1,7 +1,7 @@
 <section class="page tete">
   <p class="eyebrow">Atelier d’équipe</p>
   <h1>Compose tes trois cartes.</h1>
-  <p class="lead">La première entre en premier dans l’arène. Le tableau montre, type par type, ce qui te menace et ce que tes techniques savent battre.</p>
+  <p class="lead">La première entre en premier dans l’arène. Le tableau montre, type par type, ce qui te menace et ce que tes capacités savent battre.</p>
 </section>
 
 <section class="page atelier">
@@ -12,7 +12,7 @@
           <button type="button" class="place prise" (click)="toggle(c.p.id)" [attr.aria-label]="'Retirer ' + c.p.name">
             <span class="rond dots" [style.background-color]="c.ink.color"><img [src]="c.art" alt="" width="110" height="110" /></span>
             <strong class="disp">{{ c.p.name }}</strong>
-            <span class="mono">{{ c.card.tech.name }}</span>
+            <span class="mono">{{ c.card.moves[0].nom }}@if (c.card.moves.length > 1) { +{{ c.card.moves.length - 1 }}}</span>
             <span class="mono retire">retirer</span>
           </button>
         } @else {

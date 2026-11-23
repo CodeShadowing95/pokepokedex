@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { STARTERS, companions } from '../../core/game/campaign';
-import { cardOf } from '../../core/game/cards';
+import { Card, cardOf } from '../../core/game/cards';
 import { signatureOf } from '../../core/motion';
 import { PlayerStore } from '../../core/player.store';
 import { PokedexService } from '../../core/pokedex.service';
@@ -22,6 +22,10 @@ export class Starter {
   protected readonly regions = REGIONS;
   protected readonly region = signal(1);
   protected readonly chosen = signal(0);
+
+  protected noms(card: Card): string {
+    return card.moves.map((m) => m.nom).join(', ');
+  }
   protected readonly already = this.player.starter;
 
   protected readonly options = computed(() =>

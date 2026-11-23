@@ -16,12 +16,17 @@ describe('données', () => {
 });
 
 describe('cartes', () => {
-  it('donne une technique de base aux jeunes Pokémon et une forte aux autres', () => {
-    expect(cardOf(byId(4)).tech.name).toBe('Flammèche');
-    expect(cardOf(byId(6)).tech.name).toBe('Lance-Flammes');
+  it('donne à chaque Pokémon de une à quatre vraies capacités offensives, dont une de son type', () => {
+    expect(all.every((p) => p.moves.length >= 1 && p.moves.length <= 4)).toBe(true);
+    const dracaufeu = cardOf(byId(6));
+    expect(dracaufeu.moves.map((m) => m.nom)).toContain('Lance-Flammes');
+    expect(dracaufeu.moves.every((m) => m.puissance > 0 && m.pp > 0)).toBe(true);
   });
-  it('renforce la carte à chaque niveau', () => {
-    expect(cardOf(byId(4), 3).hp).toBe(cardOf(byId(4)).hp + 8);
+  it('calcule les statistiques avec la formule des jeux', () => {
+    const c = cardOf(byId(4)); // Salamèche, niveau de combat 42
+    expect(c.level).toBe(42);
+    expect(c.hp).toBe(Math.floor(((2 * 39 + 31) * 42) / 100) + 42 + 10);
+    expect(cardOf(byId(4), 3).hp).toBeGreaterThan(c.hp);
   });
   it('place l’évolution à un niveau de carte entre 2 et 8', () => {
     expect(evolutionLevel(byId(5))).toBe(2);

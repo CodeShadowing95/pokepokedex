@@ -35,7 +35,7 @@ export class Equipe {
       type,
       weak: team.filter((c) => effectiveness(type.id, c.p.types) > 1).length,
       resist: team.filter((c) => effectiveness(type.id, c.p.types) < 1).length,
-      hit: team.some((c) => effectiveness(c.card.tech.type, [type.id]) > 1),
+      hit: team.some((c) => c.card.moves.some((m) => effectiveness(m.type, [type.id]) > 1)),
     }));
   });
   protected readonly verdict = computed(() => {

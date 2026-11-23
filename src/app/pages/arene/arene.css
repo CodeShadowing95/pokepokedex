@@ -10,6 +10,9 @@ h1 { font-size: clamp(38px, 5vw, 64px); margin: 8px 0 16px; }
 .carte img { width: 96px; height: 96px; object-fit: contain; }
 .carte strong { font-size: 17px; }
 .carte .mono { font-size: 10.5px; }
+.capas { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 2px; font-size: 12px; }
+.capas li { display: flex; align-items: center; gap: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.carte .capas img { flex: none; width: 14px; height: 14px; border-radius: 50%; }
 .vs { font-size: 44px; color: var(--color-rouge); }
 .lien { display: inline-block; margin-top: 12px; padding: 0; border: 0; background: none; font-weight: 700; text-decoration: underline; text-underline-offset: 4px; }
 .regles { margin-top: 36px; padding: 22px 26px; max-width: 760px; }
@@ -21,38 +24,25 @@ h1 { font-size: clamp(38px, 5vw, 64px); margin: 8px 0 16px; }
   .duel-zone { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 22px; align-items: start; }
   .commandes { position: sticky; top: 96px; display: grid; gap: 16px; }
   .commandes .journal, .commandes .gestes { margin-top: 0; }
-  .commandes .gestes { grid-template-columns: 1fr; gap: 14px; }
-  .commandes .geste { padding: 14px 18px; }
-  .commandes .geste strong { font-size: 22px; }
+  .commandes .gestes { grid-template-columns: 1fr; gap: 12px; }
 }
 .plateau { position: relative; display: grid; gap: 8px; padding: 22px; border: var(--trait); border-radius: 28px; background-color: var(--color-papier-fort); box-shadow: 8px 8px 0 var(--color-encre); }
-.plateau { grid-template-areas: 'eux' 'moi'; min-height: 440px; cursor: default; overflow: hidden; }
+.plateau { grid-template-areas: 'eux' 'moi'; cursor: default; overflow: hidden; }
 .poste { display: flex; flex-direction: column; align-items: center; gap: 4px; transition: transform 0.25s var(--ease-ressort); }
-.poste.eux { grid-area: eux; justify-self: end; margin-right: 8%; }
-.poste.moi { grid-area: moi; justify-self: start; margin-left: 8%; }
+.poste.eux { grid-area: eux; justify-self: end; margin-right: 16%; }
+/* Les deux Pokémon se font face en diagonale, sans grand vide entre eux. */
+.poste.moi { grid-area: moi; justify-self: start; margin: -120px 0 0 16%; }
 .poste.elan.moi { transform: translate(60px, -30px); }
 .poste.elan.eux { transform: translate(-60px, 30px); }
 .combattant { position: relative; width: 220px; height: 190px; display: grid; place-items: end center; }
 .combattant > app-effet { position: absolute; left: 50%; bottom: 36px; translate: -50% 0; z-index: 2; }
-.bouclier { opacity: 0.85; transition: opacity 0.3s; }
-.bouclier.brise { animation: briser 0.5s forwards; }
-@keyframes briser { 30% { transform: rotate(-6deg) scale(1.05); } to { transform: rotate(8deg) scale(0.6); opacity: 0; } }
 .tampon-scene { position: absolute; top: 6px; left: 50%; z-index: 4; padding: 5px 10px; border: 3px solid var(--color-rouge); border-radius: 6px; background: #fff; color: var(--color-rouge); font-size: 15px; font-weight: 700; white-space: nowrap; transform: translateX(-50%) rotate(-8deg); animation: frapper 0.35s var(--ease-ressort); }
 @keyframes frapper { from { transform: translateX(-50%) rotate(-20deg) scale(2); opacity: 0; } }
-.carte-geste { position: absolute; top: 30%; left: -104px; z-index: 3; display: grid; justify-items: center; gap: 2px; width: 96px; padding: 8px 6px; border: var(--trait); border-radius: 12px; background: #fff; box-shadow: 3px 3px 0 var(--color-encre); animation: retourner 0.45s var(--ease-ressort) both; }
-.carte-geste small { font-size: 10px; color: var(--color-encre-douce); }
-.carte-geste strong { font-size: 18px; }
-.carte-geste.gagne { background: var(--color-jaune); box-shadow: 3px 3px 0 var(--color-encre), 0 0 0 6px rgb(255 201 60 / 0.4); }
-.carte-geste.perd { opacity: 0.75; clip-path: polygon(0 0, 100% 0, 100% 100%, 58% 100%, 50% 60%, 42% 100%, 0 100%); }
-.moi .carte-geste { left: auto; right: -104px; animation-delay: 0.12s; }
-@keyframes retourner { from { transform: rotateY(90deg); } }
 .bandeau { position: absolute; left: -4%; right: -4%; top: 50%; z-index: 6; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 12px 20px; border-block: var(--trait); background: var(--color-encre); color: #fff; font-size: 24px; transform: translateY(-50%) rotate(-4deg); animation: glisser-g 0.35s var(--ease-ressort); }
 .bandeau.de-eux { transform: translateY(-50%) rotate(4deg); animation-name: glisser-d; }
 .bandeau img { border-radius: 50%; box-shadow: 0 0 0 2px #fff; }
 @keyframes glisser-g { from { translate: -100% 0; } }
 @keyframes glisser-d { from { translate: 100% 0; } }
-.histo { margin: 10px 0 0; padding: 10px 0 0 18px; border-top: 1.5px dashed var(--color-encre-douce); font-size: 11px; line-height: 1.5; color: var(--color-encre-douce); }
-.histo li:first-child { color: var(--color-encre); font-weight: 700; }
 .combattant img { position: relative; max-width: 190px; max-height: 160px; min-height: 90px; margin-bottom: 20px; object-fit: contain; object-position: bottom; image-rendering: pixelated; }
 .socle { position: absolute; bottom: 6px; left: 12%; width: 76%; height: 34px; border: var(--trait); border-radius: 50%; box-shadow: 0 5px 0 var(--color-encre); }
 /* Ombre de contact : le Pokémon pèse sur son socle. */
@@ -64,13 +54,13 @@ h1 { font-size: clamp(38px, 5vw, 64px); margin: 8px 0 16px; }
 
 .journal { margin-top: 22px; padding: 16px 22px; border-radius: 18px; }
 .journal p { margin: 0; }
-.choix { font-size: 12px; color: var(--color-encre-douce); }
 .message { font-size: 20px; font-weight: 700; min-height: 1.5em; }
-.humeur { font-size: 12px; margin-top: 6px !important; color: var(--color-encre-douce); }
-.gestes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 22px; }
-.geste { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 16px 22px; text-align: left; border: var(--trait); border-radius: 20px; background: #fff; box-shadow: 5px 5px 0 var(--color-encre); font-size: 14px; transition: transform 0.25s var(--ease-ressort), box-shadow 0.25s var(--ease-ressort); }
-.geste strong { font-size: 26px; }
-.geste.tech { background: var(--c); color: var(--t); }
+.gestes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 22px; }
+.geste { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 10px 16px 11px; text-align: left; border: var(--trait); border-radius: 18px; background: var(--c, #fff); color: var(--t, var(--color-encre)); box-shadow: 5px 5px 0 var(--color-encre); font-size: 11.5px; transition: transform 0.25s var(--ease-ressort), box-shadow 0.25s var(--ease-ressort); }
+.geste strong { display: flex; align-items: center; gap: 8px; font-size: 20px; line-height: 1.15; }
+.geste strong img { flex: none; border-radius: 50%; box-shadow: 0 0 0 1.5px var(--color-encre); }
+.geste .pp { opacity: 0.85; }
+.geste.lutte { grid-column: 1 / -1; }
 .geste:hover:not(:disabled) { transform: translate(-2px, -4px); box-shadow: 8px 9px 0 var(--color-encre); }
 .geste:active:not(:disabled) { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--color-encre); }
 .geste:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -82,16 +72,16 @@ h1 { font-size: clamp(38px, 5vw, 64px); margin: 8px 0 16px; }
 @media (max-width: 860px) {
   .face { grid-template-columns: 1fr; }
   .vs { text-align: center; }
-  .gestes { position: sticky; bottom: 0; z-index: 5; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-inline: -16px; padding: 10px 16px 12px; background: var(--color-papier); border-top: var(--trait); }
-  .geste { align-items: center; padding: 10px 6px; text-align: center; border-radius: 14px; box-shadow: 3px 3px 0 var(--color-encre); }
-  .geste strong { font-size: 16px; }
-  .geste span { font-size: 11px; line-height: 1.2; }
+  .gestes { position: sticky; bottom: 0; z-index: 5; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-inline: -16px; padding: 10px 16px 12px; background: var(--color-papier); border-top: var(--trait); }
+  .geste { padding: 7px 10px 8px; border-radius: 14px; box-shadow: 3px 3px 0 var(--color-encre); }
+  .geste strong { gap: 6px; font-size: 15px; }
+  .geste strong img { width: 16px; height: 16px; }
+  .geste span { font-size: 10px; line-height: 1.25; }
   .commandes { display: contents; }
   .plateau { min-height: 0; grid-template-areas: 'eux' 'moi'; }
   .poste.eux, .poste.moi { justify-self: center; margin: 0; }
-  .carte-geste { left: -64px; width: 74px; padding: 6px 4px; }
-  .carte-geste strong { font-size: 14px; }
-  .moi .carte-geste { right: -64px; }
+  .poste.eux { margin-left: 22%; }
+  .poste.moi { margin: 0 22% 0 0; }
   .poste.elan.moi { transform: translateY(-24px) scale(1.04); }
   .poste.elan.eux { transform: translateY(24px) scale(1.04); }
   .combattant { height: 160px; }
@@ -100,5 +90,5 @@ h1 { font-size: clamp(38px, 5vw, 64px); margin: 8px 0 16px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .poste, .carte-geste, .bandeau, .tampon-scene { animation: none; transition: none; }
+  .poste, .bandeau, .tampon-scene { animation: none; transition: none; }
 }

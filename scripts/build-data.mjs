@@ -3,6 +3,7 @@
 //         CSV_DIR=./csv npm run data   (réutilise des CSV déjà téléchargés)
 // Sorties : public/data/pokedex.json (léger, chargé au démarrage)
 //           public/data/details.json (textes, chargé à l'ouverture d'une fiche)
+//           src/app/core/game/capacites.ts (les capacités de combat, générées)
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
@@ -43,8 +44,8 @@ async function load(name) {
 
 const clean = (s) => s.replace(/[\n\f\r]+/g, ' ').replace(/­/g, '').replace(/\s+/g, ' ').trim();
 
-const [pokemon, species, names, pTypes, pStats, flavors, pAbilities, abilityNames, evolutions] = await Promise.all(
-  ['pokemon', 'pokemon_species', 'pokemon_species_names', 'pokemon_types', 'pokemon_stats', 'pokemon_species_flavor_text', 'pokemon_abilities', 'ability_names', 'pokemon_evolution'].map(load),
+const [pokemon, species, names, pTypes, pStats, flavors, pAbilities, abilityNames, evolutions, moves, moveNames, pMoves] = await Promise.all(
+  ['pokemon', 'pokemon_species', 'pokemon_species_names', 'pokemon_types', 'pokemon_stats', 'pokemon_species_flavor_text', 'pokemon_abilities', 'ability_names', 'pokemon_evolution', 'moves', 'move_names', 'pokemon_moves'].map(load),
 );
 
 const byId = (rows, key) => {
@@ -60,6 +61,59 @@ const abilitiesByPokemon = byId(pAbilities, 'pokemon_id');
 const abilityFr = new Map(abilityNames.filter((a) => a.local_language_id === FR).map((a) => [a.ability_id, a.name]));
 const evolutionBySpecies = new Map(evolutions.map((e) => [e.evolved_species_id, e]));
 const pokemonById = new Map(pokemon.map((p) => [p.id, p]));
+
+// --- Capacités de combat -------------------------------------------------------------
+// Seules les capacités qui infligent des dégâts directs sont gardées : le duel ne gère ni
+// les statuts, ni les attaques en deux tours, ni celles qui imposent une recharge ou un K.O.
+const ECARTEES = new Set([
+  'explosion', 'self-destruct', 'misty-explosion', 'hyper-beam', 'giga-impact', 'blast-burn', 'hydro-cannon',
+  'frenzy-plant', 'rock-wrecker', 'roar-of-time', 'prismatic-laser', 'eternabeam', 'meteor-assault',
+  'solar-beam', 'solar-blade', 'fly', 'dig', 'dive', 'bounce', 'skull-bash', 'sky-attack', 'razor-wind',
+  'shadow-force', 'phantom-force', 'freeze-shock', 'ice-burn', 'meteor-beam', 'sky-drop', 'electro-shot',
+  'focus-punch', 'dream-eater', 'snore', 'last-resort', 'belch', 'fake-out', 'first-impression',
+  'future-sight', 'doom-desire', 'synchronoise', 'struggle', 'steel-beam', 'mind-blown', 'chloroblast',
+]);
+const moveFr = new Map(moveNames.filter((n) => n.local_language_id === FR).map((n) => [n.move_id, n.name]));
+const attaques = new Map(
+  moves
+    .filter((m) => m.power && (m.damage_class_id === '2' || m.damage_class_id === '3') && !ECARTEES.has(m.identifier) && Number(m.id) < 10000)
+    .map((m) => [m.id, m]),
+);
+// Jeux les plus récents d'abord ; Légendes Arceus et Z-A ont leurs propres règles, on les laisse de côté.
+const JEUX = [25, 20, 23, 18, 17, 16, 15, 14, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1].map(String);
+const parNiveau = new Map();
+for (const r of pMoves) {
+  if (r.pokemon_move_method_id !== '1' || !attaques.has(r.move_id)) continue;
+  const parJeu = parNiveau.get(r.pokemon_id) ?? new Map();
+  parNiveau.set(r.pokemon_id, parJeu);
+  if (!parJeu.has(r.version_group_id)) parJeu.set(r.version_group_id, []);
+  parJeu.get(r.version_group_id).push({ id: r.move_id, level: Number(r.level) });
+}
+/** Niveau jusqu'auquel on pioche les capacités apprises : celui des duels. */
+const NIVEAU_MAX = 50;
+/**
+ * Les quatre capacités d'un Pokémon : la meilleure de chacun de ses types (bonus de même type),
+ * puis les plus fortes, en variant les types.
+ * Score = puissance × précision × bonus de même type × statistique d'attaque utilisée.
+ */
+function quatre(pokemonId, types) {
+  const st = (statsByPokemon.get(pokemonId) ?? []).reduce((o, s) => ({ ...o, [s.stat_id]: Number(s.base_stat) }), {});
+  const parJeu = parNiveau.get(pokemonId);
+  const jeu = parJeu && JEUX.find((j) => parJeu.has(j));
+  if (!jeu) return [33];
+  const appris = [...new Map(parJeu.get(jeu).filter((m) => m.level <= NIVEAU_MAX).map((m) => [m.id, m])).values()];
+  const pool = appris.length ? appris : parJeu.get(jeu).slice(0, 4);
+  const score = (id) => {
+    const m = attaques.get(id);
+    return Number(m.power) * (Number(m.accuracy) || 100) / 100 * (types.includes(Number(m.type_id)) ? 1.5 : 1) * ((m.damage_class_id === '2' ? st[2] : st[4]) || 50);
+  };
+  const tri = [...new Set(pool.map((m) => m.id))].sort((a, b) => score(b) - score(a) || Number(a) - Number(b));
+  const choix = [];
+  for (const t of types) { const m = tri.find((id) => Number(attaques.get(id).type_id) === t); if (m && !choix.includes(m)) choix.push(m); }
+  for (const id of tri) { if (choix.length >= 4) break; const t = attaques.get(id).type_id; if (!choix.includes(id) && !choix.some((c) => attaques.get(c).type_id === t)) choix.push(id); }
+  for (const id of tri) { if (choix.length >= 4) break; if (!choix.includes(id)) choix.push(id); }
+  return choix.slice(0, 4).map(Number);
+}
 
 const list = [];
 const details = {};
@@ -86,6 +140,7 @@ for (const sp of species) {
     from: sp.evolves_from_species_id ? Number(sp.evolves_from_species_id) : 0,
     chain: Number(sp.evolution_chain_id),
     level: evo?.minimum_level ? Number(evo.minimum_level) : 0,
+    moves: quatre(sp.id, (typesByPokemon.get(sp.id) ?? []).sort((a, b) => a.slot - b.slot).map((t) => Number(t.type_id))),
   });
   details[id] = {
     genus: fr?.genus ?? '',
@@ -99,4 +154,28 @@ list.sort((a, b) => a.id - b.id);
 await mkdir('public/data', { recursive: true });
 await writeFile('public/data/pokedex.json', JSON.stringify(list));
 await writeFile('public/data/details.json', JSON.stringify(details));
-console.log(`${list.length} Pokémon écrits dans public/data/`);
+
+const utilisees = [...new Set(list.flatMap((p) => p.moves))].sort((a, b) => a - b);
+const ligne = (id) => {
+  const m = attaques.get(String(id));
+  const nom = moveFr.get(String(id)) ?? m.identifier;
+  return `  ${id}: { nom: ${JSON.stringify(nom)}, type: ${m.type_id}, puissance: ${m.power}, precision: ${m.accuracy || 'null'}, pp: ${m.pp}, classe: '${m.damage_class_id === '2' ? 'physique' : 'speciale'}', priorite: ${m.priority} },`;
+};
+await writeFile('src/app/core/game/capacites.ts', `// Généré par scripts/build-data.mjs à partir des CSV de PokéAPI. Ne pas modifier à la main.
+export interface Capacite {
+  nom: string;
+  /** Identifiant de type PokéAPI. */
+  type: number;
+  puissance: number;
+  /** En pourcentage ; null = ne rate jamais. */
+  precision: number | null;
+  pp: number;
+  classe: 'physique' | 'speciale';
+  priorite: number;
+}
+
+export const CAPACITES: Record<number, Capacite> = {
+${utilisees.map(ligne).join('\n')}
+};
+`);
+console.log(`${list.length} Pokémon écrits dans public/data/, ${utilisees.length} capacités dans capacites.ts`);
