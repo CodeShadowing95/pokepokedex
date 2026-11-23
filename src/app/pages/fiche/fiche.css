@@ -9,6 +9,9 @@ h1 { font-size: clamp(48px, 7vw, 92px); margin: 4px 0 2px; }
 .boutons { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
 .portrait { position: relative; display: grid; place-items: center; }
 .portrait img { position: relative; width: min(460px, 100%); height: auto; filter: drop-shadow(8px 8px 0 rgba(30, 35, 64, 0.9)); }
+/* Le sprite animé, agrandi d'un facteur entier sans lissage : il reste net. Il pose ses pieds sur le bas du demi-cercle. */
+.portrait img.sprite { width: auto; max-width: 100%; height: auto; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(6px 6px 0 rgba(30, 35, 64, 0.9)); opacity: 0; }
+.portrait img.sprite.pret { opacity: 1; transition: opacity 0.2s; }
 .demi { position: absolute; width: 82%; aspect-ratio: 1; border: var(--trait); border-radius: 50%; background: linear-gradient(var(--color-papier) 0 50%, transparent 50%); }
 
 .corps { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; padding-top: 40px; align-items: start; }

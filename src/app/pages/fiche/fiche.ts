@@ -27,6 +27,12 @@ export class Fiche {
   protected readonly details = signal<PokemonDetails | undefined>(undefined);
   protected readonly shiny = signal(false);
   protected readonly moving = signal(true);
+  /** Le sprite animé de face (comme en arène) plutôt que l'illustration. */
+  protected readonly anime = signal(true);
+  /** Faux quand ce Pokémon n'a pas de sprite animé : on garde l'illustration. */
+  protected readonly spriteDispo = signal(true);
+  /** Agrandissement entier du sprite, pour des pixels nets et une hauteur commune d'environ 320 px. */
+  protected readonly zoom = signal<{ l: number; h: number } | null>(null);
   protected readonly aide = signal(false);
   protected fr(n: number): string {
     return String(n).replace('.', ',');
@@ -56,6 +62,18 @@ export class Fiche {
     };
   });
   protected readonly art = computed(() => artwork(this.pokemon()?.id ?? 0, this.shiny()));
+  protected readonly sprite = computed(() => animated(this.pokemon()?.id ?? 0, false, this.shiny()));
+  protected readonly enSprite = computed(() => this.anime() && this.spriteDispo());
+
+  protected agrandir(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    const k = Math.min(6, Math.max(2, Math.round(320 / img.naturalHeight)));
+    this.zoom.set({ l: img.naturalWidth * k, h: img.naturalHeight * k });
+  }
+
+  protected sansSprite(): void {
+    this.spriteDispo.set(false);
+  }
   protected readonly owned = computed(() => this.player.owned()[this.pokemon()?.id ?? 0]);
 
   constructor() {
@@ -66,6 +84,8 @@ export class Fiche {
       untracked(() => {
         this.player.markSeen(p, this.player.questType);
         this.shiny.set(false);
+        this.spriteDispo.set(true);
+        this.zoom.set(null);
         this.details.set(undefined);
       });
       this.dex.details(p.id).then((d) => {

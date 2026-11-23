@@ -14,12 +14,21 @@
         <div class="boutons">
           <button type="button" class="btn ghost sm" (click)="playCry()">Écouter son cri</button>
           <button type="button" class="btn ghost sm" [attr.aria-pressed]="shiny()" son="selection" (click)="shiny.set(!shiny())">{{ shiny() ? 'Couleurs normales' : 'Version chromatique' }}</button>
-          <button type="button" class="btn ghost sm" [attr.aria-pressed]="!moving()" son="selection" (click)="moving.set(!moving())">{{ moving() ? 'Figer' : 'Animer' }}</button>
+          @if (spriteDispo()) {
+            <button type="button" class="btn ghost sm" son="selection" (click)="anime.set(!anime())">{{ anime() ? 'Voir l’illustration' : 'Voir le sprite animé' }}</button>
+          }
+          @if (!enSprite()) {
+            <button type="button" class="btn ghost sm" [attr.aria-pressed]="!moving()" son="selection" (click)="moving.set(!moving())">{{ moving() ? 'Figer' : 'Animer' }}</button>
+          }
         </div>
       </div>
       <div class="portrait">
         <div class="demi" aria-hidden="true"></div>
-        <img [src]="art()" [alt]="v.p.name" width="460" height="460" [class]="moving() ? 'g-' + v.sig.gesture : ''" [style.--periode]="v.sig.period + 's'" />
+        @if (enSprite()) {
+          <img class="sprite" [class.pret]="zoom()" [src]="sprite()" [alt]="v.p.name" [style.width.px]="zoom()?.l" (load)="agrandir($event)" (error)="sansSprite()" />
+        } @else {
+          <img [src]="art()" [alt]="v.p.name" width="460" height="460" [class]="moving() ? 'g-' + v.sig.gesture : ''" [style.--periode]="v.sig.period + 's'" />
+        }
       </div>
     </div>
   </section>
