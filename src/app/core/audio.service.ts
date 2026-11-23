@@ -19,6 +19,8 @@ const EFFETS = {
   atterrir: 'pokeball-land.mp3',
   secousse: 'pokeball-wobble.mp3',
   capture: 'pokeball-caught.wav',
+  selection: 'select-options-audio.wav',
+  confirmation: 'confirm-button-audio.wav',
 } as const;
 export type Effet = keyof typeof EFFETS;
 const CLE = 'pokedex.son';
@@ -67,7 +69,7 @@ export class AudioService {
   effet(nom: Effet): void {
     if (!this.actif() || typeof Audio === 'undefined') return;
     const el = new Audio(urlSon(EFFETS[nom]));
-    el.volume = 0.8;
+    el.volume = nom === 'selection' || nom === 'confirmation' ? 0.5 : 0.8;
     void el.play().catch(() => undefined);
   }
 

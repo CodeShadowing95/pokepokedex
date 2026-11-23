@@ -1,3 +1,4 @@
+import { Son } from '../../ui/son';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { cardOf, evolutionLevel } from '../../core/game/cards';
@@ -8,7 +9,7 @@ import { typeOf } from '../../core/types';
 
 @Component({
   selector: 'app-cartes',
-  imports: [RouterLink],
+  imports: [Son, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './cartes.html',
   styleUrl: './cartes.css',

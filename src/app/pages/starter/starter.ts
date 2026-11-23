@@ -1,3 +1,4 @@
+import { Son } from '../../ui/son';
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AVATARS, prenomValide } from '../../core/avatars';
@@ -13,6 +14,7 @@ import { REGIONS, typeOf } from '../../core/types';
 type Etape = 'avatar' | 'nom' | 'pokemon';
 
 @Component({
+  imports: [Son],
   selector: 'app-starter',
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './starter.html',

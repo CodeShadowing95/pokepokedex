@@ -1,3 +1,4 @@
+import { Son } from '../../ui/son';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { GYMS, LEAGUE } from '../../core/game/campaign';
@@ -6,7 +7,7 @@ import { REGIONS, typeOf } from '../../core/types';
 
 @Component({
   selector: 'app-campagne',
-  imports: [RouterLink],
+  imports: [Son, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './campagne.html',
   styleUrl: './campagne.css',

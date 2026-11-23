@@ -1,3 +1,4 @@
+import { Son } from './son';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RencontreService } from '../core/rencontre.service';
 import { animated, artwork } from '../core/pokemon';
@@ -5,6 +6,7 @@ import { typeOf } from '../core/types';
 
 /** La bulle « ! » puis la carte « Un Pokémon sauvage veut se battre ! », en bas à droite. */
 @Component({
+  imports: [Son],
   selector: 'app-rencontre-sauvage',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -20,8 +22,8 @@ import { typeOf } from '../core/types';
             </div>
             <p class="titre disp">{{ v.titre }}</p>
             <div class="choix">
-              <button type="button" class="btn sm" (click)="r.combattre()">Combattre</button>
-              <button type="button" class="btn ghost sm" (click)="r.fuir()">Fuir</button>
+              <button type="button" class="btn sm" son="confirmation" (click)="r.combattre()">Combattre</button>
+              <button type="button" class="btn ghost sm" son="selection" (click)="r.fuir()">Fuir</button>
             </div>
             <span class="minuteur" aria-hidden="true"></span>
           </div>

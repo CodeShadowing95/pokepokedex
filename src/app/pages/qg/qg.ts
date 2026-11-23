@@ -1,3 +1,4 @@
+import { Son } from '../../ui/son';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { dresseurImg } from '../../core/dresseurs';
 import { RouterLink } from '@angular/router';
@@ -11,7 +12,7 @@ interface CryRound { answer: Pokemon; choices: Pokemon[]; picked: number }
 
 @Component({
   selector: 'app-qg',
-  imports: [RouterLink],
+  imports: [Son, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './qg.html',
   styleUrl: './qg.css',

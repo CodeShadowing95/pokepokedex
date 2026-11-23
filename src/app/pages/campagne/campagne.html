@@ -4,7 +4,7 @@
   <p class="lead">Huit arènes, chacune fidèle à un seul type, puis la Ligue. Gagner la Ligue ouvre la région suivante. Les champions sont des personnages originaux.</p>
   <div class="regions" role="tablist" aria-label="Régions">
     @for (r of regions(); track r.id) {
-      <button type="button" role="tab" class="chip" [class.on]="r.id === current().id" [attr.aria-selected]="r.id === current().id" [disabled]="!r.open" (click)="pick(r.id)">
+      <button type="button" role="tab" class="chip" [class.on]="r.id === current().id" [attr.aria-selected]="r.id === current().id" [disabled]="!r.open" son="selection" (click)="pick(r.id)">
         {{ r.name }}{{ r.open ? ' · ' + (r.won > 8 ? 8 : r.won) + '/8' : ' · fermée' }}
       </button>
     }

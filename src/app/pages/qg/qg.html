@@ -45,7 +45,7 @@
     } @else if (player.boosterReady()) {
       <h2>Cinq cartes t’attendent</h2>
       <p class="petit">Une peu commune au minimum. Une chance sur quarante qu’une carte soit chromatique.</p>
-      <button type="button" class="paquet pulse" (click)="open()"><span class="disp">Ouvrir</span></button>
+      <button type="button" class="paquet pulse" son="confirmation" (click)="open()"><span class="disp">Ouvrir</span></button>
     } @else {
       <h2>Déjà ouvert aujourd’hui</h2>
       <p>Le prochain booster arrive demain. Reviens pour garder ta série.</p>
@@ -106,19 +106,19 @@
       </div>
       <div class="choix">
         @for (c of r.choices; track c.id) {
-          <button type="button" class="rep" [disabled]="!!r.picked" [class.bon]="r.picked && c.id === r.answer.id" [class.faux]="r.picked === c.id && c.id !== r.answer.id" (click)="answer(c.id)">
+          <button type="button" class="rep" [disabled]="!!r.picked" [class.bon]="r.picked && c.id === r.answer.id" [class.faux]="r.picked === c.id && c.id !== r.answer.id" son="confirmation" (click)="answer(c.id)">
             <img [src]="art(c)" alt="" width="64" height="64" [class.cache]="!r.picked" />
             <span>{{ c.name }}</span>
           </button>
         }
       </div>
       @if (r.picked) {
-        <button type="button" class="btn sm" (click)="newRound()">Cri suivant</button>
+        <button type="button" class="btn sm" son="selection" (click)="newRound()">Cri suivant</button>
       }
     } @else {
       <h2>Reconnais-tu un Pokémon à l’oreille ?</h2>
       <p class="petit">Un cri, quatre propositions. Monte le son.</p>
-      <button type="button" class="btn sm" (click)="newRound()">Écouter un cri</button>
+      <button type="button" class="btn sm" son="selection" (click)="newRound()">Écouter un cri</button>
     }
   </article>
 

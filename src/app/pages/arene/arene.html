@@ -40,11 +40,11 @@
               }
             </div>
             @if (!challenge()) {
-              <button type="button" class="lien" (click)="reroll()">Un autre adversaire</button>
+              <button type="button" class="lien" son="selection" (click)="reroll()">Un autre adversaire</button>
             }
           </div>
         </div>
-        <button type="button" class="btn" [disabled]="!theirCards().length" (click)="start()">Commencer le duel</button>
+        <button type="button" class="btn" [disabled]="!theirCards().length" son="confirmation" (click)="start()">Commencer le duel</button>
 
         <div class="regles card">
           <h3>Les règles en vingt secondes</h3>
@@ -131,18 +131,18 @@
 
               <div class="gestes">
                 @if (peutCapturer()) {
-                  <button type="button" class="geste balle" [disabled]="busy() || !player.pokeballs()" (click)="lancerPokeball()">
+                  <button type="button" class="geste balle" [disabled]="busy() || !player.pokeballs()" son="confirmation" (click)="lancerPokeball()">
                     <strong class="disp"><i class="pokeball"></i>Pokéball</strong>
                     <span class="mono">{{ player.pokeballs() ? player.pokeballs() + ' en poche · le lancer remplace ton attaque' : 'Plus aucune Pokéball : reviens demain matin' }}</span>
                   </button>
                 }
                 @if (m.lutte) {
-                  <button type="button" class="geste lutte" [disabled]="busy()" (click)="play(STRUGGLE)">
+                  <button type="button" class="geste lutte" [disabled]="busy()" son="confirmation" (click)="play(STRUGGLE)">
                     <strong class="disp">Lutte</strong><span>Plus aucun PP : ton Pokémon se débat.</span>
                   </button>
                 } @else {
                   @for (c of m.capacites; track c.i) {
-                    <button type="button" class="geste" [disabled]="busy() || c.pp === 0" [style.--c]="c.ink.color" [style.--t]="c.ink.text" (click)="play(c.i)">
+                    <button type="button" class="geste" [disabled]="busy() || c.pp === 0" [style.--c]="c.ink.color" [style.--t]="c.ink.text" son="confirmation" (click)="play(c.i)">
                       <strong class="disp"><img [src]="c.ink.icon" alt="" width="20" height="20" />{{ c.m.nom }}</strong>
                       <span class="mono">Puiss. {{ c.m.puissance }} · Préc. {{ c.m.precision ? c.m.precision + ' %' : '—' }}</span>
                       <span class="mono pp">PP {{ c.pp }}/{{ c.m.pp }} · {{ c.m.classe === 'physique' ? 'physique' : 'spéciale' }}</span>
@@ -180,7 +180,7 @@
             @if (wild()) {
               <a class="btn" routerLink="/pokedex">Reprendre l’exploration</a>
             } @else {
-              <button type="button" class="btn" (click)="again()">{{ won() && challenge() ? 'Rejouer cette arène' : 'Revanche' }}</button>
+              <button type="button" class="btn" son="confirmation" (click)="again()">{{ won() && challenge() ? 'Rejouer cette arène' : 'Revanche' }}</button>
             }
             <a class="btn ghost" routerLink="/cartes">Voir mes cartes</a>
             @if (challenge()) {

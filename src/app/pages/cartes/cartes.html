@@ -30,7 +30,7 @@
             <span class="mono petit">{{ c.o.xp }} / 100 XP{{ c.o.count > 1 ? ' · ' + c.o.count + ' exemplaires' : '' }}</span>
             @for (n of c.next; track n.to.id) {
               @if (n.ready) {
-                <button type="button" class="btn jaune sm pulse" (click)="evolve(c.p, n.to)">Évoluer en {{ n.to.name }}</button>
+                <button type="button" class="btn jaune sm pulse" son="confirmation" (click)="evolve(c.p, n.to)">Évoluer en {{ n.to.name }}</button>
               } @else {
                 <span class="mono petit suite">Évolue en {{ n.to.name }} au niveau {{ n.need }}</span>
               }
@@ -51,7 +51,7 @@
         <img [src]="art(e.done ? e.to : e.from)" alt="" width="300" height="300" />
       </div>
       @if (e.done) {
-        <button type="button" class="btn" (click)="evolving.set(null)">Continuer</button>
+        <button type="button" class="btn" son="selection" (click)="evolving.set(null)">Continuer</button>
       }
     </div>
   </div>

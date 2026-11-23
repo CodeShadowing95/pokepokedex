@@ -1,3 +1,4 @@
+import { Son } from './son';
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { FACTEURS, cri, detail, facteurFr, tirage } from '../core/duel-express';
@@ -15,7 +16,7 @@ type Mode = 'explorer' | 'quiz';
   template: `
     <div class="modes" role="group" aria-label="Mode">
       <button type="button" class="chip" [class.on]="mode() === 'explorer'" [attr.aria-pressed]="mode() === 'explorer'" (click)="mode.set('explorer')">Explorer</button>
-      <button type="button" class="chip" [class.on]="mode() === 'quiz'" [attr.aria-pressed]="mode() === 'quiz'" (click)="lancerQuiz()">Quiz</button>
+      <button type="button" class="chip" [class.on]="mode() === 'quiz'" [attr.aria-pressed]="mode() === 'quiz'" son="confirmation" (click)="lancerQuiz()">Quiz</button>
     </div>
 
     @if (mode() === 'explorer') {
@@ -25,7 +26,7 @@ type Mode = 'explorer' | 'quiz';
           <div class="grille">
             @for (t of types; track t.id) {
               <button type="button" class="tt" [class.pris]="attaque() === t.id" [attr.aria-pressed]="attaque() === t.id"
-                [style.--c]="t.color" [style.--t]="t.text" (click)="attaque.set(t.id)">
+                [style.--c]="t.color" [style.--t]="t.text" son="selection" (click)="attaque.set(t.id)">
                 <img [src]="t.icon" alt="" width="30" height="30" /><span>{{ t.label }}</span>
               </button>
             }
@@ -50,7 +51,7 @@ type Mode = 'explorer' | 'quiz';
           <div class="grille">
             @for (t of types; track t.id) {
               <button type="button" class="tt" [class.pris]="defense().includes(t.id)" [attr.aria-pressed]="defense().includes(t.id)"
-                [style.--c]="t.color" [style.--t]="t.text" (click)="basculer(t.id)">
+                [style.--c]="t.color" [style.--t]="t.text" son="selection" (click)="basculer(t.id)">
                 <img [src]="t.icon" alt="" width="30" height="30" /><span>{{ t.label }}</span>
               </button>
             }
@@ -75,7 +76,7 @@ type Mode = 'explorer' | 'quiz';
           <p class="question disp">Combien de dégâts ?</p>
           <div class="choix">
             @for (f of facteurs; track f) {
-              <button type="button" class="btn ghost" (click)="repondre(f)">×{{ fr(f) }}</button>
+              <button type="button" class="btn ghost" son="confirmation" (click)="repondre(f)">×{{ fr(f) }}</button>
             }
           </div>
         } @else {
@@ -87,7 +88,7 @@ type Mode = 'explorer' | 'quiz';
               <span>= ×{{ fr(facteur()) }}</span>
             </p>
           }
-          <button type="button" class="btn" (click)="suivante()">Question suivante</button>
+          <button type="button" class="btn" son="confirmation" (click)="suivante()">Question suivante</button>
         }
       </div>
     }
@@ -101,7 +102,7 @@ type Mode = 'explorer' | 'quiz';
       }
     </ng-template>
   `,
-  imports: [NgTemplateOutlet],
+  imports: [Son, NgTemplateOutlet],
   styleUrl: './duel-express.css',
 })
 export class DuelExpress {

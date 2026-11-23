@@ -1,3 +1,4 @@
+import { Son } from '../../ui/son';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { cardOf } from '../../core/game/cards';
@@ -8,7 +9,7 @@ import { TYPES, effectiveness, typeOf } from '../../core/types';
 
 @Component({
   selector: 'app-equipe',
-  imports: [RouterLink],
+  imports: [Son, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './equipe.html',
   styleUrl: './equipe.css',

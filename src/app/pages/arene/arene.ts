@@ -1,3 +1,4 @@
+import { Son } from '../../ui/son';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { AudioService } from '../../core/audio.service';
 import { RouterLink } from '@angular/router';
@@ -42,7 +43,7 @@ const TAUX_DEFAUT = 45;
 
 @Component({
   selector: 'app-arene',
-  imports: [RouterLink, EffetSprite, Etiquette],
+  imports: [Son, RouterLink, EffetSprite, Etiquette],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './arene.html',
   styleUrls: ['./arene.css', './capture.css'],

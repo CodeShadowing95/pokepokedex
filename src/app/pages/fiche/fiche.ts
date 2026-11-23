@@ -1,3 +1,4 @@
+import { Son } from '../../ui/son';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { cardOf } from '../../core/game/cards';
@@ -10,7 +11,7 @@ import { TypeChip } from '../../ui/type-chip';
 
 @Component({
   selector: 'app-fiche',
-  imports: [RouterLink, TypeChip],
+  imports: [Son, RouterLink, TypeChip],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './fiche.html',
   styleUrl: './fiche.css',

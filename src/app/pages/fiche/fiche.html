@@ -13,8 +13,8 @@
         </div>
         <div class="boutons">
           <button type="button" class="btn ghost sm" (click)="playCry()">Écouter son cri</button>
-          <button type="button" class="btn ghost sm" [attr.aria-pressed]="shiny()" (click)="shiny.set(!shiny())">{{ shiny() ? 'Couleurs normales' : 'Version chromatique' }}</button>
-          <button type="button" class="btn ghost sm" [attr.aria-pressed]="!moving()" (click)="moving.set(!moving())">{{ moving() ? 'Figer' : 'Animer' }}</button>
+          <button type="button" class="btn ghost sm" [attr.aria-pressed]="shiny()" son="selection" (click)="shiny.set(!shiny())">{{ shiny() ? 'Couleurs normales' : 'Version chromatique' }}</button>
+          <button type="button" class="btn ghost sm" [attr.aria-pressed]="!moving()" son="selection" (click)="moving.set(!moving())">{{ moving() ? 'Figer' : 'Animer' }}</button>
         </div>
       </div>
       <div class="portrait">
@@ -58,7 +58,7 @@
         <div class="titre-info">
           <p class="eyebrow">Face aux types</p>
           <button type="button" class="info" [attr.aria-expanded]="aide()" aria-controls="aide-types"
-            aria-label="Que veulent dire ×2, ×0,5 et ×0 ?" (click)="aide.set(!aide())">i</button>
+            aria-label="Que veulent dire ×2, ×0,5 et ×0 ?" son="selection" (click)="aide.set(!aide())">i</button>
         </div>
         @if (aide()) {
           <div class="aide" id="aide-types" role="note">
@@ -115,7 +115,7 @@
           @if (owned(); as o) {
             <span class="chip on">Capturé · niv. {{ o.level }}</span>
           } @else {
-            <button type="button" class="btn sm" [disabled]="player.dust() < craftCost" (click)="craft()">Fabriquer ({{ craftCost }} poussière)</button>
+            <button type="button" class="btn sm" [disabled]="player.dust() < craftCost" son="confirmation" (click)="craft()">Fabriquer ({{ craftCost }} poussière)</button>
           }
         </div>
         @if (!owned()) {

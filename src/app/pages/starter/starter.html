@@ -7,7 +7,7 @@
 </section>
 <section class="page avatars" role="radiogroup" aria-label="Avatar">
   @for (a of avatars; track a.cle) {
-    <button type="button" class="avatar" role="radio" [attr.aria-checked]="avatar() === a.cle" [class.pris]="avatar() === a.cle" (click)="avatar.set(a.cle)" (dblclick)="suite()">
+    <button type="button" class="avatar" role="radio" [attr.aria-checked]="avatar() === a.cle" [class.pris]="avatar() === a.cle" son="selection" (click)="avatar.set(a.cle)" (dblclick)="suite()">
       <span class="socle-av dots"><img [src]="a.img" [alt]="a.nom" /></span>
       <strong class="disp">{{ a.nom }}</strong>
     </button>
@@ -17,7 +17,7 @@
   @if (nouveau()) {
     <button type="button" class="lien" (click)="explorer()">Explorer d’abord le Pokédex</button>
   } @else { <span></span> }
-  <button type="button" class="btn" [disabled]="!avatar()" (click)="suite()">Continuer</button>
+  <button type="button" class="btn" [disabled]="!avatar()" son="confirmation" (click)="suite()">Continuer</button>
 </section>
 }
 @case ('nom') {
@@ -30,8 +30,8 @@
       <input id="prenom" class="field" autocomplete="nickname" maxlength="12" placeholder="Ton prénom" [value]="prenom()" (input)="prenom.set($any($event.target).value)" autofocus />
       <p class="mono note">De 2 à 12 caractères. Il reste dans ce navigateur, rien n’est envoyé.</p>
       <div class="actions-nom">
-        <button type="button" class="lien" (click)="etape.set('avatar')">Changer d’avatar</button>
-        <button type="submit" class="btn" [disabled]="!prenomOk()">C’est moi</button>
+        <button type="button" class="lien" son="selection" (click)="etape.set('avatar')">Changer d’avatar</button>
+        <button son="confirmation" type="submit" class="btn" [disabled]="!prenomOk()">C’est moi</button>
       </div>
     </form>
   </div>
@@ -57,7 +57,7 @@
 
 <section class="page trio" role="radiogroup" aria-label="Pokémon de départ">
   @for (o of options(); track o.p.id) {
-    <button type="button" class="choix" role="radio" [attr.aria-checked]="chosen() === o.p.id" [class.pris]="chosen() === o.p.id" [class.autre]="chosen() && chosen() !== o.p.id" (click)="chosen.set(o.p.id)">
+    <button type="button" class="choix" role="radio" [attr.aria-checked]="chosen() === o.p.id" [class.pris]="chosen() === o.p.id" [class.autre]="chosen() && chosen() !== o.p.id" son="selection" (click)="chosen.set(o.p.id)">
       <span class="scene dots" [style.background-color]="o.ink.color">
         <img [src]="o.art" [alt]="o.p.name" width="240" height="240" [class]="chosen() === o.p.id ? o.gesture : ''" [style.--periode]="o.period" />
       </span>
@@ -76,7 +76,7 @@
       <span class="ami"><img [src]="f.art" alt="" width="56" height="56" />{{ f.p.name }}</span>
     }
   </div>
-  <button type="button" class="btn" [disabled]="!chosen()" (click)="confirm()">Partir avec lui</button>
+  <button type="button" class="btn" [disabled]="!chosen()" son="confirmation" (click)="confirm()">Partir avec lui</button>
 </section>
 }
 }
