@@ -17,15 +17,16 @@ h1 { font-size: clamp(38px, 5vw, 64px); margin: 8px 0 16px; }
 .regles ul { margin: 0; padding-left: 20px; }
 
 .duel-zone { padding-top: 28px; }
-/* Grand écran : les attaques sous le plateau, en grille de deux comme dans les jeux ; le journal à droite. */
+/* Grand écran : la scène à gauche, le panneau et les attaques à droite ; la Pokéball sous la scène. */
 @media (min-width: 1100px) {
-  .duel-zone { display: grid; grid-template-columns: minmax(0, 1fr) 300px; grid-template-areas: 'plateau journal' 'gestes journal'; gap: 16px 22px; align-items: start; padding-top: 20px; }
-  .commandes { display: contents; }
+  .duel-zone { display: grid; grid-template-columns: minmax(0, 1fr) 320px; grid-template-areas: 'plateau commandes' 'balle commandes'; gap: 16px 22px; align-items: start; padding-top: 20px; }
   .duel-zone .plateau { grid-area: plateau; }
-  .duel-zone .journal { grid-area: journal; position: sticky; top: 96px; margin-top: 0; }
-  .duel-zone .gestes { grid-area: gestes; margin-top: 0; gap: 12px; }
-  .duel-zone .geste { padding-block: 8px 9px; }
+  .duel-zone .zone-balle { grid-area: balle; }
+  .commandes { grid-area: commandes; position: sticky; top: 96px; display: grid; gap: 16px; }
+  .commandes .journal, .commandes .gestes { margin-top: 0; }
+  .commandes .gestes { grid-template-columns: 1fr; gap: 12px; }
 }
+
 .plateau { position: relative; display: grid; gap: 8px; padding: 22px; border: var(--trait); border-radius: 28px; background-color: var(--color-papier-fort); box-shadow: 8px 8px 0 var(--color-encre); }
 .plateau { grid-template-areas: 'eux' 'moi'; cursor: default; overflow: hidden; }
 .poste { display: flex; flex-direction: column; align-items: center; gap: 4px; transition: transform 0.25s var(--ease-ressort); }
@@ -45,17 +46,8 @@ h1 { font-size: clamp(38px, 5vw, 64px); margin: 8px 0 16px; }
 @keyframes glisser-d { from { translate: 100% 0; } }
 .combattant img { position: relative; max-width: 190px; max-height: 160px; min-height: 90px; margin-bottom: 20px; object-fit: contain; object-position: bottom; image-rendering: pixelated; }
 .combattant img { transition: transform 0.4s var(--ease-ressort), opacity 0.25s; }
-.combattant.cache img:not(.dresseur) { opacity: 0; transform: scale(0.2); }
-.combattant img.dresseur { position: absolute; left: 50%; bottom: 24px; z-index: 3; max-width: none; max-height: none; min-height: 0; height: 160px; margin: 0; translate: -50% 0; image-rendering: pixelated; filter: drop-shadow(4px 4px 0 rgb(30 35 64 / 0.35)); animation: arriver-d 0.5s var(--ease-ressort) both; transition: none; }
-.combattant img.d-moi { animation-name: arriver-g; }
 app-etiquette { transition: opacity 0.3s; }
 app-etiquette.cache { opacity: 0; }
-.combattant img.dresseur.sort { animation: sortir-d 0.45s ease-in forwards; }
-.combattant img.d-moi.sort { animation-name: sortir-g; }
-@keyframes arriver-d { from { transform: translateX(260px); opacity: 0; } }
-@keyframes arriver-g { from { transform: translateX(-260px); opacity: 0; } }
-@keyframes sortir-d { to { transform: translateX(260px); opacity: 0; } }
-@keyframes sortir-g { to { transform: translateX(-260px); opacity: 0; } }
 .socle { position: absolute; bottom: 6px; left: 12%; width: 76%; height: 34px; border: var(--trait); border-radius: 50%; box-shadow: 0 5px 0 var(--color-encre); }
 /* Ombre de contact : le Pokémon pèse sur son socle. */
 .socle::after { content: ''; position: absolute; left: 22%; right: 22%; top: 30%; height: 40%; border-radius: 50%; background: rgb(30 35 64 / 0.35); filter: blur(2px); }
@@ -99,7 +91,6 @@ app-etiquette.cache { opacity: 0; }
   .poste app-etiquette { width: 172px; padding: 6px 9px 7px; }
   .tampon-scene { font-size: 11.5px; padding: 3px 7px; }
   .degats { font-size: 26px; }
-  .combattant img.dresseur { height: 118px; bottom: 18px; }
   .poste.elan.moi { transform: translateY(-24px) scale(1.04); }
   .poste.elan.eux { transform: translateY(24px) scale(1.04); }
   .combattant { width: 150px; height: 150px; }

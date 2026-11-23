@@ -30,7 +30,7 @@ export interface PokemonDetails {
 const SPRITES = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon';
 
 export const artwork = (id: number, shiny = false) => `${SPRITES}/other/official-artwork/${shiny ? 'shiny/' : ''}${id}.png`;
-export const animated = (id: number, back = false) => `${SPRITES}/other/showdown/${back ? 'back/' : ''}${id}.gif`;
+export const animated = (id: number, back = false, shiny = false) => `${SPRITES}/other/showdown/${back ? 'back/' : ''}${shiny ? 'shiny/' : ''}${id}.gif`;
 export const cry = (id: number) => `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${id}.ogg`;
 export const dexNumber = (id: number) => '#' + String(id).padStart(4, '0');
 

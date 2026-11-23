@@ -8,7 +8,7 @@ import { DuelState, Fighter, PASSE, STRUGGLE, TurnReport, Who, active, chooseMac
 import { capturable, lancer } from '../../core/game/capture';
 import { PlayerStore } from '../../core/player.store';
 import { PokedexService } from '../../core/pokedex.service';
-import { animated, artwork } from '../../core/pokemon';
+import { animated, artwork, cry } from '../../core/pokemon';
 import { REGIONS, typeOf } from '../../core/types';
 import { tampon } from '../../core/game/sequence';
 import { EffetSprite } from '../../ui/effet-sprite';
@@ -28,14 +28,23 @@ interface Scene {
   tampon: { cible: Who; texte: string } | null;
   degats: { cible: Who; montant: number; cle: number } | null;
   /** Les dresseurs en scène au début du duel : ils entrent, puis sortent après avoir envoyé leur Pokémon. */
-  dresseurs: Record<Who, 'entre' | 'sort' | null>;
+  dresseurs: Record<Who, 'entre' | 'lance' | null>;
+  /** La Pokéball qu'un dresseur vient de lancer pour envoyer son Pokémon (clé d'animation). */
+  envoi: Record<Who, number | null>;
+  /** Le Pokémon qui sort de sa balle (clé d'animation). */
+  apparu: Record<Who, number | null>;
+  /** Pokémon qui s'effondrent, K.O. */
+  ko: Who[];
+  /** Le Pokémon sauvage est chromatique : il scintille en apparaissant. */
+  brille: boolean;
   /** Pokémon pas encore envoyés. */
   caches: Who[];
   /** La Pokéball lancée sur le Pokémon sauvage, étape par étape. */
   balle: { etat: EtatBalle; cle: number } | null;
 }
 type EtatBalle = 'vol' | 'aspire' | 'sol' | 'secousse' | 'tenue' | 'ouverte';
-const SCENE_VIDE: Scene = { bandeau: null, elan: null, effet: null, tampon: null, degats: null, dresseurs: { player: null, machine: null }, caches: [], balle: null };
+const PERSONNE = { player: null, machine: null };
+const SCENE_VIDE: Scene = { bandeau: null, elan: null, effet: null, tampon: null, degats: null, dresseurs: PERSONNE, caches: [], balle: null, envoi: PERSONNE, apparu: PERSONNE, ko: [], brille: false };
 /** Les phrases des jeux quand le Pokémon se libère, selon le nombre de secousses. */
 const LIBERE = ['Oh non ! Le Pokémon s’est libéré !', 'Raah ! Ça y était presque !', 'Aaaah ! Presque !', 'Mince ! Ça y était presque !'];
 /** Taux de capture par défaut, le temps que les fiches détaillées arrivent (celui des starters). */
@@ -46,7 +55,7 @@ const TAUX_DEFAUT = 45;
   imports: [Son, RouterLink, EffetSprite, Etiquette],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './arene.html',
-  styleUrls: ['./arene.css', './capture.css'],
+  styleUrls: ['./arene.css', './intro.css', './capture.css'],
 })
 export class Arene {
   private readonly dex = inject(PokedexService);
@@ -177,7 +186,7 @@ export class Arene {
       ink: typeOf(f.card.types[0]),
       capacites: f.card.moves.map((m, i) => ({ m, i, pp: f.pp[i], ink: typeOf(m.type) })),
       lutte: usable(f).length === 0,
-      sprite: animated(f.card.id, who === 'player'),
+      sprite: animated(f.card.id, who === 'player', who === 'player' ? !!this.player.owned()[f.card.id]?.shiny : !!this.wild() && this.chroma() === '1'),
     };
   }
 
@@ -211,25 +220,53 @@ export class Arene {
     void this.entree();
   }
 
-  /** Entrée en scène : les deux dresseurs arrivent, puis chacun envoie son premier Pokémon. */
+  /**
+   * Entrée en scène, comme dans les jeux : les dresseurs glissent jusqu'à leur place, puis chacun
+   * annonce son Pokémon, repart en lançant sa Pokéball, et le Pokémon sort de la balle.
+   * Face à un Pokémon sauvage, il est déjà là : seul ton dresseur entre.
+   */
   private async entree(): Promise<void> {
     const d = this.duel()!;
-    const moi = this.moiDresseur(), eux = this.euxDresseur();
-    const reduit = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const eux = this.euxDresseur();
+    const sauvage = active(d.machine).card;
     if (this.wild()) {
-      // Pas de dresseur en face : le Pokémon sauvage est déjà là.
-      this.scene.set({ ...SCENE_VIDE, dresseurs: { player: 'entre', machine: null }, caches: ['player'], bandeau: { texte: `Un ${active(d.machine).card.name} sauvage apparaît !`, cote: 'machine', icone: null } });
-      await this.attendre(reduit ? 700 : 1300);
+      const brille = this.chroma() === '1';
+      this.scene.set({ ...SCENE_VIDE, dresseurs: { player: 'entre', machine: null }, caches: ['player'], apparu: { player: null, machine: ++this.cle }, brille,
+        bandeau: { texte: `Un ${sauvage.name} sauvage apparaît !${brille ? ' Il brille !' : ''}`, cote: 'machine', icone: null } });
+      this.cri(sauvage.id);
+      await this.attendre(1800);
+      this.maj({ bandeau: null, brille: false });
     } else {
-      this.scene.set({ ...SCENE_VIDE, dresseurs: { player: 'entre', machine: 'entre' }, caches: ['player', 'machine'], bandeau: { texte: `${eux.nom} veut se battre !`, cote: 'machine', icone: null } });
-      await this.attendre(reduit ? 700 : 1200);
-      this.maj({ dresseurs: { player: 'entre', machine: 'sort' }, caches: ['player'], bandeau: { texte: `${eux.nom} envoie ${active(d.machine).card.name} !`, cote: 'machine', icone: null } });
-      await this.attendre(reduit ? 700 : 1000);
+      this.scene.set({ ...SCENE_VIDE, dresseurs: { player: 'entre', machine: 'entre' }, caches: ['player', 'machine'] });
+      await this.attendre(1000);
+      this.maj({ bandeau: { texte: `${eux.nom} veut se battre !`, cote: 'machine', icone: null } });
+      await this.attendre(1300);
+      await this.envoyer('machine', `${eux.nom} envoie ${sauvage.name} !`);
     }
-    this.maj({ dresseurs: { player: 'sort', machine: null }, caches: [], bandeau: { texte: `${moi.nom} envoie ${active(d.player).card.name} !`, cote: 'player', icone: null } });
-    await this.attendre(reduit ? 700 : 1000);
+    await this.envoyer('player', `Vas-y, ${active(d.player).card.name} !`);
     this.scene.set(SCENE_VIDE);
     this.busy.set(false);
+  }
+
+  /** Un dresseur annonce son Pokémon, lance la balle (bruit de lancer), et le Pokémon en sort (bruit de sortie, puis son cri). */
+  private async envoyer(who: Who, annonce: string): Promise<void> {
+    const carte = active(this.duel()![who]).card;
+    const present = this.scene().dresseurs[who] === 'entre';
+    this.maj({ bandeau: { texte: annonce, cote: who, icone: null } });
+    await this.attendre(1000);
+    this.audio.effet('lancer');
+    this.maj({ bandeau: null, dresseurs: { ...this.scene().dresseurs, [who]: present ? 'lance' : null }, envoi: { ...this.scene().envoi, [who]: ++this.cle } });
+    await this.attendre(560);
+    this.audio.effet('sortie');
+    this.maj({ caches: this.scene().caches.filter((w) => w !== who), apparu: { ...this.scene().apparu, [who]: ++this.cle } });
+    await this.attendre(420);
+    this.cri(carte.id);
+    await this.attendre(650);
+    this.maj({ envoi: { ...this.scene().envoi, [who]: null }, apparu: { ...this.scene().apparu, [who]: null }, dresseurs: { ...this.scene().dresseurs, [who]: null } });
+  }
+
+  private cri(id: number): void {
+    this.audio.cri(cry(id));
   }
 
   /** `choice` : indice de la capacité, ou STRUGGLE quand il ne reste plus de PP. */
@@ -334,10 +371,22 @@ export class Arene {
       await this.attendre(c.touche ? 900 : 700);
       this.maj({ elan: null, effet: null, tampon: null, degats: null, bandeau: null });
     }
-    this.scene.set(SCENE_VIDE);
+    // K.O. : le Pokémon s'effondre, puis son dresseur envoie le suivant.
+    const tombes = (['machine', 'player'] as Who[]).filter((w) => (w === 'machine' ? report.koMachine : report.koPlayer));
+    if (tombes.length) {
+      this.maj({ ko: tombes, bandeau: { texte: `${before[tombes[0]].name} est K.O. !`, cote: tombes[0], icone: null } });
+      await this.attendre(1300);
+    }
+    const remplaces = next.winner ? [] : tombes;
+    this.scene.set({ ...SCENE_VIDE, caches: remplaces });
     this.encaisse.set({ player: 0, machine: 0 });
     this.duel.set(next);
     this.report.set(report);
+    for (const w of remplaces) {
+      const nom = active(next[w]).card.name;
+      await this.envoyer(w, w === 'machine' ? `${this.euxDresseur().nom} envoie ${nom} !` : `À toi, ${nom} !`);
+    }
+    this.scene.set(SCENE_VIDE);
     this.busy.set(false);
     if (next.winner) this.finish(next.winner === 'player');
   }

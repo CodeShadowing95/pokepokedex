@@ -50,3 +50,6 @@
 @media (prefers-reduced-motion: reduce) {
   .lancer .pokeball, .eclair, .etoiles b { animation: none !important; }
 }
+.zone-balle .geste { width: 100%; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; }
+@media (max-width: 1099px) { .zone-balle { margin-top: 16px; } }
+@media (max-width: 860px) { .zone-balle .geste { flex-direction: column; align-items: flex-start; } }
