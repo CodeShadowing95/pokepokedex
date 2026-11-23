@@ -8,23 +8,16 @@ import { TransitionService } from '../core/transition.service';
   template: `
     @if (t.etape(); as e) {
       <div class="voile" [attr.data-etape]="e" aria-hidden="true">
-        @if (e === 'alerte') {
-          <span class="eclair"></span>
-        } @else {
-          <span class="eclair"></span>
-          @for (i of bandes; track i) { <span class="bande" [style.--i]="i"></span> }
-          <i class="pokeball geante"></i>
-        }
+        <span class="eclair"></span>
+        @for (i of bandes; track i) { <span class="bande" [style.--i]="i"></span> }
+        <i class="pokeball geante"></i>
       </div>
     }
   `,
   styles: `
-    .voile { position: fixed; inset: 0; z-index: 100; display: grid; grid-template-rows: repeat(8, 1fr); overflow: hidden; pointer-events: none; }
-    .voile:not([data-etape='alerte']) { pointer-events: auto; }
+    .voile { position: fixed; inset: 0; z-index: 100; display: grid; grid-template-rows: repeat(8, 1fr); overflow: hidden; }
     .eclair { position: absolute; inset: 0; z-index: 2; background: #fff; opacity: 0; }
 
-    /* Deux éclairs blancs quand le Pokémon surgit. */
-    [data-etape='alerte'] .eclair { animation: eclairs 0.65s steps(1) both; }
     @keyframes eclairs { 0% { opacity: 0.85; } 15% { opacity: 0; } 30% { opacity: 0.85; } 45%, 100% { opacity: 0; } }
 
     /* Trois éclairs, puis les bandes d'encre ferment l'écran une à une, en alternant les côtés. */

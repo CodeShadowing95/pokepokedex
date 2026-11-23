@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
-import { AudioService, Piste } from './audio.service';
+import { AudioService } from './audio.service';
 import { TransitionService } from './transition.service';
 import { total } from './game/cards';
 import { PlayerStore } from './player.store';
@@ -30,8 +30,6 @@ export class RencontreService {
   private readonly dex = inject(PokedexService);
   private readonly audio = inject(AudioService);
   private readonly transition = inject(TransitionService);
-  /** La musique de la page avant la rencontre, rendue si l'on fuit. */
-  private avant: Piste | null = null;
 
   readonly courante = signal<Rencontre | null>(null);
   private readonly debut = Date.now();
@@ -76,10 +74,6 @@ export class RencontreService {
     this.player.noterRencontre();
     this.courante.set({ pokemon, chromatique: Math.random() < RENCONTRE.chromatique, nouveau: !this.player.isSeen(pokemon.id), etape: 'bulle', fin: '' });
     this.audio.effet('exclamation');
-    // Comme dans les jeux : la musique de combat part dès que le Pokémon surgit, et l'écran clignote.
-    this.avant = this.audio.piste;
-    this.audio.jouer('sauvage');
-    this.transition.alerte();
     this.plus(900, () => this.courante.update((r) => r && { ...r, etape: 'carte' }));
     this.plus(RENCONTRE.patience, () => this.partir(`${pokemon.name} est reparti dans les hautes herbes.`));
   }
@@ -89,7 +83,8 @@ export class RencontreService {
     if (!r) return;
     this.fermer();
     this.player.markSeen(r.pokemon, 0);
-    // Les bandes d'encre ferment l'écran, on change de page dessous, puis elles s'ouvrent sur le duel.
+    this.audio.jouer('sauvage');
+    // On accepte le combat : la musique part, l'écran clignote, les bandes d'encre ferment l'écran, on change de page dessous, puis elles s'ouvrent sur le duel.
     void this.transition.couvrir()
       .then(() => this.router.navigate(['/arene'], { queryParams: { sauvage: r.pokemon.id, chroma: r.chromatique ? 1 : null } }))
       .finally(() => setTimeout(() => this.transition.decouvrir(), 250));
@@ -102,7 +97,6 @@ export class RencontreService {
   private partir(fin: string): void {
     if (!this.courante()) return;
     this.vider();
-    this.audio.jouer(this.avant ?? 'opening');
     this.courante.update((r) => r && { ...r, etape: 'fuite', fin });
     this.plus(1800, () => this.courante.set(null));
   }

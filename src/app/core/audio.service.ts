@@ -75,9 +75,6 @@ export class AudioService {
     if (this.actif()) this.appliquer();
   }
 
-  /** La piste que la scène a demandée en dernier. */
-  get piste(): Piste | null { return this.voulue; }
-
   /** Fin de scène sans musique (une défaite) : la piste s'éteint doucement. */
   silence(): void {
     this.voulue = null;
