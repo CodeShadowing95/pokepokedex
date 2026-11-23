@@ -4,6 +4,7 @@ import { filter } from 'rxjs';
 import { AudioService } from './core/audio.service';
 import { RencontreService } from './core/rencontre.service';
 import { RencontreSauvage } from './ui/rencontre-sauvage';
+import { TransitionCombat } from './ui/transition-combat';
 import { Logotype } from './ui/logotype';
 import { ReglageSon } from './ui/reglage-son';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
@@ -12,7 +13,7 @@ import { dresseurImg } from './core/dresseurs';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, Logotype, RencontreSauvage, ReglageSon],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, Logotype, RencontreSauvage, ReglageSon, TransitionCombat],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './app.html',
   styleUrl: './app.css',

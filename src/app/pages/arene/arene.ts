@@ -184,8 +184,9 @@ export class Arene {
     // Hors combat, l'arène garde la musique d'ouverture ; une rencontre sauvage démarre tout de suite.
     effect(() => {
       if (this.phase() !== 'prep') return;
-      untracked(() => this.audio.jouer('opening'));
       const w = this.wild();
+      // Face à un sauvage, la musique de combat joue déjà depuis l'alerte : on ne la coupe pas.
+      if (!w) untracked(() => this.audio.jouer('opening'));
       if (w && this.theirCards().length && this.myCards().length) {
         untracked(() => {
           this.taux = TAUX_DEFAUT;
