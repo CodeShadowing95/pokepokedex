@@ -9,7 +9,12 @@
     </nav>
     <a routerLink="/qg" class="qg" routerLinkActive="actif" [attr.aria-label]="'Mon QG, série de ' + player.streak() + ' jours, niveau ' + player.level()">
       <span class="mono serie">{{ player.streak() }} j</span>
-      <span>Mon QG</span>
+      @if (player.dresseur(); as d) {
+        <span class="tete-av" aria-hidden="true"><img [src]="img(d.avatar)" alt="" /></span>
+        <span>{{ d.nom }}</span>
+      } @else {
+        <span>Mon QG</span>
+      }
       @if (player.boosterReady()) {
         <span class="point pulse" aria-hidden="true"></span>
       }

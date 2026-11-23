@@ -22,7 +22,6 @@
                   <div class="haut dots"><img [src]="art(c)" [alt]="c.name" width="120" height="120" /></div>
                   <strong class="disp">{{ c.name }}</strong>
                   <span class="mono">N.{{ c.level }} · PV {{ c.hp }} · VIT {{ c.spd }}</span>
-                  <ul class="capas">@for (m of c.moves; track m.id) {<li><img [src]="inkOf(m.type).icon" alt="" width="14" height="14" />{{ m.nom }}</li>}</ul>
                 </div>
               }
             </div>
@@ -37,7 +36,6 @@
                   <div class="haut dots"><img [src]="art(c)" [alt]="c.name" width="120" height="120" /></div>
                   <strong class="disp">{{ c.name }}</strong>
                   <span class="mono">N.{{ c.level }} · PV {{ c.hp }} · VIT {{ c.spd }}</span>
-                  <ul class="capas">@for (m of c.moves; track m.id) {<li><img [src]="inkOf(m.type).icon" alt="" width="14" height="14" />{{ m.nom }}</li>}</ul>
                 </div>
               }
             </div>
@@ -68,10 +66,13 @@
             @let sc = scene();
             <div class="plateau dots" (click)="accelerer()" [attr.title]="busy() ? 'Clique pour accélérer' : null">
               <div class="poste eux" [class.elan]="sc.elan === 'machine'">
-                <app-etiquette [nom]="f.f.card.name" [type]="f.ink" [pv]="f.hp" [max]="f.f.card.hp" [fantome]="f.hpPct" [niveau]="f.f.card.level" [equipe]="f.vivants" />
-                <div class="combattant" [class.touche]="sc.degats?.cible === 'machine'">
+                <app-etiquette [class.cache]="sc.caches.includes('machine')" [nom]="f.f.card.name" [type]="f.ink" [pv]="f.hp" [max]="f.f.card.hp" [fantome]="f.hpPct" [niveau]="f.f.card.level" [equipe]="f.vivants" />
+                <div class="combattant" [class.touche]="sc.degats?.cible === 'machine'" [class.cache]="sc.caches.includes('machine')">
                   <span class="socle" [style.background]="f.ink.color"></span>
                   <img [src]="f.sprite" [alt]="f.f.card.name" (error)="fallback($event, f.f.card.id)" />
+                  @if (sc.dresseurs.machine; as etat) {
+                    <img class="dresseur d-eux" [class.sort]="etat === 'sort'" [src]="img(euxDresseur().avatar)" [alt]="euxDresseur().nom" />
+                  }
                   @if (sc.effet?.cible === 'machine') {
                     @for (k of [sc.effet!.cle]; track k) { <app-effet class="impact" [nom]="sc.effet!.nom" [taille]="140" /> }
                   }
@@ -84,10 +85,13 @@
                 </div>
               </div>
               <div class="poste moi" [class.elan]="sc.elan === 'player'">
-                <app-etiquette [nom]="m.f.card.name" [type]="m.ink" [pv]="m.hp" [max]="m.f.card.hp" [fantome]="m.hpPct" [niveau]="m.f.card.level" [equipe]="m.vivants" />
-                <div class="combattant" [class.touche]="sc.degats?.cible === 'player'">
+                <app-etiquette [class.cache]="sc.caches.includes('player')" [nom]="m.f.card.name" [type]="m.ink" [pv]="m.hp" [max]="m.f.card.hp" [fantome]="m.hpPct" [niveau]="m.f.card.level" [equipe]="m.vivants" />
+                <div class="combattant" [class.touche]="sc.degats?.cible === 'player'" [class.cache]="sc.caches.includes('player')">
                   <span class="socle" [style.background]="m.ink.color"></span>
                   <img [src]="m.sprite" [alt]="m.f.card.name" (error)="fallback($event, m.f.card.id)" />
+                  @if (sc.dresseurs.player; as etat) {
+                    <img class="dresseur d-moi" [class.sort]="etat === 'sort'" [src]="img(moiDresseur().avatar)" [alt]="moiDresseur().nom" />
+                  }
                   @if (sc.effet?.cible === 'player') {
                     @for (k of [sc.effet!.cle]; track k) { <app-effet class="impact" [nom]="sc.effet!.nom" [taille]="140" /> }
                   }
@@ -109,7 +113,11 @@
 
             <div class="commandes">
               <div class="journal card" aria-live="polite">
-                <p class="message">{{ report()?.message ?? 'Manche 1. Choisis une capacité : la machine choisit en même temps.' }}</p>
+                <h2 class="titre-j disp">Sélectionne une attaque</h2>
+                <p class="sous">Choisis une capacité : la machine choisit en même temps.</p>
+                @if (report(); as r) {
+                  <p class="dernier mono">Manche {{ duel()!.turn - 1 }} · {{ r.message }}</p>
+                }
               </div>
 
               <div class="gestes">

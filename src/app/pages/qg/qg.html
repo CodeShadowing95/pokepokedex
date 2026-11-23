@@ -1,6 +1,15 @@
 <section class="page tete">
-  <p class="eyebrow">Mon QG</p>
+  @if (player.dresseur(); as d) {
+    <a class="moi-dresseur" routerLink="/bienvenue" [queryParams]="{ modifier: 1 }" title="Modifier mon dresseur">
+      <img [src]="img(d.avatar)" alt="" />
+      <span class="mono">Modifier</span>
+    </a>
+  }
+  <p class="eyebrow">{{ player.dresseur() ? 'QG de ' + player.dresseur()!.nom : 'Mon QG' }}</p>
   <h1>Niveau {{ player.level() }}</h1>
+  @if (!player.dresseur()) {
+    <a class="lien" routerLink="/bienvenue" [queryParams]="{ modifier: 1 }">Créer mon dresseur</a>
+  }
   <div class="niveau">
     <span class="bar" role="img" [attr.aria-label]="'Progression vers le niveau suivant : ' + player.levelProgress() + ' %'"><i [style.width.%]="player.levelProgress()"></i></span>
     <span class="mono">{{ player.ownedCount() }} cartes · {{ player.seenCount() }} vus · {{ player.snapshot().wins }} victoires · {{ player.dust() }} poussière</span>

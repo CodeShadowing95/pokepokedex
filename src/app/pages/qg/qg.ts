@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { dresseurImg } from '../../core/dresseurs';
 import { RouterLink } from '@angular/router';
 import { GYMS } from '../../core/game/campaign';
 import { PlayerStore, Pull, dailyNumber, dayKey } from '../../core/player.store';
@@ -16,6 +17,7 @@ interface CryRound { answer: Pokemon; choices: Pokemon[]; picked: number }
   styleUrl: './qg.css',
 })
 export class Qg {
+  protected readonly img = dresseurImg;
   private readonly dex = inject(PokedexService);
   protected readonly player = inject(PlayerStore);
 

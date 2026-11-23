@@ -35,6 +35,7 @@ import { TypeInfo } from '../core/types';
     .banc { display: flex; gap: 3px; }
     .banc i { width: 9px; height: 9px; border: 1.5px solid var(--color-encre); border-radius: 50%; background: var(--color-rouge); }
     .banc i.ko { background: #fff; opacity: 0.5; }
+    @media (max-width: 860px) { .haut { gap: 5px; } .haut img { width: 16px; height: 16px; } .haut strong { font-size: 14px; } .pv { font-size: 10px; } }
   `,
 })
 export class Etiquette {

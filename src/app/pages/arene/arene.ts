@@ -10,6 +10,8 @@ import { REGIONS, typeOf } from '../../core/types';
 import { tampon } from '../../core/game/sequence';
 import { EffetSprite } from '../../ui/effet-sprite';
 import { Etiquette } from '../../ui/etiquette';
+import { DRESSEUR_PAR_TYPE } from '../../core/avatars';
+import { dresseurImg } from '../../core/dresseurs';
 
 type Phase = 'prep' | 'fight' | 'end';
 const KO_XP = 40;
@@ -22,8 +24,12 @@ interface Scene {
   effet: { cible: Who; nom: string; cle: number } | null;
   tampon: { cible: Who; texte: string } | null;
   degats: { cible: Who; montant: number; cle: number } | null;
+  /** Les dresseurs en scène au début du duel : ils entrent, puis sortent après avoir envoyé leur Pokémon. */
+  dresseurs: Record<Who, 'entre' | 'sort' | null>;
+  /** Pokémon pas encore envoyés. */
+  caches: Who[];
 }
-const SCENE_VIDE: Scene = { bandeau: null, elan: null, effet: null, tampon: null, degats: null };
+const SCENE_VIDE: Scene = { bandeau: null, elan: null, effet: null, tampon: null, degats: null, dresseurs: { player: null, machine: null }, caches: [] };
 
 @Component({
   selector: 'app-arene',
@@ -55,6 +61,21 @@ export class Arene {
   private readonly rivalSeed = signal(0);
 
   protected readonly STRUGGLE = STRUGGLE;
+  protected readonly img = dresseurImg;
+
+  /** Ton dresseur, ou un dresseur par défaut si l'accueil a été passé. */
+  protected readonly moiDresseur = computed(() => this.player.dresseur() ?? { nom: 'Toi', avatar: 'jeune-pousse' });
+  /** Le dresseur d'en face : le champion de l'arène, la Ligue, ou un dresseur de passage en duel libre. */
+  protected readonly euxDresseur = computed(() => {
+    const c = this.challenge();
+    if (c && c.gym !== LEAGUE) {
+      const g = GYMS[c.region - 1][c.gym - 1];
+      return { nom: g.leader, avatar: DRESSEUR_PAR_TYPE[g.type] };
+    }
+    if (c) return { nom: 'La Ligue', avatar: 'topdresseur' };
+    const pool = Object.values(DRESSEUR_PAR_TYPE);
+    return { nom: 'La machine', avatar: pool[this.rivalSeed() % pool.length] };
+  });
 
   protected readonly challenge = computed(() => {
     const region = Number(this.region()), gym = Number(this.gym());
@@ -110,7 +131,6 @@ export class Arene {
 
   protected art(card: Card): string { return artwork(card.id); }
   protected ink(card: Card) { return typeOf(card.types[0]); }
-  protected inkOf(type: number) { return typeOf(type); }
   protected alive(f: Fighter): boolean { return f.hp > 0; }
 
   /** Certains Pokémon récents n'ont pas de sprite animé : on retombe sur l'illustration. */
@@ -130,6 +150,24 @@ export class Arene {
     this.scene.set(SCENE_VIDE);
     this.duel.set(createDuel(this.myCards(), this.theirCards()));
     this.phase.set('fight');
+    this.busy.set(true);
+    this.vitesse = 1;
+    void this.entree();
+  }
+
+  /** Entrée en scène : les deux dresseurs arrivent, puis chacun envoie son premier Pokémon. */
+  private async entree(): Promise<void> {
+    const d = this.duel()!;
+    const moi = this.moiDresseur(), eux = this.euxDresseur();
+    const reduit = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    this.scene.set({ ...SCENE_VIDE, dresseurs: { player: 'entre', machine: 'entre' }, caches: ['player', 'machine'], bandeau: { texte: `${eux.nom} veut se battre !`, cote: 'machine', icone: null } });
+    await this.attendre(reduit ? 700 : 1200);
+    this.maj({ dresseurs: { player: 'entre', machine: 'sort' }, caches: ['player'], bandeau: { texte: `${eux.nom} envoie ${active(d.machine).card.name} !`, cote: 'machine', icone: null } });
+    await this.attendre(reduit ? 700 : 1000);
+    this.maj({ dresseurs: { player: 'sort', machine: null }, caches: [], bandeau: { texte: `${moi.nom} envoie ${active(d.player).card.name} !`, cote: 'player', icone: null } });
+    await this.attendre(reduit ? 700 : 1000);
+    this.scene.set(SCENE_VIDE);
+    this.busy.set(false);
   }
 
   /** `choice` : indice de la capacité, ou STRUGGLE quand il ne reste plus de PP. */

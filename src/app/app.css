@@ -9,6 +9,9 @@ nav { display: flex; gap: 22px; margin-left: auto; overflow-x: auto; }
 .qg { position: relative; display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 16px 0 6px; border: var(--trait); border-radius: 999px; background: #fff; box-shadow: 4px 4px 0 var(--color-encre); font-weight: 700; font-size: 14px; text-decoration: none; white-space: nowrap; transition: transform 0.25s var(--ease-ressort); }
 .qg:hover { transform: translate(-2px, -2px); }
 .qg.actif { background: var(--color-jaune); }
+/* Le haut de l'avatar, cadré comme un portrait. */
+.tete-av { width: 30px; height: 30px; overflow: hidden; border: 2px solid var(--color-encre); border-radius: 50%; background: var(--color-papier-fort); }
+.tete-av img { display: block; width: 46px; max-width: none; margin: 1px 0 0 -8px; image-rendering: pixelated; }
 .serie { display: grid; place-items: center; height: 30px; padding: 0 10px; border-radius: 999px; background: var(--color-encre); color: #fff; font-size: 12px; }
 .point { position: absolute; top: -6px; right: -6px; width: 16px; height: 16px; border: 2px solid var(--color-encre); border-radius: 50%; background: var(--color-rouge); }
 main { min-height: 70vh; }

@@ -23,6 +23,10 @@ export interface PlayerState {
   mystery: { day: string; tries: number; solved: boolean };
   /** Nombre d'arènes gagnées, par région (1 = Kanto). */
   badges: Record<number, number>;
+  /** Le dresseur choisi à l'accueil : son prénom et son avatar (clé de core/dresseurs.ts). */
+  dresseur: { nom: string; avatar: string } | null;
+  /** Vrai quand le visiteur a choisi d'explorer sans passer par l'accueil. */
+  accueilPasse: boolean;
 }
 
 export interface Quest {
@@ -46,6 +50,7 @@ const EMPTY: PlayerState = {
   starter: 0, owned: {}, seen: [], deck: [], dust: 0, xp: 0, wins: 0,
   streak: { count: 0, last: '', jokerWeek: '' },
   boosterDay: '', quests: { day: '', progress: {} }, mystery: { day: '', tries: 0, solved: false }, badges: {},
+  dresseur: null, accueilPasse: false,
 };
 
 export const CARD_XP_PER_LEVEL = 100;
@@ -82,6 +87,9 @@ export class PlayerStore {
 
   readonly snapshot = this.state.asReadonly();
   readonly starter = computed(() => this.state().starter);
+  readonly dresseur = computed(() => this.state().dresseur);
+  /** Premier passage : ni dresseur, ni Pokémon de départ, et l'accueil n'a pas été passé. */
+  readonly nouveau = computed(() => !this.state().dresseur && !this.state().starter && !this.state().accueilPasse);
   readonly owned = computed(() => this.state().owned);
   readonly ownedCount = computed(() => Object.keys(this.state().owned).length);
   readonly seenCount = computed(() => this.state().seen.length);
@@ -109,6 +117,12 @@ export class PlayerStore {
 
   isOwned(id: number): boolean { return !!this.state().owned[id]; }
   isSeen(id: number): boolean { return this.state().seen.includes(id) || this.isOwned(id); }
+
+  setDresseur(nom: string, avatar: string): void {
+    this.patch(() => ({ dresseur: { nom: nom.trim().slice(0, 12), avatar } }));
+  }
+
+  passerAccueil(): void { this.patch(() => ({ accueilPasse: true })); }
 
   chooseStarter(id: number): void {
     this.patch((s) => ({ starter: id, deck: s.deck.includes(id) ? s.deck : [id, ...s.deck].slice(0, 3) }));

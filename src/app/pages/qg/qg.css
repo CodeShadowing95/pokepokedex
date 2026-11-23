@@ -1,4 +1,9 @@
-.tete { padding: 48px 0 28px; }
+.tete { position: relative; padding: 48px 0 28px; }
+.moi-dresseur { position: absolute; right: 0; bottom: 20px; display: grid; justify-items: center; gap: 4px; padding: 10px 18px 8px; border: var(--trait); border-radius: 18px; background: var(--color-papier-fort); box-shadow: 4px 4px 0 var(--color-encre); text-decoration: none; transition: transform 0.25s var(--ease-ressort); }
+.moi-dresseur:hover { transform: translate(-2px, -3px) rotate(1deg); }
+.moi-dresseur img { height: 130px; image-rendering: pixelated; }
+.moi-dresseur .mono { font-size: 11px; }
+@media (max-width: 640px) { .moi-dresseur { bottom: auto; top: 40px; padding: 6px 10px; } .moi-dresseur img { height: 84px; } }
 h1 { font-size: clamp(44px, 6.4vw, 88px); margin: 8px 0 14px; }
 .niveau { display: grid; gap: 8px; max-width: 560px; }
 .niveau .bar { height: 18px; }

@@ -18,6 +18,18 @@ describe('PlayerStore', () => {
     expect(store.deck()).toEqual([4]);
   });
 
+  it('accueille un nouveau visiteur, puis retient son dresseur', () => {
+    expect(store.nouveau()).toBe(true);
+    store.setDresseur('  Patrick  ', 'fillette');
+    expect(store.dresseur()).toEqual({ nom: 'Patrick', avatar: 'fillette' });
+    expect(store.nouveau()).toBe(false);
+  });
+
+  it('ne redemande plus l’accueil à qui a choisi d’explorer', () => {
+    store.passerAccueil();
+    expect(store.nouveau()).toBe(false);
+  });
+
   it('transforme un doublon en poussière', () => {
     expect(store.addCard(1, false)).toBe(true);
     expect(store.addCard(1, false)).toBe(false);
