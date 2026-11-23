@@ -1,0 +1,60 @@
+/* ---- Lancer de Pokéball ---- */
+.plateau { --dx: -340px; --dy: 300px; --haut: -112px; }
+.combattant img:not(.dresseur) { transition: transform 0.45s var(--ease-ressort), opacity 0.35s, filter 0.3s; }
+/* Le Pokémon est aspiré dans la balle : il rougit, rétrécit et monte vers elle. */
+.combattant.aspire img:not(.dresseur) { transform: translateY(-70px) scale(0.05); opacity: 0; filter: brightness(0.55) sepia(1) saturate(9) hue-rotate(-25deg); transition-duration: 0.5s; }
+.lancer { position: absolute; left: 50%; bottom: 26px; z-index: 6; width: 34px; height: 34px; margin-left: -17px; font-size: 34px; pointer-events: none; }
+.lancer .pokeball { display: block; transform-origin: 50% 90%; filter: drop-shadow(3px 3px 0 rgb(30 35 64 / 0.35)); }
+.lancer[data-etat='vol'] .pokeball { animation: vol 0.65s cubic-bezier(0.25, 0.6, 0.45, 1) both; }
+.lancer[data-etat='aspire'] .pokeball, .lancer[data-etat='ouverte'] .pokeball { transform: translateY(var(--haut)); }
+.lancer[data-etat='sol'] .pokeball { animation: tomber 0.75s both; }
+.lancer[data-etat='secousse'] .pokeball { animation: trembler 0.8s ease-in-out both; }
+.lancer[data-etat='tenue'] .pokeball { filter: brightness(0.8) drop-shadow(3px 3px 0 rgb(30 35 64 / 0.35)); animation: clic 0.3s var(--ease-ressort); }
+.lancer[data-etat='ouverte'] .pokeball { animation: eclater 0.4s ease-out forwards; }
+@keyframes vol {
+  from { transform: translate(var(--dx), var(--dy)) rotate(-900deg) scale(1.25); }
+  55% { transform: translate(calc(var(--dx) * 0.3), calc(var(--haut) * 1.5)) rotate(-260deg); }
+  to { transform: translateY(var(--haut)) rotate(0); }
+}
+@keyframes tomber {
+  from { transform: translateY(var(--haut)); animation-timing-function: ease-in; }
+  50% { transform: translateY(0); animation-timing-function: ease-out; }
+  68% { transform: translateY(-18px); animation-timing-function: ease-in; }
+  82% { transform: translateY(0); animation-timing-function: ease-out; }
+  91% { transform: translateY(-5px); }
+  to { transform: translateY(0); }
+}
+@keyframes trembler { 20% { transform: rotate(-24deg); } 45% { transform: rotate(18deg); } 65% { transform: rotate(-8deg); } 80%, to { transform: rotate(0); } }
+@keyframes clic { 50% { transform: scale(0.86, 1.08); } }
+@keyframes eclater { 40% { transform: translateY(var(--haut)) scale(1.35); opacity: 1; } to { transform: translateY(var(--haut)) scale(1.6); opacity: 0; } }
+/* L'éclair rouge du rayon qui aspire ou relâche le Pokémon. */
+.eclair { position: absolute; left: 50%; top: calc(var(--haut) + 17px); width: 150px; height: 150px; margin: -75px 0 0 -75px; border: 6px solid var(--color-rouge); border-radius: 50%; animation: rayon 0.55s ease-out forwards; }
+@keyframes rayon { from { transform: scale(0.15); opacity: 1; box-shadow: 0 0 0 10px rgb(214 58 38 / 0.35), inset 0 0 0 12px rgb(255 255 255 / 0.8); } to { transform: scale(1); opacity: 0; } }
+.lancer[data-etat='aspire'] .eclair { animation-direction: reverse; }
+.etoiles b { position: absolute; left: 4px; top: -6px; color: var(--color-jaune); font-size: 22px; -webkit-text-stroke: 1.5px var(--color-encre); animation: etoile 0.9s ease-out both; }
+.etoiles b:nth-child(2) { --x: 0px; animation-delay: 0.06s; }
+.etoiles b:nth-child(1) { --x: -38px; }
+.etoiles b:nth-child(3) { --x: 38px; animation-delay: 0.12s; }
+@keyframes etoile { from { transform: translate(0, 10px) scale(0.3); opacity: 0; } 30% { opacity: 1; } to { transform: translate(var(--x), -46px) scale(1); opacity: 0.9; } }
+.geste.balle { grid-column: 1 / -1; background: #fff; color: var(--color-encre); border-color: var(--color-rouge); box-shadow: 5px 5px 0 var(--color-rouge); animation: apparaitre 0.4s var(--ease-ressort); }
+.geste.balle strong { color: var(--color-rouge); }
+.geste.balle .pokeball { font-size: 22px; }
+.geste.balle:hover:not(:disabled) { box-shadow: 8px 9px 0 var(--color-rouge); }
+@keyframes apparaitre { from { transform: scale(0.8); opacity: 0; } }
+.capture .pokeball { font-size: 15px; }
+@media (max-width: 860px) {
+  .plateau { --dx: -160px; --dy: 240px; --haut: -78px; }
+  .lancer { bottom: 18px; }
+  .geste.balle .pokeball { font-size: 17px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lancer .pokeball, .eclair, .etoiles b { animation: none !important; }
+}
+.zone-balle .geste { width: 100%; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; }
+@media (max-width: 1099px) { .zone-balle { margin-top: 16px; } }
+@media (max-width: 860px) { .zone-balle .geste { flex-direction: column; align-items: flex-start; } }
+
+.gains li { flex-wrap: wrap; }
+.barre-xp { position: relative; width: 120px; height: 9px; overflow: hidden; border: 2px solid var(--color-encre); border-radius: 999px; background: #fff; }
+.barre-xp i { position: absolute; inset: 0 auto 0 0; background: #4a8fe0; animation: remplir 1.1s 0.3s ease-out both; }
+@keyframes remplir { from { width: 0; } }

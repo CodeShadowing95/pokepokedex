@@ -1,0 +1,54 @@
+/* ---- Entrée en scène, comme dans les jeux ----
+   Les dresseurs glissent jusqu'à leur place ; chacun annonce son Pokémon, repart en lançant
+   sa Pokéball, la balle s'ouvre dans un éclat et le Pokémon apparaît, d'abord tout blanc. */
+.combattant.cache img:not(.dresseur) { opacity: 0; transform: scale(0.2); }
+.combattant img.dresseur { position: absolute; left: 50%; bottom: 24px; z-index: 3; max-width: none; max-height: none; min-height: 0; height: 160px; margin: 0; translate: -50% 0; image-rendering: pixelated; filter: drop-shadow(4px 4px 0 rgb(30 35 64 / 0.35)); animation: arriver-d 1s cubic-bezier(0.2, 0.75, 0.25, 1) both; transition: none; }
+.combattant img.d-moi { animation-name: arriver-g; }
+/* Il prend son élan, lance, puis quitte la scène. */
+.combattant img.dresseur.lance { animation: lancer-d 0.75s ease-in forwards; }
+.combattant img.d-moi.lance { animation-name: lancer-g; }
+@keyframes arriver-d { from { transform: translateX(340px); opacity: 0; } 70% { opacity: 1; } }
+@keyframes arriver-g { from { transform: translateX(-340px); opacity: 0; } 70% { opacity: 1; } }
+@keyframes lancer-d { 25% { transform: translateX(-14px) rotate(-6deg); } 40% { transform: translateX(8px) rotate(4deg); opacity: 1; } to { transform: translateX(300px); opacity: 0; } }
+@keyframes lancer-g { 25% { transform: translateX(14px) rotate(6deg); } 40% { transform: translateX(-8px) rotate(-4deg); opacity: 1; } to { transform: translateX(-300px); opacity: 0; } }
+
+/* La balle envoyée : un arc depuis la main du dresseur jusqu'au socle, puis l'éclat. */
+.envoi { position: absolute; left: 50%; bottom: 40px; z-index: 4; width: 26px; height: 26px; margin-left: -13px; font-size: 26px; pointer-events: none; --sens: -1; }
+.d-eux ~ .envoi, .poste.eux .envoi { --sens: 1; }
+.envoi .pokeball { display: block; animation: envoi 0.55s cubic-bezier(0.3, 0.55, 0.5, 1) both, eclore 0.25s 0.55s ease-out forwards; }
+@keyframes envoi {
+  from { transform: translate(calc(var(--sens) * 70px), -120px) rotate(calc(var(--sens) * 540deg)) scale(0.8); }
+  50% { transform: translate(calc(var(--sens) * 30px), -175px) rotate(calc(var(--sens) * 200deg)); }
+  to { transform: translate(0, -60px) rotate(0); }
+}
+@keyframes eclore { to { transform: translate(0, -60px) scale(1.5); opacity: 0; } }
+.envoi .eclat { position: absolute; left: 50%; top: -47px; width: 160px; height: 160px; margin-left: -80px; border-radius: 50%; border: 5px solid #fff; background: radial-gradient(circle, #fff 0 30%, transparent 62%); box-shadow: 0 0 0 4px var(--color-rouge); opacity: 0; animation: eclat 0.5s 0.55s ease-out forwards; }
+@keyframes eclat { from { transform: scale(0.1); opacity: 1; } to { transform: scale(1); opacity: 0; } }
+
+/* Le Pokémon sort de la balle : silhouette blanche qui grandit, puis ses couleurs. */
+.combattant.apparu img:not(.dresseur) { animation: apparaitre-poke 0.65s cubic-bezier(0.25, 0.8, 0.3, 1.2) both; }
+@keyframes apparaitre-poke {
+  from { transform: translateY(-50px) scale(0.05); opacity: 0; filter: brightness(0) invert(1); }
+  45% { opacity: 1; filter: brightness(0) invert(1); }
+  70% { transform: scale(1.08); filter: brightness(0) invert(1); }
+  to { transform: none; opacity: 1; filter: none; }
+}
+/* Un chromatique scintille en arrivant. */
+.brille { position: absolute; inset: 10% 15% 30%; z-index: 4; pointer-events: none; }
+.brille b { position: absolute; color: var(--color-jaune); font-size: 22px; -webkit-text-stroke: 1.5px var(--color-encre); opacity: 0; animation: scintille 0.9s ease-out both; }
+.brille b:nth-child(1) { left: 5%; top: 10%; }
+.brille b:nth-child(2) { right: 5%; top: 0; animation-delay: 0.15s; }
+.brille b:nth-child(3) { left: 40%; bottom: 0; animation-delay: 0.3s; }
+@keyframes scintille { 30% { opacity: 1; transform: scale(1.3) rotate(45deg); } to { opacity: 0; transform: scale(0.6) rotate(90deg); } }
+
+/* K.O. : le Pokémon s'effondre et disparaît vers le bas. */
+.combattant.ko img:not(.dresseur) { animation: effondre 0.7s ease-in forwards; }
+@keyframes effondre { 20% { transform: translateY(-6px); } to { transform: translateY(70px); opacity: 0; } }
+
+@media (max-width: 860px) {
+  .combattant img.dresseur { height: 118px; bottom: 18px; }
+  .envoi .eclat { width: 120px; height: 120px; margin-left: -60px; top: -32px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .combattant img.dresseur, .envoi .pokeball, .envoi .eclat, .combattant.apparu img, .combattant.ko img, .brille b { animation-duration: 0.01s !important; }
+}

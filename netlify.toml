@@ -1,0 +1,15 @@
+# Réglages de l'hébergement Netlify.
+[build]
+  command = "npm run build"
+  publish = "dist/pokedex/browser"
+
+[build.environment]
+  # Angular 22 demande Node 22.22 ou plus récent.
+  NODE_VERSION = "22"
+
+# Application à page unique : toute adresse inconnue du serveur renvoie index.html,
+# et c'est le routeur d'Angular qui affiche la bonne page.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

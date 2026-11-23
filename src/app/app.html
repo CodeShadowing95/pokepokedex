@@ -1,0 +1,37 @@
+<a class="skip" href="#contenu">Aller au contenu</a>
+<header class="top">
+  <div class="page bar-top">
+    <a routerLink="/" class="logo"><app-logotype compact /></a>
+    <nav aria-label="Navigation principale">
+      @for (link of links; track link.path) {
+        <a [routerLink]="link.path" routerLinkActive="actif" class="navl">{{ link.label }}</a>
+      }
+    </nav>
+    <app-reglage-son />
+    <a routerLink="/qg" class="qg" routerLinkActive="actif" [attr.aria-label]="'Mon QG, série de ' + player.streak() + ' jours, niveau ' + player.level()">
+      <span class="mono serie">{{ player.streak() }} j</span>
+      @if (player.dresseur(); as d) {
+        <span class="tete-av" aria-hidden="true"><img [src]="img(d.avatar)" alt="" /></span>
+        <span>{{ d.nom }}</span>
+      } @else {
+        <span>Mon QG</span>
+      }
+      @if (player.boosterReady()) {
+        <span class="point pulse" aria-hidden="true"></span>
+      }
+    </a>
+  </div>
+</header>
+
+<main id="contenu">
+  <router-outlet />
+</main>
+<app-rencontre-sauvage />
+
+<footer class="pied">
+  <div class="page pied-in">
+    <a routerLink="/" class="marque"><app-logotype /></a>
+    <span class="mention">Site de fans, sans but commercial. Pokémon et les noms de Pokémon sont des marques de Nintendo, Game Freak et Creatures. Données et images : PokéAPI.</span>
+    <a class="btn ghost sm credits" routerLink="/credits">Crédits</a>
+  </div>
+</footer>

@@ -1,0 +1,37 @@
+<section class="page tete">
+  <p class="eyebrow">Campagne</p>
+  <h1>{{ current().name }}</h1>
+  <p class="lead">Huit arènes, chacune fidèle à un seul type, puis la Ligue. Gagner la Ligue ouvre la région suivante. Les champions sont des personnages originaux.</p>
+  <div class="regions" role="tablist" aria-label="Régions">
+    @for (r of regions(); track r.id) {
+      <button type="button" role="tab" class="chip" [class.on]="r.id === current().id" [attr.aria-selected]="r.id === current().id" [disabled]="!r.open" son="selection" (click)="pick(r.id)">
+        {{ r.name }}{{ r.open ? ' · ' + (r.won > 8 ? 8 : r.won) + '/8' : ' · fermée' }}
+      </button>
+    }
+  </div>
+</section>
+
+<section class="page">
+  @if (!player.ownedCount()) {
+    <p class="card avis">Il te faut d’abord une équipe. <a routerLink="/bienvenue">Choisis ton premier Pokémon.</a></p>
+  }
+  <ol class="chemin">
+    @for (s of steps(); track s.n) {
+      <li class="etape" [class]="'etape ' + s.state">
+        <span class="num disp">{{ s.n === league ? '★' : s.n }}</span>
+        @if (s.type; as t) {
+          <span class="chip" [style.background]="t.color" [style.color]="t.text"><img class="ti" [src]="t.icon" alt="" width="22" height="22" />{{ t.label }}</span>
+        } @else {
+          <span class="chip on">Tous types</span>
+        }
+        <strong class="disp">{{ s.title }}</strong>
+        <span class="mono sub">{{ s.sub }}</span>
+        @if (s.state === 'ferme') {
+          <span class="mono verrou">Gagne l’étape précédente</span>
+        } @else {
+          <a class="btn sm" [class.ghost]="s.state === 'gagne'" routerLink="/arene" [queryParams]="{ region: current().id, gym: s.n }">{{ s.state === 'gagne' ? 'Rejouer' : 'Défier' }}</a>
+        }
+      </li>
+    }
+  </ol>
+</section>

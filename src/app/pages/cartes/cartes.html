@@ -1,0 +1,58 @@
+<section class="page tete">
+  <p class="eyebrow">Ma collection</p>
+  <h1>{{ player.ownedCount() }} carte{{ player.ownedCount() > 1 ? 's' : '' }}</h1>
+  <p class="lead">Comme dans les jeux : chaque K.O. rapporte de l’expérience au Pokémon qui combat, et la moitié à ceux restés sur le banc. En montant de niveau, il apprend de nouvelles capacités, et il évolue au niveau des jeux.</p>
+  <p class="mono">{{ player.dust() }} poussière · 100 pour fabriquer une carte depuis sa fiche</p>
+</section>
+
+<section class="page">
+  @if (!cards().length) {
+    <div class="card vide">
+      <h2>Ta collection est vide.</h2>
+      <p>Choisis ton premier Pokémon, puis ouvre ton booster du jour.</p>
+      <a class="btn" routerLink="/bienvenue">Choisir mon premier Pokémon</a>
+    </div>
+  } @else {
+    <div class="grille">
+      @for (c of cards(); track c.p.id) {
+        <article class="carte">
+          <a class="haut dots" [routerLink]="['/pokemon', c.p.id]" [style.background-color]="c.ink.color">
+            <img [src]="c.art" [alt]="c.p.name" width="150" height="150" loading="lazy" />
+            <span class="niv mono">NIV. {{ c.o.level }}</span>
+            @if (c.o.shiny) {
+              <span class="etoile mono">Chromatique</span>
+            }
+          </a>
+          <div class="bas">
+            <div class="ligne"><strong class="disp">{{ c.p.name }}</strong>@if (c.inDeck) {<span class="chip on">Équipe</span>}</div>
+            <span class="mono petit">{{ c.rarity }} · PV {{ c.card.hp }} · ATQ {{ c.card.atk }} · VIT {{ c.card.spd }}</span>
+            <span class="bar" role="img" [attr.aria-label]="c.xpPct + ' % du niveau suivant'"><i [style.width.%]="c.xpPct"></i></span>
+            <span class="mono petit">{{ c.xpPct }} % vers le niveau {{ c.o.level + 1 }}{{ c.o.count > 1 ? ' · ' + c.o.count + ' exemplaires' : '' }}</span>
+            @for (n of c.next; track n.to.id) {
+              @if (n.ready) {
+                <button type="button" class="btn jaune sm pulse" son="confirmation" (click)="evolve(c.p, n.to)">Évoluer en {{ n.to.name }}</button>
+              } @else {
+                <span class="mono petit suite">Évolue en {{ n.to.name }} au niveau {{ n.need }}</span>
+              }
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>
+
+@if (evolving(); as e) {
+  <div class="voile" role="dialog" aria-modal="true" aria-label="Évolution">
+    <div class="rituel">
+      <p class="eyebrow">{{ e.done ? 'Félicitations' : 'Quoi ?' }}</p>
+      <h2>{{ e.done ? e.from.name + ' a évolué en ' + e.to.name + ' !' : e.from.name + ' évolue…' }}</h2>
+      <div class="halo" [class.fait]="e.done">
+        <img [src]="art(e.done ? e.to : e.from)" alt="" width="300" height="300" />
+      </div>
+      @if (e.done) {
+        <button type="button" class="btn" son="selection" (click)="evolving.set(null)">Continuer</button>
+      }
+    </div>
+  </div>
+}

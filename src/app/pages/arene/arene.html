@@ -1,0 +1,211 @@
+@if (!myCards().length) {
+  <section class="page vide">
+    <div class="card pad">
+      <p class="eyebrow">Arène · Duel Éclair</p>
+      <h1>Il te faut une première carte.</h1>
+      <p>Choisis ton premier Pokémon : il arrive avec deux compagnons, de quoi former une équipe de trois.</p>
+      <a class="btn" routerLink="/bienvenue">Choisir mon premier Pokémon</a>
+    </div>
+  </section>
+} @else {
+  @switch (phase()) {
+    @case ('prep') {
+      <section class="page prep">
+        <p class="eyebrow">{{ challenge()?.subtitle ?? 'Duel libre' }}</p>
+        <h1>{{ challenge()?.title ?? 'Duel Éclair' }}</h1>
+        <div class="face">
+          <div class="camp">
+            <h2>Ton équipe</h2>
+            <div class="rangee">
+              @for (c of myCards(); track c.id) {
+                <div class="carte" [style.--encre-type]="ink(c).color">
+                  <div class="haut dots"><img [src]="art(c)" [alt]="c.name" width="120" height="120" /></div>
+                  <strong class="disp">{{ c.name }}</strong>
+                  <span class="mono">N.{{ c.level }} · PV {{ c.hp }} · VIT {{ c.spd }}</span>
+                </div>
+              }
+            </div>
+            <a class="lien" routerLink="/equipe">Changer mon équipe</a>
+          </div>
+          <span class="vs disp" aria-hidden="true">VS</span>
+          <div class="camp">
+            <h2>{{ challenge() ? 'Son équipe' : 'La machine' }}</h2>
+            <div class="rangee">
+              @for (c of theirCards(); track c.id) {
+                <div class="carte" [style.--encre-type]="ink(c).color">
+                  <div class="haut dots"><img [src]="art(c)" [alt]="c.name" width="120" height="120" /></div>
+                  <strong class="disp">{{ c.name }}</strong>
+                  <span class="mono">N.{{ c.level }} · PV {{ c.hp }} · VIT {{ c.spd }}</span>
+                </div>
+              }
+            </div>
+            @if (!challenge()) {
+              <button type="button" class="lien" son="selection" (click)="reroll()">Un autre adversaire</button>
+            }
+          </div>
+        </div>
+        <button type="button" class="btn" [disabled]="!theirCards().length" son="confirmation" (click)="start()">Commencer le duel</button>
+
+        <div class="regles card">
+          <h3>Les règles en vingt secondes</h3>
+          <ul>
+            <li>Chaque Pokémon a jusqu’à <strong>quatre capacités</strong>. Toi et la machine choisissez en même temps.</li>
+            <li>La capacité <strong>prioritaire</strong> part d’abord (Vive-Attaque…), sinon c’est le plus <strong>rapide</strong>.</li>
+            <li>Chaque capacité a sa <strong>précision</strong> : elle peut rater. Et parfois, c’est le <strong>coup critique</strong> (×1,5).</li>
+            <li>Les dégâts suivent la formule des jeux : puissance, Attaque contre Défense (ou leurs versions spéciales), <strong>bonus de même type</strong> ×1,5 et table des types.</li>
+            <li>Chaque capacité a ses <strong>PP</strong>. Quand il n’en reste plus aucun, ton Pokémon se débat avec Lutte.</li>
+          </ul>
+        </div>
+      </section>
+    }
+
+    @case ('fight') {
+      @if (me(); as m) {
+        @if (foe(); as f) {
+          <section class="page duel-zone">
+            @let sc = scene();
+            <div class="plateau" [class.assombri]="decor().assombri" [style.--fond]="decor().url" (click)="accelerer()" [attr.title]="busy() ? 'Clique pour accélérer' : null">
+              <div class="poste eux" [class.elan]="sc.elan === 'machine'">
+                <app-etiquette [class.cache]="sc.caches.includes('machine')" [nom]="f.f.card.name" [type]="f.ink" [pv]="f.hp" [max]="f.f.card.hp" [fantome]="f.hpPct" [niveau]="f.f.card.level" [equipe]="f.vivants" />
+                <div class="combattant" [class.touche]="sc.degats?.cible === 'machine'" [class.cache]="sc.caches.includes('machine')" [class.apparu]="sc.apparu.machine" [class.ko]="sc.ko.includes('machine')" [class.aspire]="sc.balle && sc.balle.etat !== 'vol' && sc.balle.etat !== 'ouverte'">
+                  <span class="socle"></span>
+                  <img [src]="f.sprite" [alt]="f.f.card.name" (error)="fallback($event, f.f.card.id)" />
+                  @if (sc.dresseurs.machine; as etat) {
+                    <img class="dresseur d-eux" [class.lance]="etat === 'lance'" [src]="img(euxDresseur().avatar)" [alt]="euxDresseur().nom" />
+                  }
+                  @if (sc.brille) { <span class="brille" aria-hidden="true"><b>✦</b><b>✦</b><b>✦</b></span> }
+                  @if (sc.envoi.machine; as k) {
+                    @for (x of [k]; track x) { <span class="envoi" aria-hidden="true"><i class="pokeball"></i><span class="eclat"></span></span> }
+                  }
+                  @if (sc.effet?.cible === 'machine') {
+                    @for (k of [sc.effet!.cle]; track k) { <app-effet class="impact" [nom]="sc.effet!.nom" [taille]="140" /> }
+                  }
+                  @if (sc.degats?.cible === 'machine') {
+                    @for (k of [sc.degats!.cle]; track k) { <span class="degats disp">−{{ sc.degats!.montant }}</span> }
+                  }
+                  @if (sc.tampon?.cible === 'machine') {
+                    <span class="tampon-scene mono">{{ sc.tampon!.texte }}</span>
+                  }
+                  @if (sc.balle; as b) {
+                    @for (k of [b.cle]; track k) {
+                      <span class="lancer" [attr.data-etat]="b.etat" aria-hidden="true">
+                        <i class="pokeball"></i>
+                        @if (b.etat === 'aspire' || b.etat === 'ouverte') { <span class="eclair"></span> }
+                        @if (b.etat === 'tenue') { <span class="etoiles"><b>✦</b><b>✦</b><b>✦</b></span> }
+                      </span>
+                    }
+                  }
+                </div>
+              </div>
+              <div class="poste moi" [class.elan]="sc.elan === 'player'">
+                <app-etiquette [class.cache]="sc.caches.includes('player')" [nom]="m.f.card.name" [type]="m.ink" [pv]="m.hp" [max]="m.f.card.hp" [fantome]="m.hpPct" [niveau]="m.f.card.level" [equipe]="m.vivants" />
+                <div class="combattant" [class.touche]="sc.degats?.cible === 'player'" [class.cache]="sc.caches.includes('player')" [class.apparu]="sc.apparu.player" [class.ko]="sc.ko.includes('player')">
+                  <span class="socle"></span>
+                  <img [src]="m.sprite" [alt]="m.f.card.name" (error)="fallback($event, m.f.card.id)" />
+                  @if (sc.dresseurs.player; as etat) {
+                    <img class="dresseur d-moi" [class.lance]="etat === 'lance'" [src]="img(moiDresseur().avatar)" [alt]="moiDresseur().nom" />
+                  }
+                  @if (sc.envoi.player; as k) {
+                    @for (x of [k]; track x) { <span class="envoi" aria-hidden="true"><i class="pokeball"></i><span class="eclat"></span></span> }
+                  }
+                  @if (sc.effet?.cible === 'player') {
+                    @for (k of [sc.effet!.cle]; track k) { <app-effet class="impact" [nom]="sc.effet!.nom" [taille]="140" /> }
+                  }
+                  @if (sc.degats?.cible === 'player') {
+                    @for (k of [sc.degats!.cle]; track k) { <span class="degats disp">−{{ sc.degats!.montant }}</span> }
+                  }
+                  @if (sc.tampon?.cible === 'player') {
+                    <span class="tampon-scene mono">{{ sc.tampon!.texte }}</span>
+                  }
+                </div>
+              </div>
+              @if (sc.bandeau; as bd) {
+                <div class="bandeau" [class.de-eux]="bd.cote === 'machine'" role="status">
+                  @if (bd.icone) { <img [src]="bd.icone" alt="" width="30" height="30" /> }
+                  <span class="disp">{{ bd.texte }}</span>
+                </div>
+              }
+            </div>
+
+            @if (peutCapturer()) {
+              <div class="zone-balle">
+                <button type="button" son="confirmation" class="geste balle" [disabled]="busy() || !player.pokeballs()" (click)="lancerPokeball()">
+                  <strong class="disp"><i class="pokeball"></i>Pokéball</strong>
+                  <span class="mono">{{ player.pokeballs() ? player.pokeballs() + ' en poche · le lancer remplace ton attaque' : 'Plus aucune Pokéball : reviens demain matin' }}</span>
+                </button>
+              </div>
+            }
+
+            <div class="commandes">
+              <div class="journal card" aria-live="polite">
+                <h2 class="titre-j disp">Sélectionne une attaque</h2>
+                <p class="sous">{{ wild() ? 'Affaiblis-le : quand sa jauge passe au rouge, tu peux lancer une Pokéball.' : 'Choisis une capacité : la machine choisit en même temps.' }}</p>
+                @if (report(); as r) {
+                  <p class="dernier mono">Manche {{ duel()!.turn - 1 }} · {{ r.message }}</p>
+                }
+              </div>
+
+              <div class="gestes">
+                @if (m.lutte) {
+                  <button type="button" class="geste lutte" [disabled]="busy()" son="confirmation" (click)="play(STRUGGLE)">
+                    <strong class="disp">Lutte</strong><span>Plus aucun PP : ton Pokémon se débat.</span>
+                  </button>
+                } @else {
+                  @for (c of m.capacites; track c.i) {
+                    <button type="button" class="geste" [disabled]="busy() || c.pp === 0" [style.--c]="c.ink.color" [style.--t]="c.ink.text" son="confirmation" (click)="play(c.i)">
+                      <strong class="disp"><img [src]="c.ink.icon" alt="" width="20" height="20" />{{ c.m.nom }}</strong>
+                      <span class="mono">Puiss. {{ c.m.puissance }} · Préc. {{ c.m.precision ? c.m.precision + ' %' : '—' }}</span>
+                      <span class="mono pp">PP {{ c.pp }}/{{ c.m.pp }} · {{ c.m.classe === 'physique' ? 'physique' : 'spéciale' }}</span>
+                    </button>
+                  }
+                }
+              </div>
+            </div>
+          </section>
+        }
+      }
+    }
+
+    @case ('end') {
+      <section class="page fin">
+        <div class="card pad" [class.gagne]="won()">
+          <p class="eyebrow">{{ titre() }}</p>
+          <h1>{{ capture() ? capture()!.nom + ' est capturé !' : won() ? 'Victoire !' : 'Défaite.' }}</h1>
+          @if (capture(); as cap) {
+            <p class="capture mono">Il rejoint ta collection{{ cap.chromatique ? ', en version chromatique ✦' : '' }}.</p>
+          }
+          @if (koSauvage()) {
+            <p class="capture mono">{{ wild()!.name }} sauvage est K.O. : il ne rejoint pas ta collection. La prochaine fois, affaiblis-le puis lance une Pokéball.</p>
+          }
+          @if (balleGagnee()) {
+            <p class="capture mono"><i class="pokeball"></i> +1 Pokéball ({{ player.pokeballs() }} en poche).</p>
+          }
+          <p>{{ won() ? 'Bien joué. +60 XP de dresseur et 40 poussière.' : 'Pas cette fois. Tes Pokémon gardent l’expérience gagnée : regarde les types et la vitesse avant de choisir.' }}</p>
+          <ul class="gains">
+            @for (g of gains(); track g.name) {
+              <li>
+                <strong>{{ g.name }}</strong>
+                <span class="mono">N.{{ g.apres }} · +{{ g.xp }} XP</span>
+                <span class="barre-xp" role="img" [attr.aria-label]="g.pct + ' % du niveau suivant'"><i [style.width.%]="g.pct"></i></span>
+                @if (g.apres > g.avant) { <span class="chip on">Niveau {{ g.apres }} !</span> }
+                @for (a of g.appris; track a) { <span class="chip">Apprend {{ a }}</span> }
+              </li>
+            }
+          </ul>
+          <app-apres-duel [evenements]="evenements()" />
+          <div class="actions">
+            @if (wild()) {
+              <a class="btn" routerLink="/pokedex">Reprendre l’exploration</a>
+            } @else {
+              <button type="button" class="btn" son="confirmation" (click)="again()">{{ won() && challenge() ? 'Rejouer cette arène' : 'Revanche' }}</button>
+            }
+            <a class="btn ghost" routerLink="/cartes">Voir mes cartes</a>
+            @if (challenge()) {
+              <a class="btn ghost" routerLink="/campagne">Retour à la campagne</a>
+            }
+          </div>
+        </div>
+      </section>
+    }
+  }
+}

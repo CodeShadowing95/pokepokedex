@@ -1,0 +1,15 @@
+.tete { padding: 48px 0 28px; }
+h1 { font-size: clamp(40px, 5.6vw, 72px); margin: 8px 0 6px; }
+.compte { font-size: 13px; color: var(--color-encre-douce); margin: 0 0 26px; }
+.outils { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 20px; }
+.cherche { flex: 1 1 320px; }
+.cherche input { width: 100%; }
+select.field { padding-right: 14px; }
+.rang { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.chip.eteint { opacity: 0.38; }
+.chip[aria-pressed='true'] { box-shadow: 3px 3px 0 var(--color-encre); transform: translateY(-2px); }
+.grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 22px; }
+.vide { margin: 40px auto; text-align: center; max-width: 480px; padding: 32px; }
+.vide h2 { font-size: 28px; margin: 0 0 8px; }
+.repere { height: 1px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }

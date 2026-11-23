@@ -1,0 +1,56 @@
+<section class="page tete">
+  <p class="eyebrow">Atelier d’équipe</p>
+  <h1>Compose tes trois cartes.</h1>
+  <p class="lead">La première entre en premier dans l’arène. Le tableau montre, type par type, ce qui te menace et ce que tes capacités savent battre.</p>
+</section>
+
+<section class="page atelier">
+  <div class="gauche">
+    <div class="places">
+      @for (c of slots(); track $index; let i = $index) {
+        @if (c) {
+          <button type="button" class="place prise" son="selection" (click)="toggle(c.p.id)" [attr.aria-label]="'Retirer ' + c.p.name">
+            <span class="rond dots" [style.background-color]="c.ink.color"><img [src]="c.art" alt="" width="110" height="110" /></span>
+            <strong class="disp">{{ c.p.name }}</strong>
+            <span class="mono">{{ c.card.moves[0].nom }}@if (c.card.moves.length > 1) { +{{ c.card.moves.length - 1 }}}</span>
+            <span class="mono retire">retirer</span>
+          </button>
+        } @else {
+          <div class="place libre"><span class="disp">{{ i + 1 }}</span><span class="mono">place libre</span></div>
+        }
+      }
+    </div>
+    <p class="verdict" [class]="'verdict ' + verdict().tone">{{ verdict().text }}</p>
+
+    <h2>Tes cartes</h2>
+    @if (!pool().length) {
+      <p>Aucune carte pour l’instant. <a routerLink="/bienvenue">Choisis ton premier Pokémon.</a></p>
+    }
+    <div class="reserve">
+      @for (c of pool(); track c.p.id) {
+        <button type="button" class="jeton" [class.pris]="c.picked" [attr.aria-pressed]="c.picked" [disabled]="!c.picked && team().length >= 3" son="selection" (click)="toggle(c.p.id)">
+          <img [src]="c.art" alt="" width="56" height="56" loading="lazy" />
+          <span>{{ c.p.name }}</span>
+        </button>
+      }
+    </div>
+    <a class="btn" routerLink="/arene">Tester en duel</a>
+  </div>
+
+  <div class="card tableau">
+    <table>
+      <caption class="eyebrow">Couverture des 18 types</caption>
+      <thead><tr><th scope="col">Type adverse</th><th scope="col">Te menace</th><th scope="col">Tu résistes</th><th scope="col">Tu le bats</th></tr></thead>
+      <tbody>
+        @for (c of coverage(); track c.type.id) {
+          <tr [class.trou]="c.weak >= 2">
+            <th scope="row"><span class="chip" [style.background]="c.type.color" [style.color]="c.type.text"><img class="ti" [src]="c.type.icon" alt="" width="22" height="22" />{{ c.type.label }}</span></th>
+            <td class="mono">{{ c.weak || '·' }}</td>
+            <td class="mono">{{ c.resist || '·' }}</td>
+            <td class="mono">{{ c.hit ? 'oui' : '·' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

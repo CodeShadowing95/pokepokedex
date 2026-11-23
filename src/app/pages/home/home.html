@@ -1,0 +1,110 @@
+<section class="page hero">
+  <div class="hero-text">
+    <p class="eyebrow">1 025 Pokémon · en français · sans compte</p>
+    <h1>Attrape-les.<br />Fais-les <span class="hl">combattre</span>.<br />Reviens demain.</h1>
+    <p class="lead">
+      Un Pokédex qui bouge : chaque Pokémon a sa façon de se tenir, chaque carte grandit et évolue, et la machine
+      apprend à lire ton jeu.
+    </p>
+    <div class="actions">
+      @if (player.starter()) {
+        <a class="btn" routerLink="/arene">Lancer un duel</a>
+      } @else {
+        <a class="btn" routerLink="/bienvenue">Choisir mon premier Pokémon</a>
+      }
+      <a class="btn ghost" routerLink="/pokedex">Explorer le Pokédex</a>
+    </div>
+    <dl class="facts mono">
+      <div><dt>{{ player.ownedCount() }}</dt><dd>cartes capturées</dd></div>
+      <div><dt>{{ player.seenCount() }}</dt><dd>Pokémon vus</dd></div>
+      <div><dt>{{ player.streak() }}</dt><dd>jours de série</dd></div>
+    </dl>
+  </div>
+
+  <div class="hero-stage" aria-hidden="true">
+    <div class="disc"></div>
+    @for (s of stage; track s.id) {
+      <div class="slide" [style.animation-delay.s]="s.delay">
+        <img [src]="s.art" alt="" width="420" height="420" />
+        <div class="cap">
+          <strong class="disp">{{ s.name }}</strong>
+          <span>{{ s.line }}</span>
+        </div>
+      </div>
+    }
+  </div>
+</section>
+
+<section class="duel-x" aria-labelledby="titre-duel-x">
+  <div class="page">
+    <p class="eyebrow">Les types en un coup de tampon</p>
+    <h2 id="titre-duel-x">Duel express</h2>
+    <p class="intro-x">Choisis un type qui attaque et un Pokémon qui encaisse, avec un ou deux types. Le tampon dit combien de dégâts l’attaque inflige. En mode quiz, c’est à toi de deviner.</p>
+    <app-duel-express />
+  </div>
+</section>
+
+<section class="page bloc">
+  <div class="tete">
+    <div>
+      <p class="eyebrow">Type du jour</p>
+      <h2>Aujourd’hui, on consulte le type <span class="chip gros" [style.background]="dailyType.color" [style.color]="dailyType.text">{{ dailyType.label }}</span></h2>
+    </div>
+    <a class="btn ghost sm" routerLink="/pokedex" [queryParams]="{ type: dailyType.id }">Tous les {{ dailyType.label }}</a>
+  </div>
+  <div class="grille">
+    @for (p of picks(); track p.id; let i = $index) {
+      <app-poke-card [pokemon]="p" [delay]="i * 60" />
+    }
+  </div>
+</section>
+
+<section class="page trio">
+  <article class="feat card">
+    <p class="eyebrow">Duel Éclair</p>
+    <h3>Trois Pokémon. Quatre capacités. Les règles des jeux.</h3>
+    <p>Vitesse, précision, coups critiques et table des types : chaque capacité vient de PokéAPI, avec sa vraie puissance et ses PP.</p>
+    <div class="fanwrap">
+      @for (src of fan; track src; let i = $index) {
+        <div class="mini" [class]="'mini m' + (i + 1)"><img [src]="src" alt="" loading="lazy" width="110" height="110" /></div>
+      }
+    </div>
+    <a class="btn sm" routerLink="/arene">Entrer dans l’arène</a>
+  </article>
+
+  <article class="feat card">
+    <p class="eyebrow">Qui est-ce ?</p>
+    <h3>Le Pokémon mystère du jour</h3>
+    <p>Trois essais, trois indices. Tout le monde cherche le même aujourd’hui.</p>
+    <div class="sil-box dots">
+      @if (mysteryArt()) {
+        <img class="sil" [src]="mysteryArt()" alt="Silhouette du Pokémon mystère" loading="lazy" width="200" height="200" />
+      }
+    </div>
+    <a class="btn jaune sm" routerLink="/qg" fragment="mystere">Deviner</a>
+  </article>
+
+  <article class="feat card">
+    <p class="eyebrow">Chaque jour</p>
+    <h3>Un booster, trois quêtes, une série à tenir</h3>
+    <p>Cinq cartes offertes par jour, dont une peu commune au minimum. Les doublons deviennent de la poussière pour fabriquer la carte qui te manque.</p>
+    <div class="booster" [class.pulse]="player.boosterReady()">
+      <span class="disp">Booster</span>
+      <span class="mono">{{ player.boosterReady() ? 'prêt' : 'revient demain' }}</span>
+    </div>
+    <a class="btn ghost sm" routerLink="/qg">Ouvrir mon QG</a>
+  </article>
+</section>
+
+<section class="page bloc monde">
+  <a class="card lien" routerLink="/campagne">
+    <p class="eyebrow">Campagne</p>
+    <h3>Neuf régions, huit arènes chacune, une Ligue au bout</h3>
+    <span class="fleche disp" aria-hidden="true">→</span>
+  </a>
+  <a class="card lien" routerLink="/equipe">
+    <p class="eyebrow">Atelier d’équipe</p>
+    <h3>Compose tes trois cartes et vois les types qui te font mal</h3>
+    <span class="fleche disp" aria-hidden="true">→</span>
+  </a>
+</section>
