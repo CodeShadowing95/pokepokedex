@@ -17,11 +17,14 @@ h1 { font-size: clamp(38px, 5vw, 64px); margin: 8px 0 16px; }
 .regles ul { margin: 0; padding-left: 20px; }
 
 .duel-zone { padding-top: 28px; }
+/* Grand écran : les attaques sous le plateau, en grille de deux comme dans les jeux ; le journal à droite. */
 @media (min-width: 1100px) {
-  .duel-zone { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 22px; align-items: start; }
-  .commandes { position: sticky; top: 96px; display: grid; gap: 16px; }
-  .commandes .journal, .commandes .gestes { margin-top: 0; }
-  .commandes .gestes { grid-template-columns: 1fr; gap: 12px; }
+  .duel-zone { display: grid; grid-template-columns: minmax(0, 1fr) 300px; grid-template-areas: 'plateau journal' 'gestes journal'; gap: 16px 22px; align-items: start; padding-top: 20px; }
+  .commandes { display: contents; }
+  .duel-zone .plateau { grid-area: plateau; }
+  .duel-zone .journal { grid-area: journal; position: sticky; top: 96px; margin-top: 0; }
+  .duel-zone .gestes { grid-area: gestes; margin-top: 0; gap: 12px; }
+  .duel-zone .geste { padding-block: 8px 9px; }
 }
 .plateau { position: relative; display: grid; gap: 8px; padding: 22px; border: var(--trait); border-radius: 28px; background-color: var(--color-papier-fort); box-shadow: 8px 8px 0 var(--color-encre); }
 .plateau { grid-template-areas: 'eux' 'moi'; cursor: default; overflow: hidden; }
