@@ -33,9 +33,9 @@ h1 { font-size: clamp(38px, 5vw, 64px); margin: 8px 0 16px; }
 .poste.eux { grid-area: eux; justify-self: end; margin-right: 16%; }
 /* Les deux Pokémon se font face en diagonale, sans grand vide entre eux. */
 .poste.moi { grid-area: moi; justify-self: start; margin: -120px 0 0 16%; }
-.poste.elan.moi { transform: translate(60px, -30px); }
-.poste.elan.eux { transform: translate(-60px, 30px); }
-.combattant { position: relative; width: 220px; height: 190px; display: grid; place-items: end center; }
+.poste.elan.moi .combattant { transform: translate(60px, -30px); }
+.poste.elan.eux .combattant { transform: translate(-60px, 30px); }
+.combattant { position: relative; width: 220px; height: 190px; display: grid; place-items: end center; transition: transform 0.25s var(--ease-ressort); }
 .combattant > app-effet { position: absolute; left: 50%; bottom: 36px; translate: -50% 0; z-index: 2; }
 .tampon-scene { position: absolute; top: 6px; left: 50%; z-index: 4; padding: 5px 10px; border: 3px solid var(--color-rouge); border-radius: 6px; background: #fff; color: var(--color-rouge); font-size: 15px; font-weight: 700; white-space: nowrap; transform: translateX(-50%) rotate(-8deg); animation: frapper 0.35s var(--ease-ressort); }
 @keyframes frapper { from { transform: translateX(-50%) rotate(-20deg) scale(2); opacity: 0; } }
@@ -91,8 +91,8 @@ app-etiquette.cache { opacity: 0; }
   .poste app-etiquette { width: 172px; padding: 6px 9px 7px; }
   .tampon-scene { font-size: 11.5px; padding: 3px 7px; }
   .degats { font-size: 26px; }
-  .poste.elan.moi { transform: translateY(-24px) scale(1.04); }
-  .poste.elan.eux { transform: translateY(24px) scale(1.04); }
+  .poste.elan.moi .combattant { transform: translateY(-24px) scale(1.04); }
+  .poste.elan.eux .combattant { transform: translateY(24px) scale(1.04); }
   .combattant { width: 150px; height: 150px; }
   .combattant img { max-width: 130px; max-height: 120px; }
   .bandeau { font-size: 17px; }

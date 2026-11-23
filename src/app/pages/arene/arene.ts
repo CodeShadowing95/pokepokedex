@@ -85,6 +85,8 @@ export class Arene {
   protected readonly duel = signal<DuelState | null>(null);
   protected readonly report = signal<TurnReport | null>(null);
   protected readonly busy = signal(false);
+  /** Vrai quand on a pris la fuite face à un Pokémon sauvage. */
+  protected readonly fuite = signal(false);
   protected readonly scene = signal<Scene>(SCENE_VIDE);
   /** Dégâts déjà montrés pendant la mise en scène, avant d'appliquer le nouvel état. */
   private readonly encaisse = signal<Record<Who, number>>({ player: 0, machine: 0 });
@@ -184,8 +186,9 @@ export class Arene {
     // Hors combat, l'arène garde la musique d'ouverture ; une rencontre sauvage démarre tout de suite.
     effect(() => {
       if (this.phase() !== 'prep') return;
-      untracked(() => this.audio.jouer('opening'));
       const w = this.wild();
+      // Face à un sauvage, la musique de combat joue déjà depuis l'alerte : on ne la coupe pas.
+      if (!w) untracked(() => this.audio.jouer('opening'));
       if (w && this.theirCards().length && this.myCards().length) {
         untracked(() => {
           this.taux = TAUX_DEFAUT;
@@ -235,6 +238,7 @@ export class Arene {
     this.capture.set(null);
     this.koSauvage.set(false);
     this.balleGagnee.set(false);
+    this.fuite.set(false);
     this.duel.set(createDuel(this.myCards(), this.theirCards()));
     this.phase.set('fight');
     this.audio.jouer(this.wild() ? 'sauvage' : this.challenge() ? 'champion' : 'dresseur');
@@ -465,6 +469,23 @@ export class Arene {
     }
     this.gains.set(gains);
     this.evenements.set(suite);
+  }
+
+  /** Face à un Pokémon sauvage, on peut toujours fuir : ton Pokémon revient dans sa balle et l'on s'éclipse. */
+  protected async fuir(): Promise<void> {
+    const d = this.duel();
+    if (!this.wild() || !d || d.winner || this.busy()) return;
+    this.busy.set(true);
+    this.vitesse = 1;
+    this.audio.effet('rappel');
+    this.maj({ caches: ['player'], bandeau: { texte: 'Tu prends la fuite !', cote: 'player', icone: null } });
+    await this.attendre(1400);
+    this.busy.set(false);
+    this.gains.set([]);
+    this.evenements.set([]);
+    this.fuite.set(true);
+    this.audio.jouer('opening');
+    this.phase.set('end');
   }
 
   private finish(won: boolean, capture = false): void {

@@ -119,6 +119,9 @@
                   }
                 </div>
               </div>
+              @if (wild()) {
+                <button type="button" class="fuir mono" son="selection" [disabled]="busy()" (click)="$event.stopPropagation(); fuir()">Fuir <span aria-hidden="true">→</span></button>
+              }
               @if (sc.bandeau; as bd) {
                 <div class="bandeau" [class.de-eux]="bd.cote === 'machine'" role="status">
                   @if (bd.icone) { <img [src]="bd.icone" alt="" width="30" height="30" /> }
@@ -170,7 +173,7 @@
       <section class="page fin">
         <div class="card pad" [class.gagne]="won()">
           <p class="eyebrow">{{ titre() }}</p>
-          <h1>{{ capture() ? capture()!.nom + ' est capturé !' : won() ? 'Victoire !' : 'Défaite.' }}</h1>
+          <h1>{{ fuite() ? 'Tu as pris la fuite.' : capture() ? capture()!.nom + ' est capturé !' : won() ? 'Victoire !' : 'Défaite.' }}</h1>
           @if (capture(); as cap) {
             <p class="capture mono">Il rejoint ta collection{{ cap.chromatique ? ', en version chromatique ✦' : '' }}.</p>
           }
@@ -180,7 +183,11 @@
           @if (balleGagnee()) {
             <p class="capture mono"><i class="pokeball"></i> +1 Pokéball ({{ player.pokeballs() }} en poche).</p>
           }
+          @if (fuite()) {
+            <p>{{ wild()!.name }} sauvage retourne dans les hautes herbes. Ton équipe est sauve, et tu pourras le recroiser plus tard.</p>
+          } @else {
           <p>{{ won() ? 'Bien joué. +60 XP de dresseur et 40 poussière.' : 'Pas cette fois. Tes Pokémon gardent l’expérience gagnée : regarde les types et la vitesse avant de choisir.' }}</p>
+          }
           <ul class="gains">
             @for (g of gains(); track g.name) {
               <li>

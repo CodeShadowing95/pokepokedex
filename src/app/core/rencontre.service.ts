@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 import { AudioService } from './audio.service';
+import { TransitionService } from './transition.service';
 import { total } from './game/cards';
 import { PlayerStore } from './player.store';
 import { PokedexService } from './pokedex.service';
@@ -28,6 +29,7 @@ export class RencontreService {
   private readonly player = inject(PlayerStore);
   private readonly dex = inject(PokedexService);
   private readonly audio = inject(AudioService);
+  private readonly transition = inject(TransitionService);
 
   readonly courante = signal<Rencontre | null>(null);
   private readonly debut = Date.now();
@@ -81,7 +83,11 @@ export class RencontreService {
     if (!r) return;
     this.fermer();
     this.player.markSeen(r.pokemon, 0);
-    void this.router.navigate(['/arene'], { queryParams: { sauvage: r.pokemon.id, chroma: r.chromatique ? 1 : null } });
+    this.audio.jouer('sauvage');
+    // On accepte le combat : la musique part, l'écran clignote, les bandes d'encre ferment l'écran, on change de page dessous, puis elles s'ouvrent sur le duel.
+    void this.transition.couvrir()
+      .then(() => this.router.navigate(['/arene'], { queryParams: { sauvage: r.pokemon.id, chroma: r.chromatique ? 1 : null } }))
+      .finally(() => setTimeout(() => this.transition.decouvrir(), 250));
   }
 
   fuir(): void {
