@@ -12,7 +12,7 @@
   }
   <div class="niveau">
     <span class="bar" role="img" [attr.aria-label]="'Progression vers le niveau suivant : ' + player.levelProgress() + ' %'"><i [style.width.%]="player.levelProgress()"></i></span>
-    <span class="mono">{{ player.ownedCount() }} cartes · {{ player.seenCount() }} vus · {{ player.snapshot().wins }} victoires · {{ player.dust() }} poussière</span>
+    <span class="mono">{{ player.ownedCount() }} cartes · {{ player.seenCount() }} vus · {{ player.snapshot().wins }} victoires · {{ player.dust() }} poussière · <i class="pokeball"></i> {{ player.pokeballs() }} Pokéball{{ player.pokeballs() > 1 ? "s" : "" }}</span>
   </div>
 </section>
 

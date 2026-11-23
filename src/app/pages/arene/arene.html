@@ -67,7 +67,7 @@
             <div class="plateau dots" (click)="accelerer()" [attr.title]="busy() ? 'Clique pour accélérer' : null">
               <div class="poste eux" [class.elan]="sc.elan === 'machine'">
                 <app-etiquette [class.cache]="sc.caches.includes('machine')" [nom]="f.f.card.name" [type]="f.ink" [pv]="f.hp" [max]="f.f.card.hp" [fantome]="f.hpPct" [niveau]="f.f.card.level" [equipe]="f.vivants" />
-                <div class="combattant" [class.touche]="sc.degats?.cible === 'machine'" [class.cache]="sc.caches.includes('machine')">
+                <div class="combattant" [class.touche]="sc.degats?.cible === 'machine'" [class.cache]="sc.caches.includes('machine')" [class.aspire]="sc.balle && sc.balle.etat !== 'vol' && sc.balle.etat !== 'ouverte'">
                   <span class="socle" [style.background]="f.ink.color"></span>
                   <img [src]="f.sprite" [alt]="f.f.card.name" (error)="fallback($event, f.f.card.id)" />
                   @if (sc.dresseurs.machine; as etat) {
@@ -81,6 +81,15 @@
                   }
                   @if (sc.tampon?.cible === 'machine') {
                     <span class="tampon-scene mono">{{ sc.tampon!.texte }}</span>
+                  }
+                  @if (sc.balle; as b) {
+                    @for (k of [b.cle]; track k) {
+                      <span class="lancer" [attr.data-etat]="b.etat" aria-hidden="true">
+                        <i class="pokeball"></i>
+                        @if (b.etat === 'aspire' || b.etat === 'ouverte') { <span class="eclair"></span> }
+                        @if (b.etat === 'tenue') { <span class="etoiles"><b>✦</b><b>✦</b><b>✦</b></span> }
+                      </span>
+                    }
                   }
                 </div>
               </div>
@@ -114,13 +123,19 @@
             <div class="commandes">
               <div class="journal card" aria-live="polite">
                 <h2 class="titre-j disp">Sélectionne une attaque</h2>
-                <p class="sous">Choisis une capacité : la machine choisit en même temps.</p>
+                <p class="sous">{{ wild() ? 'Affaiblis-le : quand sa jauge passe au rouge, tu peux lancer une Pokéball.' : 'Choisis une capacité : la machine choisit en même temps.' }}</p>
                 @if (report(); as r) {
                   <p class="dernier mono">Manche {{ duel()!.turn - 1 }} · {{ r.message }}</p>
                 }
               </div>
 
               <div class="gestes">
+                @if (peutCapturer()) {
+                  <button type="button" class="geste balle" [disabled]="busy() || !player.pokeballs()" (click)="lancerPokeball()">
+                    <strong class="disp"><i class="pokeball"></i>Pokéball</strong>
+                    <span class="mono">{{ player.pokeballs() ? player.pokeballs() + ' en poche · le lancer remplace ton attaque' : 'Plus aucune Pokéball : reviens demain matin' }}</span>
+                  </button>
+                }
                 @if (m.lutte) {
                   <button type="button" class="geste lutte" [disabled]="busy()" (click)="play(STRUGGLE)">
                     <strong class="disp">Lutte</strong><span>Plus aucun PP : ton Pokémon se débat.</span>
@@ -148,6 +163,12 @@
           <h1>{{ capture() ? capture()!.nom + ' est capturé !' : won() ? 'Victoire !' : 'Défaite.' }}</h1>
           @if (capture(); as cap) {
             <p class="capture mono">Il rejoint ta collection{{ cap.chromatique ? ', en version chromatique ✦' : '' }}.</p>
+          }
+          @if (koSauvage()) {
+            <p class="capture mono">{{ wild()!.name }} sauvage est K.O. : il ne rejoint pas ta collection. La prochaine fois, affaiblis-le puis lance une Pokéball.</p>
+          }
+          @if (balleGagnee()) {
+            <p class="capture mono"><i class="pokeball"></i> +1 Pokéball ({{ player.pokeballs() }} en poche).</p>
           }
           <p>{{ won() ? 'Bien joué. +60 XP de dresseur et 40 poussière.' : 'Pas cette fois. +15 XP de dresseur : regarde les types et la vitesse avant de choisir.' }}</p>
           <ul class="gains">

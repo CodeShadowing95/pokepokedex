@@ -12,7 +12,15 @@ export const PISTES = {
 } as const;
 export type Piste = keyof typeof PISTES;
 
-const EFFETS = { exclamation: 'pokemon-exclamation-mark-sound-effect.mp3' } as const;
+const EFFETS = {
+  exclamation: 'pokemon-exclamation-mark-sound-effect.mp3',
+  lancer: 'pokeball-throw.mp3',
+  rappel: 'in-battle-recall-switch-pokeball.mp3',
+  atterrir: 'pokeball-land.mp3',
+  secousse: 'pokeball-wobble.mp3',
+  capture: 'pokeball-caught.wav',
+} as const;
+export type Effet = keyof typeof EFFETS;
 const CLE = 'pokedex.son';
 const VOLUME = 0.45;
 const FONDU = 700;
@@ -20,7 +28,8 @@ const FONDU = 700;
 export const urlSon = (fichier: string) => 'soundtracks/' + encodeURIComponent(fichier);
 
 /**
- * La musique du site. Coupée par défaut : rien n'est téléchargé tant que le visiteur n'active pas le son.
+ * La musique du site. Active par défaut, mais les navigateurs interdisent tout son avant le premier
+ * geste du visiteur : la musique attend donc son premier clic (ou sa première touche) pour démarrer.
  * Les pages disent seulement quelle piste convient à la scène (`jouer`) ; le service s'occupe
  * du fondu entre deux pistes et se souvient du choix du visiteur.
  */
@@ -32,7 +41,7 @@ export class AudioService {
   private courante: { piste: Piste; el: HTMLAudioElement } | null = null;
 
   private lire(): boolean {
-    try { return localStorage.getItem(CLE) === '1'; } catch { return false; }
+    try { return localStorage.getItem(CLE) !== '0'; } catch { return true; }
   }
 
   basculer(): void {
@@ -55,11 +64,17 @@ export class AudioService {
     this.arreter();
   }
 
-  effet(nom: keyof typeof EFFETS): void {
+  effet(nom: Effet): void {
     if (!this.actif() || typeof Audio === 'undefined') return;
     const el = new Audio(urlSon(EFFETS[nom]));
     el.volume = 0.8;
     void el.play().catch(() => undefined);
+  }
+
+  /** Charge les bruitages d'une scène à l'avance, pour qu'ils tombent pile au bon moment. */
+  precharger(...noms: Effet[]): void {
+    if (!this.actif() || typeof Audio === 'undefined') return;
+    for (const n of noms) { const el = new Audio(urlSon(EFFETS[n])); el.preload = 'auto'; }
   }
 
   private appliquer(): void {
@@ -71,7 +86,24 @@ export class AudioService {
     el.loop = !piste.startsWith('victoire');
     el.volume = 0;
     this.courante = { piste, el };
-    void el.play().then(() => this.fondu(el, VOLUME)).catch(() => undefined);
+    this.lancer(el);
+  }
+
+  /**
+   * Lance la lecture. Si le navigateur la refuse parce que le visiteur n'a encore rien touché,
+   * on réessaie à son premier clic ou à sa première touche.
+   */
+  private lancer(el: HTMLAudioElement): void {
+    el.play().then(() => this.fondu(el, VOLUME)).catch(() => {
+      if (typeof document === 'undefined') return;
+      const reprise = () => {
+        document.removeEventListener('pointerdown', reprise, true);
+        document.removeEventListener('keydown', reprise, true);
+        if (this.courante?.el === el && this.actif()) void el.play().then(() => this.fondu(el, VOLUME)).catch(() => undefined);
+      };
+      document.addEventListener('pointerdown', reprise, true);
+      document.addEventListener('keydown', reprise, true);
+    });
   }
 
   private arreter(): void {
@@ -80,14 +112,15 @@ export class AudioService {
     if (c) this.fondu(c.el, 0, () => c.el.pause());
   }
 
+  /** Fondu par petits pas de minuterie : contrairement à requestAnimationFrame, il avance aussi onglet caché. */
   private fondu(el: HTMLAudioElement, cible: number, fin?: () => void): void {
-    const depart = el.volume, t0 = performance.now();
-    const pas = (t: number) => {
-      const k = Math.min(1, (t - t0) / FONDU);
-      el.volume = depart + (cible - depart) * k;
-      if (k < 1) requestAnimationFrame(pas);
+    const depart = el.volume, t0 = Date.now();
+    const pas = () => {
+      const k = Math.min(1, (Date.now() - t0) / FONDU);
+      el.volume = Math.min(1, Math.max(0, depart + (cible - depart) * k));
+      if (k < 1) setTimeout(pas, 40);
       else fin?.();
     };
-    requestAnimationFrame(pas);
+    pas();
   }
 }

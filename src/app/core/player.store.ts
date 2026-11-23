@@ -29,6 +29,8 @@ export interface PlayerState {
   accueilPasse: boolean;
   /** Rencontres sauvages du jour, pour en limiter le nombre. */
   sauvages: { day: string; count: number };
+  /** Pokéballs en poche, et le jour de la dernière recharge du matin. */
+  pokeballs: { stock: number; day: string };
 }
 
 export interface Quest {
@@ -48,11 +50,14 @@ export interface Pull {
 }
 
 const KEY = 'pokedex.player.v1';
+/** Chaque matin, le stock remonte à 5 Pokéballs s'il est plus bas. */
+export const POKEBALLS_MATIN = 5;
 const EMPTY: PlayerState = {
   starter: 0, owned: {}, seen: [], deck: [], dust: 0, xp: 0, wins: 0,
   streak: { count: 0, last: '', jokerWeek: '' },
   boosterDay: '', quests: { day: '', progress: {} }, mystery: { day: '', tries: 0, solved: false }, badges: {},
   dresseur: null, accueilPasse: false, sauvages: { day: '', count: 0 },
+  pokeballs: { stock: POKEBALLS_MATIN, day: '' },
 };
 
 export const CARD_XP_PER_LEVEL = 100;
@@ -100,6 +105,11 @@ export class PlayerStore {
   readonly levelProgress = computed(() => (this.state().xp % 200) / 2);
   readonly streak = computed(() => this.state().streak.count);
   readonly boosterReady = computed(() => this.state().boosterDay !== dayKey());
+  /** Pokéballs disponibles, recharge du matin comprise. */
+  readonly pokeballs = computed(() => {
+    const p = this.state().pokeballs ?? { stock: POKEBALLS_MATIN, day: '' };
+    return p.day === dayKey() ? p.stock : Math.max(p.stock, POKEBALLS_MATIN);
+  });
   readonly deck = computed(() => this.state().deck.filter((id) => this.state().owned[id]));
 
   constructor() {
@@ -141,6 +151,19 @@ export class PlayerStore {
     const owned = this.state().owned, deck = this.deck();
     if (!deck.length) return 1;
     return Math.max(1, Math.round(deck.reduce((s, id) => s + (owned[id]?.level ?? 1), 0) / deck.length));
+  }
+
+  /** Retire une Pokéball du sac. Renvoie faux s'il n'en reste plus. */
+  utiliserPokeball(): boolean {
+    const stock = this.pokeballs();
+    if (stock <= 0) return false;
+    this.patch(() => ({ pokeballs: { stock: stock - 1, day: dayKey() } }));
+    return true;
+  }
+
+  /** Une victoire contre un dresseur rapporte une Pokéball. */
+  gagnerPokeball(): void {
+    this.patch(() => ({ pokeballs: { stock: this.pokeballs() + 1, day: dayKey() } }));
   }
 
   chooseStarter(id: number): void {

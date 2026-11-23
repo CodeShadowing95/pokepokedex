@@ -1,3 +1,4 @@
+import { SEUIL_CAPTURE } from '../core/game/capture';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { TypeInfo } from '../core/types';
 
@@ -12,11 +13,11 @@ import { TypeInfo } from '../core/types';
       <span class="mono pv">{{ pv() }}/{{ max() }}</span>
     </div>
     <div class="jauge" role="img" [attr.aria-label]="nom() + ' : ' + pv() + ' points de vie sur ' + max()">
-      <b [style.width.%]="fantome()"></b><i [style.width.%]="(pv() / max()) * 100" [class.bas]="pv() / max() < 0.3"></i>
+      <b [style.width.%]="fantome()"></b><i [style.width.%]="(pv() / max()) * 100" [class.bas]="pv() / max() < seuil"></i>
     </div>
     <div class="bas-l">
       <span class="mono niv">N.{{ niveau() }}</span>
-      <span class="banc" aria-hidden="true">@for (v of equipe(); track $index) {<i [class.ko]="!v"></i>}</span>
+      <span class="banc" aria-hidden="true">@for (v of equipe(); track $index) {<i class="pokeball" [class.vide]="!v"></i>}</span>
     </div>
   `,
   styles: `
@@ -33,8 +34,7 @@ import { TypeInfo } from '../core/types';
     .bas-l { display: flex; justify-content: space-between; align-items: center; }
     .niv { font-size: 11px; font-weight: 700; }
     .banc { display: flex; gap: 3px; }
-    .banc i { width: 9px; height: 9px; border: 1.5px solid var(--color-encre); border-radius: 50%; background: var(--color-rouge); }
-    .banc i.ko { background: #fff; opacity: 0.5; }
+    .banc { font-size: 13px; }
     @media (max-width: 860px) { .haut { gap: 5px; } .haut img { width: 16px; height: 16px; } .haut strong { font-size: 14px; } .pv { font-size: 10px; } }
   `,
 })
@@ -47,4 +47,6 @@ export class Etiquette {
   readonly fantome = input(100);
   readonly niveau = input(1);
   readonly equipe = input<boolean[]>([]);
+  /** La jauge passe au rouge sous ce seuil : c'est aussi là qu'on peut lancer une Pokéball. */
+  protected readonly seuil = SEUIL_CAPTURE;
 }

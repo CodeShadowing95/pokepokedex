@@ -280,3 +280,15 @@ button.chip:hover {
   clip-path: inset(50%);
   white-space: nowrap;
 }
+
+/* Une Pokéball dessinée à l'encre : haut rouge, bande, bas blanc, bouton au centre. Taille = font-size. */
+.pokeball {
+  position: relative; display: inline-block; flex: none; width: 1em; height: 1em; border: max(1.5px, 0.09em) solid var(--color-encre); border-radius: 50%;
+  background: linear-gradient(var(--color-rouge) 0 44%, var(--color-encre) 44% 56%, #fff 56%);
+  vertical-align: -0.15em;
+}
+.pokeball::after {
+  content: ''; position: absolute; left: 50%; top: 50%; width: 38%; height: 38%; border: max(1.5px, 0.09em) solid var(--color-encre); border-radius: 50%;
+  background: #fff; transform: translate(-50%, -50%);
+}
+.pokeball.vide { background: linear-gradient(#c9c3b6 0 44%, var(--color-encre) 44% 56%, #fff 56%); opacity: 0.55; }

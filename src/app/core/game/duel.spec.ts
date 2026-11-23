@@ -1,6 +1,6 @@
 import { effectiveness } from '../types';
 import { Card, Move } from './cards';
-import { LUTTE, STRUGGLE, baseDamage, chooseMachineMove, createDuel, damage, resolve } from './duel';
+import { LUTTE, PASSE, STRUGGLE, baseDamage, chooseMachineMove, createDuel, damage, resolve } from './duel';
 import { tampon } from './sequence';
 
 const mv = (over: Partial<Move> = {}): Move => ({ id: 1, nom: 'Écras’Face', type: 1, puissance: 40, precision: 100, pp: 35, classe: 'physique', priorite: 0, ...over });
@@ -95,5 +95,13 @@ describe('duel à la manière des jeux', () => {
       duel = resolve(duel, chooseMachineMove({ ...duel, machine: duel.player, player: duel.machine }, Math.random, 0), chooseMachineMove(duel)).state;
     }
     expect(duel.winner).not.toBeNull();
+  });
+
+  it('quand le joueur passe son tour (Pokéball), seul l’adversaire attaque', () => {
+    const { state, report } = resolve(createDuel([card()], [card({ id: 2 })]), PASSE, 0, sans);
+    expect(report.coups).toHaveLength(1);
+    expect(report.coups[0].attaquant).toBe('machine');
+    expect(state.player.team[0].hp).toBeLessThan(150);
+    expect(state.player.team[0].pp[0]).toBe(35);
   });
 });

@@ -3,7 +3,8 @@ import { AudioService } from '../../core/audio.service';
 import { RouterLink } from '@angular/router';
 import { GYMS, LEAGUE, gymTeam, rivalTeam } from '../../core/game/campaign';
 import { Card, cardOf, total } from '../../core/game/cards';
-import { DuelState, Fighter, STRUGGLE, TurnReport, Who, active, chooseMachineMove, createDuel, resolve, usable } from '../../core/game/duel';
+import { DuelState, Fighter, PASSE, STRUGGLE, TurnReport, Who, active, chooseMachineMove, createDuel, resolve, usable } from '../../core/game/duel';
+import { capturable, lancer } from '../../core/game/capture';
 import { PlayerStore } from '../../core/player.store';
 import { PokedexService } from '../../core/pokedex.service';
 import { animated, artwork } from '../../core/pokemon';
@@ -29,15 +30,22 @@ interface Scene {
   dresseurs: Record<Who, 'entre' | 'sort' | null>;
   /** Pokémon pas encore envoyés. */
   caches: Who[];
+  /** La Pokéball lancée sur le Pokémon sauvage, étape par étape. */
+  balle: { etat: EtatBalle; cle: number } | null;
 }
-const SCENE_VIDE: Scene = { bandeau: null, elan: null, effet: null, tampon: null, degats: null, dresseurs: { player: null, machine: null }, caches: [] };
+type EtatBalle = 'vol' | 'aspire' | 'sol' | 'secousse' | 'tenue' | 'ouverte';
+const SCENE_VIDE: Scene = { bandeau: null, elan: null, effet: null, tampon: null, degats: null, dresseurs: { player: null, machine: null }, caches: [], balle: null };
+/** Les phrases des jeux quand le Pokémon se libère, selon le nombre de secousses. */
+const LIBERE = ['Oh non ! Le Pokémon s’est libéré !', 'Raah ! Ça y était presque !', 'Aaaah ! Presque !', 'Mince ! Ça y était presque !'];
+/** Taux de capture par défaut, le temps que les fiches détaillées arrivent (celui des starters). */
+const TAUX_DEFAUT = 45;
 
 @Component({
   selector: 'app-arene',
   imports: [RouterLink, EffetSprite, Etiquette],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './arene.html',
-  styleUrl: './arene.css',
+  styleUrls: ['./arene.css', './capture.css'],
 })
 export class Arene {
   private readonly dex = inject(PokedexService);
@@ -51,6 +59,11 @@ export class Arene {
   readonly chroma = input<string>();
   private readonly audio = inject(AudioService);
   protected readonly capture = signal<{ nom: string; chromatique: boolean } | null>(null);
+  /** Vrai quand un Pokémon sauvage a été mis K.O. au lieu d'être capturé. */
+  protected readonly koSauvage = signal(false);
+  /** Vrai quand une victoire contre un dresseur a rapporté une Pokéball. */
+  protected readonly balleGagnee = signal(false);
+  private taux = TAUX_DEFAUT;
 
   protected readonly phase = signal<Phase>('prep');
   protected readonly duel = signal<DuelState | null>(null);
@@ -127,14 +140,27 @@ export class Arene {
 
   protected readonly me = computed(() => this.side('player'));
   protected readonly foe = computed(() => this.side('machine'));
-  protected readonly won = computed(() => this.duel()?.winner === 'player');
+  protected readonly won = computed(() => this.duel()?.winner === 'player' || !!this.capture());
+  /** La jauge du Pokémon sauvage est au rouge : le bouton Pokéball apparaît. */
+  protected readonly peutCapturer = computed(() => {
+    const f = this.foe();
+    return !!this.wild() && !!f && capturable(f.hp, f.f.card.hp);
+  });
 
   constructor() {
     // Hors combat, l'arène garde la musique d'ouverture ; une rencontre sauvage démarre tout de suite.
     effect(() => {
       if (this.phase() !== 'prep') return;
       untracked(() => this.audio.jouer('opening'));
-      if (this.wild() && this.theirCards().length && this.myCards().length) untracked(() => this.start());
+      const w = this.wild();
+      if (w && this.theirCards().length && this.myCards().length) {
+        untracked(() => {
+          this.taux = TAUX_DEFAUT;
+          void this.dex.details(w.id).then((d) => (this.taux = d?.capture || TAUX_DEFAUT));
+          this.audio.precharger('lancer', 'rappel', 'atterrir', 'secousse', 'capture');
+          this.start();
+        });
+      }
     });
   }
 
@@ -174,6 +200,8 @@ export class Arene {
     this.report.set(null);
     this.scene.set(SCENE_VIDE);
     this.capture.set(null);
+    this.koSauvage.set(false);
+    this.balleGagnee.set(false);
     this.duel.set(createDuel(this.myCards(), this.theirCards()));
     this.phase.set('fight');
     this.audio.jouer(this.wild() ? 'sauvage' : this.challenge() ? 'champion' : 'dresseur');
@@ -216,6 +244,64 @@ export class Arene {
     void this.mettreEnScene(before, next, report);
   }
 
+  /**
+   * Le lancer de Pokéball, comme dans les jeux : la balle vole, aspire le Pokémon dans un éclair rouge,
+   * tombe, tremble jusqu'à trois fois. Capturé : « Gotcha ! ». Libéré : le lancer a pris ton tour,
+   * le Pokémon sauvage attaque.
+   */
+  protected async lancerPokeball(): Promise<void> {
+    const state = this.duel();
+    if (!state || this.busy() || state.winner || !this.peutCapturer() || !this.player.utiliserPokeball()) return;
+    const cible = active(state.machine);
+    const resultat = lancer(this.taux, cible.hp, cible.card.hp);
+    this.busy.set(true);
+    this.vitesse = 1;
+    const balle = (etat: EtatBalle, nouvelle = false) => this.maj({ balle: { etat, cle: nouvelle ? ++this.cle : this.cle } });
+
+    this.maj({ bandeau: { texte: `${this.moiDresseur().nom} lance une Pokéball !`, cote: 'player', icone: null } });
+    await this.attendre(650);
+    this.audio.effet('lancer');
+    this.maj({ bandeau: null });
+    balle('vol', true);
+    await this.attendre(650);
+    this.audio.effet('rappel');
+    balle('aspire');
+    await this.attendre(650);
+    balle('sol');
+    await this.attendre(380);
+    this.audio.effet('atterrir');
+    await this.attendre(520);
+    for (let i = 0; i < resultat.secousses; i++) {
+      this.audio.effet('secousse');
+      balle('secousse', true);
+      await this.attendre(1000);
+    }
+
+    if (resultat.capture) {
+      this.audio.effet('capture');
+      balle('tenue');
+      await this.attendre(1000);
+      this.maj({ bandeau: { texte: `Gotcha ! ${cible.card.name} est capturé !`, cote: 'player', icone: null } });
+      await this.attendre(1800);
+      this.scene.set(SCENE_VIDE);
+      this.busy.set(false);
+      this.finish(true, true);
+      return;
+    }
+
+    this.audio.effet('rappel');
+    balle('ouverte');
+    this.maj({ bandeau: { texte: LIBERE[resultat.secousses], cote: 'machine', icone: null } });
+    await this.attendre(1300);
+    this.maj({ balle: null, bandeau: null });
+    await this.attendre(350);
+    // Le lancer a pris le tour du joueur : seul le Pokémon sauvage attaque.
+    const machine = chooseMachineMove(state, Math.random, 0.6);
+    const before = { player: active(state.player).card, machine: cible.card };
+    const { state: next, report } = resolve(state, PASSE, machine);
+    void this.mettreEnScene(before, next, report);
+  }
+
   /** Un clic sur la scène accélère la mise en scène en cours. */
   protected accelerer(): void {
     if (this.busy()) this.vitesse = 0.15;
@@ -255,7 +341,7 @@ export class Arene {
     if (next.winner) this.finish(next.winner === 'player');
   }
 
-  private finish(won: boolean): void {
+  private finish(won: boolean, capture = false): void {
     const before = this.player.owned();
     const gains = this.myCards().map((card) => {
       const xp = PLAY_XP + (this.kos[card.id] ?? 0) * KO_XP;
@@ -268,10 +354,14 @@ export class Arene {
     this.player.recordDuel(won);
     const c = this.challenge(), w = this.wild();
     if (won && c) this.player.winBadge(c.region, c.gym);
-    if (won && w) {
+    if (w && capture) {
       const chromatique = this.chroma() === '1';
       this.player.addCard(w.id, chromatique);
       this.capture.set({ nom: w.name, chromatique });
+    } else if (w && won) this.koSauvage.set(true);
+    if (won && !w) {
+      this.player.gagnerPokeball();
+      this.balleGagnee.set(true);
     }
     if (won) this.audio.jouer(w ? 'victoire-sauvage' : c ? 'victoire-champion' : 'victoire-dresseur');
     else this.audio.silence();

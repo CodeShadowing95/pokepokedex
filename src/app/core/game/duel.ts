@@ -53,6 +53,8 @@ export interface TurnReport {
 
 /** Choix « Lutte » : quand plus aucune capacité n'a de PP. */
 export const STRUGGLE = -1;
+/** Choix « passer son tour » : le joueur a lancé une Pokéball au lieu d'attaquer. */
+export const PASSE = -2;
 export const LUTTE: Move = { id: 165, nom: 'Lutte', type: 1, puissance: 50, precision: null, pp: 1, classe: 'physique', priorite: 0 };
 export const CRITIQUE = 1 / 24;
 
@@ -95,11 +97,14 @@ export function resolve(state: DuelState, playerChoice: number, machineChoice: n
   const next: DuelState = structuredClone(state);
   const fighters: Record<Who, Fighter> = { player: active(next.player), machine: active(next.machine) };
   const choices: Record<Who, number> = { player: playerChoice, machine: machineChoice };
+  if (machineChoice === PASSE) throw new Error('La machine ne passe jamais son tour.');
   for (const w of ['player', 'machine'] as Who[]) {
     const f = fighters[w], c = choices[w];
+    if (c === PASSE) continue;
     if (c === STRUGGLE ? usable(f).length > 0 : !(f.pp[c] > 0)) throw new Error(`Capacité indisponible (${w}).`);
   }
-  const moves: Record<Who, Move> = { player: moveFor(fighters.player, playerChoice), machine: moveFor(fighters.machine, machineChoice) };
+  const passe = playerChoice === PASSE;
+  const moves: Record<Who, Move> = { player: passe ? LUTTE : moveFor(fighters.player, playerChoice), machine: moveFor(fighters.machine, machineChoice) };
 
   // Ordre : priorité, puis vitesse, puis pile ou face.
   const p = moves.player.priorite - moves.machine.priorite;
@@ -109,7 +114,7 @@ export function resolve(state: DuelState, playerChoice: number, machineChoice: n
   const coups: Coup[] = [];
   for (const w of [first, other(first)]) {
     const att = fighters[w], def = fighters[other(w)];
-    if (att.hp === 0) continue;
+    if (att.hp === 0 || choices[w] === PASSE) continue;
     if (choices[w] !== STRUGGLE) att.pp[choices[w]] -= 1;
     const move = moves[w];
     const touche = move.precision === null || rand() * 100 < move.precision;

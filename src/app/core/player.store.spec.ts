@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { CRAFT_COST, DUPLICATE_DUST, PlayerStore, dailyNumber } from './player.store';
+import { CRAFT_COST, DUPLICATE_DUST, POKEBALLS_MATIN, PlayerStore, dailyNumber } from './player.store';
 import { Pokemon } from './pokemon';
 
 const poke = (id: number, sum = 300): Pokemon => ({ id, name: 'P' + id, types: [1], gen: 1, stats: [sum, 0, 0, 0, 0, 0], height: 1, weight: 10, shape: 1, rank: 0, from: 0, chain: id, level: 0, moves: [33] });
@@ -28,6 +28,15 @@ describe('PlayerStore', () => {
   it('ne redemande plus l’accueil à qui a choisi d’explorer', () => {
     store.passerAccueil();
     expect(store.nouveau()).toBe(false);
+  });
+
+  it('donne 5 Pokéballs, en retire une par lancer et en rend une par victoire', () => {
+    expect(store.pokeballs()).toBe(POKEBALLS_MATIN);
+    for (let i = 0; i < POKEBALLS_MATIN; i++) expect(store.utiliserPokeball()).toBe(true);
+    expect(store.pokeballs()).toBe(0);
+    expect(store.utiliserPokeball()).toBe(false);
+    store.gagnerPokeball();
+    expect(store.pokeballs()).toBe(1);
   });
 
   it('transforme un doublon en poussière', () => {
