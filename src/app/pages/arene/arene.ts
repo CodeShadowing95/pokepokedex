@@ -3,7 +3,9 @@ import { ChangeDetectionStrategy, Component, computed, effect, inject, input, si
 import { AudioService } from '../../core/audio.service';
 import { RouterLink } from '@angular/router';
 import { GYMS, LEAGUE, gymTeam, rivalTeam } from '../../core/game/campaign';
-import { Card, cardOf, total } from '../../core/game/cards';
+import { Card, cardOf, moveOf, total } from '../../core/game/cards';
+import { PART_BANC, avancee, evolutionAuNiveau, experienceGagnee, nouvellesCapacites } from '../../core/game/progression';
+import { ApresDuel, Evenement } from '../../ui/apres-duel';
 import { DuelState, Fighter, PASSE, STRUGGLE, TurnReport, Who, active, chooseMachineMove, createDuel, resolve, usable } from '../../core/game/duel';
 import { capturable, lancer } from '../../core/game/capture';
 import { PlayerStore } from '../../core/player.store';
@@ -17,8 +19,6 @@ import { DRESSEUR_PAR_TYPE } from '../../core/avatars';
 import { dresseurImg } from '../../core/dresseurs';
 
 type Phase = 'prep' | 'fight' | 'end';
-const KO_XP = 40;
-const PLAY_XP = 10;
 
 /** Ce que la scène montre pendant la mise en scène d'un tour. */
 interface Scene {
@@ -44,6 +44,8 @@ interface Scene {
 }
 type EtatBalle = 'vol' | 'aspire' | 'sol' | 'secousse' | 'tenue' | 'ouverte';
 const PERSONNE = { player: null, machine: null };
+/** Ce qu'un Pokémon de l'équipe a gagné pendant le duel. */
+interface Gain { name: string; xp: number; avant: number; apres: number; appris: string[]; pct: number }
 const SCENE_VIDE: Scene = { bandeau: null, elan: null, effet: null, tampon: null, degats: null, dresseurs: PERSONNE, caches: [], balle: null, envoi: PERSONNE, apparu: PERSONNE, ko: [], brille: false };
 /** Les phrases des jeux quand le Pokémon se libère, selon le nombre de secousses. */
 const LIBERE = ['Oh non ! Le Pokémon s’est libéré !', 'Raah ! Ça y était presque !', 'Aaaah ! Presque !', 'Mince ! Ça y était presque !'];
@@ -52,7 +54,7 @@ const TAUX_DEFAUT = 45;
 
 @Component({
   selector: 'app-arene',
-  imports: [Son, RouterLink, EffetSprite, Etiquette],
+  imports: [Son, ApresDuel, RouterLink, EffetSprite, Etiquette],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './arene.html',
   styleUrls: ['./arene.css', './intro.css', './capture.css'],
@@ -84,8 +86,11 @@ export class Arene {
   private readonly encaisse = signal<Record<Who, number>>({ player: 0, machine: 0 });
   private vitesse = 1;
   private cle = 0;
-  protected readonly gains = signal<{ name: string; xp: number; level: number; leveled: boolean }[]>([]);
-  private kos: Record<number, number> = {};
+  protected readonly gains = signal<Gain[]>([]);
+  /** Ce qui suit le duel, une étape à la fois : capacités à apprendre, évolutions. */
+  protected readonly evenements = signal<Evenement[]>([]);
+  /** Expérience gagnée pendant le duel, par carte. */
+  private xpGagnee: Record<number, number> = {};
   private rival: Card[] | null = null;
   private readonly rivalSeed = signal(0);
 
@@ -131,7 +136,7 @@ export class Arene {
     const ids = this.player.deck().length ? this.player.deck() : Object.keys(owned).map(Number).slice(0, 3);
     return ids.flatMap((id) => {
       const p = this.dex.get(id);
-      return p ? [cardOf(p, owned[id]?.level ?? 1)] : [];
+      return p ? [cardOf(p, owned[id]?.level, owned[id]?.moves)] : [];
     });
   });
 
@@ -140,12 +145,12 @@ export class Arene {
     const mine = this.myCards();
     if (!all.length || !mine.length) return [];
     const w = this.wild();
-    if (w) return [cardOf(w, this.player.niveauEquipe())];
+    if (w) return [cardOf(w, this.niveauSauvage())];
     const c = this.challenge();
     if (c) return gymTeam(all, c.region, c.gym);
     this.rivalSeed();
     const average = mine.reduce((sum, card) => sum + total(this.dex.get(card.id)!), 0) / mine.length;
-    return (this.rival ??= rivalTeam(all, average));
+    return (this.rival ??= rivalTeam(all, average, Math.random, this.player.niveauEquipe()));
   });
 
   protected readonly me = computed(() => this.side('player'));
@@ -206,7 +211,7 @@ export class Arene {
   }
 
   protected start(): void {
-    this.kos = {};
+    this.xpGagnee = {};
     this.report.set(null);
     this.scene.set(SCENE_VIDE);
     this.capture.set(null);
@@ -276,7 +281,7 @@ export class Arene {
     const machine = chooseMachineMove(state, Math.random, this.challenge()?.skill ?? 0.6);
     const before = { player: active(state.player).card, machine: active(state.machine).card };
     const { state: next, report } = resolve(state, choice, machine);
-    if (report.scorer) this.kos[report.scorer] = (this.kos[report.scorer] ?? 0) + 1;
+    if (report.koMachine) this.partagerXp(before.machine, state);
     this.busy.set(true);
     this.vitesse = 1;
     void this.mettreEnScene(before, next, report);
@@ -391,22 +396,69 @@ export class Arene {
     if (next.winner) this.finish(next.winner === 'player');
   }
 
-  private finish(won: boolean, capture = false): void {
-    const before = this.player.owned();
-    const gains = this.myCards().map((card) => {
-      const xp = PLAY_XP + (this.kos[card.id] ?? 0) * KO_XP;
-      const levelBefore = before[card.id]?.level ?? 1;
-      this.player.gainCardXp(card.id, xp);
-      const level = this.player.owned()[card.id]?.level ?? levelBefore;
-      return { name: card.name, xp, level, leveled: level > levelBefore };
-    });
+  /** Les Pokémon sauvages ont un ou deux niveaux de moins que ton équipe. */
+  private niveauSauvage(): number {
+    return Math.max(2, this.player.niveauEquipe() - 1);
+  }
+
+  /**
+   * Un adversaire est vaincu (ou capturé) : l'expérience des jeux va au Pokémon qui combat,
+   * la moitié aux autres membres de l'équipe encore debout (Multi Exp.).
+   */
+  private partagerXp(vaincu: Card, state: DuelState): void {
+    const p = this.dex.get(vaincu.id);
+    if (!p) return;
+    const xp = experienceGagnee(p, vaincu.level, !this.wild());
+    const actif = active(state.player).card.id;
+    for (const f of state.player.team) {
+      if (f.hp <= 0 && f.card.id !== actif) continue;
+      const part = f.card.id === actif ? xp : Math.floor(xp * PART_BANC);
+      this.xpGagnee[f.card.id] = (this.xpGagnee[f.card.id] ?? 0) + part;
+    }
+  }
+
+  /**
+   * Fin du duel : l'expérience est versée, puis viennent, comme dans les jeux, les nouvelles capacités
+   * (apprises d'office s'il reste une place, sinon le joueur choisit) et les évolutions.
+   */
+  private verserXp(): void {
+    const gains: Gain[] = [];
+    const suite: Evenement[] = [];
+    for (const card of this.myCards()) {
+      const p = this.dex.get(card.id);
+      const o = this.player.owned()[card.id];
+      if (!p || !o) continue;
+      const xp = this.xpGagnee[card.id] ?? 0;
+      const connues = card.moves.map((m) => m.id);
+      const { avant, apres } = this.player.gainCardXp(card.id, xp, p.growth, connues);
+      const appris: string[] = [];
+      let actuelles = [...(this.player.owned()[card.id]?.moves ?? connues)];
+      for (const id of nouvellesCapacites(p, avant, apres, actuelles)) {
+        if (actuelles.length < 4) {
+          this.player.apprendre(card.id, id, actuelles);
+          actuelles = [...actuelles, id];
+          appris.push(moveOf(id).nom);
+        } else suite.push({ type: 'apprendre', id: card.id, nom: card.name, capacite: id });
+      }
+      const evo = apres > avant ? evolutionAuNiveau(this.dex.evolutions(card.id), apres) : null;
+      if (evo) suite.push({ type: 'evolution', de: p, vers: evo });
+      const o2 = this.player.owned()[card.id];
+      gains.push({ name: card.name, xp, avant, apres, appris, pct: o2 ? Math.round(avancee(p.growth, o2.level, o2.xp) * 100) : 0 });
+    }
     this.gains.set(gains);
+    this.evenements.set(suite);
+  }
+
+  private finish(won: boolean, capture = false): void {
+    const w = this.wild();
+    if (capture && w) this.partagerXp(active(this.duel()!.machine).card, this.duel()!);
+    this.verserXp();
     this.player.recordDuel(won);
-    const c = this.challenge(), w = this.wild();
+    const c = this.challenge();
     if (won && c) this.player.winBadge(c.region, c.gym);
     if (w && capture) {
       const chromatique = this.chroma() === '1';
-      this.player.addCard(w.id, chromatique);
+      this.player.addCard(w.id, chromatique, active(this.duel()!.machine).card.level, w.growth);
       this.capture.set({ nom: w.name, chromatique });
     } else if (w && won) this.koSauvage.set(true);
     if (won && !w) {

@@ -35,6 +35,10 @@ export const GYMS: readonly (readonly Gym[])[] = [
 /** Numéro de l'étape « Ligue », après les huit arènes. */
 export const LEAGUE = 9;
 
+/** Niveau des Pokémon de chaque champion, de la 1re à la 8e arène, puis la Ligue (comme dans les jeux). */
+const NIVEAUX_ARENE = [12, 16, 20, 24, 29, 33, 37, 42];
+export const niveauArene = (gym: number) => (gym === LEAGUE ? 48 : NIVEAUX_ARENE[gym - 1] ?? 42);
+
 /** Seuil de puissance visé pour l'équipe adverse : il monte d'arène en arène. */
 const targetTotal = (gym: number) => (gym === LEAGUE ? 560 : 290 + gym * 30);
 
@@ -49,19 +53,19 @@ function closest(pool: Pokemon[], target: number, count: number): Pokemon[] {
  */
 export function gymTeam(all: Pokemon[], region: number, gym: number): Card[] {
   const local = all.filter((p) => p.gen === region && p.rank === 0);
-  if (gym === LEAGUE) return closest(local, targetTotal(gym), 3).map((p) => cardOf(p, 8));
+  if (gym === LEAGUE) return closest(local, targetTotal(gym), 3).map((p) => cardOf(p, niveauArene(gym)));
   const type = GYMS[region - 1][gym - 1].type;
   let pool = local.filter((p) => p.types.includes(type));
   if (pool.length < 3) pool = all.filter((p) => p.rank === 0 && p.types.includes(type));
-  return closest(pool, targetTotal(gym), 3).map((p) => cardOf(p, gym));
+  return closest(pool, targetTotal(gym), 3).map((p) => cardOf(p, niveauArene(gym)));
 }
 
 /** Adversaire d'un duel libre : trois cartes de puissance voisine de celle du joueur. */
-export function rivalTeam(all: Pokemon[], playerAverage: number, random: () => number = Math.random): Card[] {
+export function rivalTeam(all: Pokemon[], playerAverage: number, random: () => number = Math.random, niveau = 5): Card[] {
   const pool = all.filter((p) => p.rank === 0 && Math.abs(total(p) - playerAverage) <= 70);
   const picked: Pokemon[] = [];
   while (picked.length < 3 && pool.length) picked.push(pool.splice(Math.floor(random() * pool.length), 1)[0]);
-  return picked.map((p) => cardOf(p));
+  return picked.map((p) => cardOf(p, niveau));
 }
 
 /** Les deux compagnons offerts avec le starter : des Pokémon simples de la même région. */

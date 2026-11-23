@@ -180,12 +180,19 @@
           @if (balleGagnee()) {
             <p class="capture mono"><i class="pokeball"></i> +1 Pokéball ({{ player.pokeballs() }} en poche).</p>
           }
-          <p>{{ won() ? 'Bien joué. +60 XP de dresseur et 40 poussière.' : 'Pas cette fois. +15 XP de dresseur : regarde les types et la vitesse avant de choisir.' }}</p>
+          <p>{{ won() ? 'Bien joué. +60 XP de dresseur et 40 poussière.' : 'Pas cette fois. Tes Pokémon gardent l’expérience gagnée : regarde les types et la vitesse avant de choisir.' }}</p>
           <ul class="gains">
             @for (g of gains(); track g.name) {
-              <li><strong>{{ g.name }}</strong><span class="mono">+{{ g.xp }} XP</span>@if (g.leveled) {<span class="chip on">Niveau {{ g.level }}</span>}</li>
+              <li>
+                <strong>{{ g.name }}</strong>
+                <span class="mono">N.{{ g.apres }} · +{{ g.xp }} XP</span>
+                <span class="barre-xp" role="img" [attr.aria-label]="g.pct + ' % du niveau suivant'"><i [style.width.%]="g.pct"></i></span>
+                @if (g.apres > g.avant) { <span class="chip on">Niveau {{ g.apres }} !</span> }
+                @for (a of g.appris; track a) { <span class="chip">Apprend {{ a }}</span> }
+              </li>
             }
           </ul>
+          <app-apres-duel [evenements]="evenements()" />
           <div class="actions">
             @if (wild()) {
               <a class="btn" routerLink="/pokedex">Reprendre l’exploration</a>

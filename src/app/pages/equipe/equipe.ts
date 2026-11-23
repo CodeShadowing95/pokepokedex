@@ -23,7 +23,7 @@ export class Equipe {
     const deck = this.player.deck();
     return Object.keys(owned).flatMap((key) => {
       const p = this.dex.get(+key);
-      return p ? [{ p, card: cardOf(p, owned[+key].level), ink: typeOf(p.types[0]), art: artwork(p.id, owned[+key].shiny), picked: deck.includes(p.id) }] : [];
+      return p ? [{ p, card: cardOf(p, owned[+key].level, owned[+key].moves), ink: typeOf(p.types[0]), art: artwork(p.id, owned[+key].shiny), picked: deck.includes(p.id) }] : [];
     });
   });
   protected readonly team = computed(() => this.player.deck().flatMap((id) => this.pool().filter((c) => c.p.id === id)));

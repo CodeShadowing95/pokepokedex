@@ -1,7 +1,7 @@
 <section class="page tete">
   <p class="eyebrow">Ma collection</p>
   <h1>{{ player.ownedCount() }} carte{{ player.ownedCount() > 1 ? 's' : '' }}</h1>
-  <p class="lead">Une carte gagne 40 XP par K.O. et 10 XP par duel joué. Tous les 100 XP, elle monte d’un niveau : +4 PV et +2 en attaque. Au bon niveau, elle peut évoluer.</p>
+  <p class="lead">Comme dans les jeux : chaque K.O. rapporte de l’expérience au Pokémon qui combat, et la moitié à ceux restés sur le banc. En montant de niveau, il apprend de nouvelles capacités, et il évolue au niveau des jeux.</p>
   <p class="mono">{{ player.dust() }} poussière · 100 pour fabriquer une carte depuis sa fiche</p>
 </section>
 
@@ -26,8 +26,8 @@
           <div class="bas">
             <div class="ligne"><strong class="disp">{{ c.p.name }}</strong>@if (c.inDeck) {<span class="chip on">Équipe</span>}</div>
             <span class="mono petit">{{ c.rarity }} · PV {{ c.card.hp }} · ATQ {{ c.card.atk }} · VIT {{ c.card.spd }}</span>
-            <span class="bar" role="img" [attr.aria-label]="c.o.xp + ' XP sur 100'"><i [style.width.%]="c.xpPct"></i></span>
-            <span class="mono petit">{{ c.o.xp }} / 100 XP{{ c.o.count > 1 ? ' · ' + c.o.count + ' exemplaires' : '' }}</span>
+            <span class="bar" role="img" [attr.aria-label]="c.xpPct + ' % du niveau suivant'"><i [style.width.%]="c.xpPct"></i></span>
+            <span class="mono petit">{{ c.xpPct }} % vers le niveau {{ c.o.level + 1 }}{{ c.o.count > 1 ? ' · ' + c.o.count + ' exemplaires' : '' }}</span>
             @for (n of c.next; track n.to.id) {
               @if (n.ready) {
                 <button type="button" class="btn jaune sm pulse" son="confirmation" (click)="evolve(c.p, n.to)">Évoluer en {{ n.to.name }}</button>
