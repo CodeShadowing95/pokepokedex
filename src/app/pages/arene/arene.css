@@ -108,3 +108,4 @@ app-etiquette.cache { opacity: 0; }
 @media (prefers-reduced-motion: reduce) {
   .poste, .bandeau, .tampon-scene, .combattant img.dresseur { animation: none; transition: none; }
 }
+.capture { font-weight: 700; color: var(--color-rouge); }

@@ -27,6 +27,8 @@ export interface PlayerState {
   dresseur: { nom: string; avatar: string } | null;
   /** Vrai quand le visiteur a choisi d'explorer sans passer par l'accueil. */
   accueilPasse: boolean;
+  /** Rencontres sauvages du jour, pour en limiter le nombre. */
+  sauvages: { day: string; count: number };
 }
 
 export interface Quest {
@@ -50,7 +52,7 @@ const EMPTY: PlayerState = {
   starter: 0, owned: {}, seen: [], deck: [], dust: 0, xp: 0, wins: 0,
   streak: { count: 0, last: '', jokerWeek: '' },
   boosterDay: '', quests: { day: '', progress: {} }, mystery: { day: '', tries: 0, solved: false }, badges: {},
-  dresseur: null, accueilPasse: false,
+  dresseur: null, accueilPasse: false, sauvages: { day: '', count: 0 },
 };
 
 export const CARD_XP_PER_LEVEL = 100;
@@ -123,6 +125,23 @@ export class PlayerStore {
   }
 
   passerAccueil(): void { this.patch(() => ({ accueilPasse: true })); }
+
+  /** Nombre de rencontres sauvages déjà faites aujourd'hui. */
+  rencontresDuJour(): number {
+    const s = this.state().sauvages;
+    return s?.day === dayKey() ? s.count : 0;
+  }
+
+  noterRencontre(): void {
+    this.patch(() => ({ sauvages: { day: dayKey(), count: this.rencontresDuJour() + 1 } }));
+  }
+
+  /** Niveau moyen des cartes de l'équipe : les Pokémon sauvages s'y alignent. */
+  niveauEquipe(): number {
+    const owned = this.state().owned, deck = this.deck();
+    if (!deck.length) return 1;
+    return Math.max(1, Math.round(deck.reduce((s, id) => s + (owned[id]?.level ?? 1), 0) / deck.length));
+  }
 
   chooseStarter(id: number): void {
     this.patch((s) => ({ starter: id, deck: s.deck.includes(id) ? s.deck : [id, ...s.deck].slice(0, 3) }));

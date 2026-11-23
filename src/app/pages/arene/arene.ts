@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { AudioService } from '../../core/audio.service';
 import { RouterLink } from '@angular/router';
 import { GYMS, LEAGUE, gymTeam, rivalTeam } from '../../core/game/campaign';
 import { Card, cardOf, total } from '../../core/game/cards';
@@ -45,6 +46,11 @@ export class Arene {
   /** Présents dans l'adresse quand on vient de la campagne : /arene?region=1&gym=3 */
   readonly region = input<string>();
   readonly gym = input<string>();
+  /** Présents après une rencontre sauvage : /arene?sauvage=16&chroma=1 */
+  readonly sauvage = input<string>();
+  readonly chroma = input<string>();
+  private readonly audio = inject(AudioService);
+  protected readonly capture = signal<{ nom: string; chromatique: boolean } | null>(null);
 
   protected readonly phase = signal<Phase>('prep');
   protected readonly duel = signal<DuelState | null>(null);
@@ -89,6 +95,14 @@ export class Arene {
     };
   });
 
+  /** Le Pokémon sauvage à affronter, s'il y en a un. */
+  protected readonly wild = computed(() => {
+    const id = Number(this.sauvage());
+    return id ? (this.dex.get(id) ?? null) : null;
+  });
+
+  protected readonly titre = computed(() => this.challenge()?.title ?? (this.wild() ? `${this.wild()!.name} sauvage` : 'Duel libre'));
+
   protected readonly myCards = computed(() => {
     const owned = this.player.owned();
     const ids = this.player.deck().length ? this.player.deck() : Object.keys(owned).map(Number).slice(0, 3);
@@ -102,6 +116,8 @@ export class Arene {
     const all = this.dex.all();
     const mine = this.myCards();
     if (!all.length || !mine.length) return [];
+    const w = this.wild();
+    if (w) return [cardOf(w, this.player.niveauEquipe())];
     const c = this.challenge();
     if (c) return gymTeam(all, c.region, c.gym);
     this.rivalSeed();
@@ -112,6 +128,15 @@ export class Arene {
   protected readonly me = computed(() => this.side('player'));
   protected readonly foe = computed(() => this.side('machine'));
   protected readonly won = computed(() => this.duel()?.winner === 'player');
+
+  constructor() {
+    // Hors combat, l'arène garde la musique d'ouverture ; une rencontre sauvage démarre tout de suite.
+    effect(() => {
+      if (this.phase() !== 'prep') return;
+      untracked(() => this.audio.jouer('opening'));
+      if (this.wild() && this.theirCards().length && this.myCards().length) untracked(() => this.start());
+    });
+  }
 
   private side(who: Who) {
     const d = this.duel();
@@ -148,8 +173,10 @@ export class Arene {
     this.kos = {};
     this.report.set(null);
     this.scene.set(SCENE_VIDE);
+    this.capture.set(null);
     this.duel.set(createDuel(this.myCards(), this.theirCards()));
     this.phase.set('fight');
+    this.audio.jouer(this.wild() ? 'sauvage' : this.challenge() ? 'champion' : 'dresseur');
     this.busy.set(true);
     this.vitesse = 1;
     void this.entree();
@@ -160,10 +187,16 @@ export class Arene {
     const d = this.duel()!;
     const moi = this.moiDresseur(), eux = this.euxDresseur();
     const reduit = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
-    this.scene.set({ ...SCENE_VIDE, dresseurs: { player: 'entre', machine: 'entre' }, caches: ['player', 'machine'], bandeau: { texte: `${eux.nom} veut se battre !`, cote: 'machine', icone: null } });
-    await this.attendre(reduit ? 700 : 1200);
-    this.maj({ dresseurs: { player: 'entre', machine: 'sort' }, caches: ['player'], bandeau: { texte: `${eux.nom} envoie ${active(d.machine).card.name} !`, cote: 'machine', icone: null } });
-    await this.attendre(reduit ? 700 : 1000);
+    if (this.wild()) {
+      // Pas de dresseur en face : le Pokémon sauvage est déjà là.
+      this.scene.set({ ...SCENE_VIDE, dresseurs: { player: 'entre', machine: null }, caches: ['player'], bandeau: { texte: `Un ${active(d.machine).card.name} sauvage apparaît !`, cote: 'machine', icone: null } });
+      await this.attendre(reduit ? 700 : 1300);
+    } else {
+      this.scene.set({ ...SCENE_VIDE, dresseurs: { player: 'entre', machine: 'entre' }, caches: ['player', 'machine'], bandeau: { texte: `${eux.nom} veut se battre !`, cote: 'machine', icone: null } });
+      await this.attendre(reduit ? 700 : 1200);
+      this.maj({ dresseurs: { player: 'entre', machine: 'sort' }, caches: ['player'], bandeau: { texte: `${eux.nom} envoie ${active(d.machine).card.name} !`, cote: 'machine', icone: null } });
+      await this.attendre(reduit ? 700 : 1000);
+    }
     this.maj({ dresseurs: { player: 'sort', machine: null }, caches: [], bandeau: { texte: `${moi.nom} envoie ${active(d.player).card.name} !`, cote: 'player', icone: null } });
     await this.attendre(reduit ? 700 : 1000);
     this.scene.set(SCENE_VIDE);
@@ -233,8 +266,15 @@ export class Arene {
     });
     this.gains.set(gains);
     this.player.recordDuel(won);
-    const c = this.challenge();
+    const c = this.challenge(), w = this.wild();
     if (won && c) this.player.winBadge(c.region, c.gym);
+    if (won && w) {
+      const chromatique = this.chroma() === '1';
+      this.player.addCard(w.id, chromatique);
+      this.capture.set({ nom: w.name, chromatique });
+    }
+    if (won) this.audio.jouer(w ? 'victoire-sauvage' : c ? 'victoire-champion' : 'victoire-dresseur');
+    else this.audio.silence();
     this.phase.set('end');
   }
 

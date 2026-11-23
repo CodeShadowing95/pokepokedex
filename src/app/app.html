@@ -7,6 +7,16 @@
         <a [routerLink]="link.path" routerLinkActive="actif" class="navl">{{ link.label }}</a>
       }
     </nav>
+    <button type="button" class="son" [class.on]="audio.actif()" (click)="audio.basculer()" [attr.aria-pressed]="audio.actif()" [attr.aria-label]="audio.actif() ? 'Couper la musique' : 'Activer la musique'" [title]="audio.actif() ? 'Couper la musique' : 'Activer la musique'">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor" />
+        @if (audio.actif()) {
+          <path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" />
+        } @else {
+          <path d="M17 9l5 6M22 9l-5 6" />
+        }
+      </svg>
+    </button>
     <a routerLink="/qg" class="qg" routerLinkActive="actif" [attr.aria-label]="'Mon QG, série de ' + player.streak() + ' jours, niveau ' + player.level()">
       <span class="mono serie">{{ player.streak() }} j</span>
       @if (player.dresseur(); as d) {
@@ -25,6 +35,7 @@
 <main id="contenu">
   <router-outlet />
 </main>
+<app-rencontre-sauvage />
 
 <footer class="pied">
   <div class="page pied-in">

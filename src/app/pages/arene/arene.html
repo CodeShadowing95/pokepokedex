@@ -144,8 +144,11 @@
     @case ('end') {
       <section class="page fin">
         <div class="card pad" [class.gagne]="won()">
-          <p class="eyebrow">{{ challenge()?.title ?? 'Duel libre' }}</p>
-          <h1>{{ won() ? 'Victoire !' : 'Défaite.' }}</h1>
+          <p class="eyebrow">{{ titre() }}</p>
+          <h1>{{ capture() ? capture()!.nom + ' est capturé !' : won() ? 'Victoire !' : 'Défaite.' }}</h1>
+          @if (capture(); as cap) {
+            <p class="capture mono">Il rejoint ta collection{{ cap.chromatique ? ', en version chromatique ✦' : '' }}.</p>
+          }
           <p>{{ won() ? 'Bien joué. +60 XP de dresseur et 40 poussière.' : 'Pas cette fois. +15 XP de dresseur : regarde les types et la vitesse avant de choisir.' }}</p>
           <ul class="gains">
             @for (g of gains(); track g.name) {
@@ -153,7 +156,11 @@
             }
           </ul>
           <div class="actions">
-            <button type="button" class="btn" (click)="again()">{{ won() && challenge() ? 'Rejouer cette arène' : 'Revanche' }}</button>
+            @if (wild()) {
+              <a class="btn" routerLink="/pokedex">Reprendre l’exploration</a>
+            } @else {
+              <button type="button" class="btn" (click)="again()">{{ won() && challenge() ? 'Rejouer cette arène' : 'Revanche' }}</button>
+            }
             <a class="btn ghost" routerLink="/cartes">Voir mes cartes</a>
             @if (challenge()) {
               <a class="btn ghost" routerLink="/campagne">Retour à la campagne</a>
