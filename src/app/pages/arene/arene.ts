@@ -74,6 +74,8 @@ export class Arene {
   /** Pour forcer un décor : /arene?sauvage=16&terrain=neige&nuit=1 */
   readonly terrain = input<string>();
   readonly nuit = input<string>();
+  /** Essai : une tuile de la mosaïque B2W2 en fond, /arene?sauvage=43&fond=06 */
+  readonly fond = input<string>();
   private readonly audio = inject(AudioService);
   protected readonly capture = signal<{ nom: string; chromatique: boolean } | null>(null);
   /** Vrai quand un Pokémon sauvage a été mis K.O. au lieu d'être capturé. */

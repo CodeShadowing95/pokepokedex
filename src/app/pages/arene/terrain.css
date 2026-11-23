@@ -8,3 +8,13 @@
     radial-gradient(ellipse 62% 48% at 50% 42%, var(--socle-haut) 98%, var(--socle) 100%);
   box-shadow: 0 6px 0 0 var(--grain), 0 6px 0 2.5px var(--color-encre);
 }
+
+/* Essai : fond tiré de la mosaïque, socles déjà dessinés dans l'image. */
+.plateau.photo { display: block; aspect-ratio: 16 / 9; padding: 0; background: var(--fond) center / 100% 100% no-repeat; }
+.plateau.photo app-terrain, .plateau.photo .socle { display: none; }
+.plateau.photo .poste { position: absolute; margin: 0; }
+.plateau.photo .poste.eux { left: calc(78% - 110px); bottom: calc(53% - 30px); }
+.plateau.photo .eux app-etiquette { position: absolute; right: 100%; bottom: 150px; }
+.plateau.photo .poste.moi { left: calc(27% - 110px); bottom: calc(4% - 30px); flex-direction: column-reverse; }
+.plateau.photo .moi .combattant img { scale: 1.5; transform-origin: 50% 100%; }
+.plateau.photo .moi app-etiquette { position: absolute; left: 105%; bottom: 120px; }

@@ -64,7 +64,7 @@
         @if (foe(); as f) {
           <section class="page duel-zone">
             @let sc = scene();
-            <div class="plateau" [style]="sol()" (click)="accelerer()" [attr.title]="busy() ? 'Clique pour accélérer' : null">
+            <div class="plateau" [class.photo]="fond()" [style.--fond]="fond() ? 'url(terrains/tuiles/' + fond() + '.png)' : null" [style]="sol()" (click)="accelerer()" [attr.title]="busy() ? 'Clique pour accélérer' : null">
               <app-terrain [cle]="terrainCle()" [nuit]="deNuit()" />
               <div class="poste eux" [class.elan]="sc.elan === 'machine'">
                 <app-etiquette [class.cache]="sc.caches.includes('machine')" [nom]="f.f.card.name" [type]="f.ink" [pv]="f.hp" [max]="f.f.card.hp" [fantome]="f.hpPct" [niveau]="f.f.card.level" [equipe]="f.vivants" />
