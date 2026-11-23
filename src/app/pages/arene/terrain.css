@@ -1,20 +1,38 @@
-/* Le décor passe derrière ; les Pokémon, leurs étiquettes et le bandeau restent devant. */
-.plateau > .poste { position: relative; z-index: 1; }
-.plateau > .bandeau { z-index: 6; }
-/* Le socle est un morceau du sol du terrain : face claire, bord plus soutenu, grain du sol, tranche épaisse. */
-.socle {
-  background:
-    radial-gradient(circle, var(--grain) 1.4px, transparent 1.9px) 3px 2px / 15px 9px,
-    radial-gradient(ellipse 62% 48% at 50% 42%, var(--socle-haut) 98%, var(--socle) 100%);
-  box-shadow: 0 6px 0 0 var(--grain), 0 6px 0 2.5px var(--color-encre);
+/*
+ * Le fond de combat (planche GBA de Gold-Ruki) remplit la scène au format 240 × 112.
+ * Les socles sont dessinés dans le fond : on y pose les pieds des Pokémon.
+ * Repères, en part de la largeur (cqw) : socle adverse à (74 %, 26,6 cqw), le tien à (26 %, 45,5 cqw).
+ */
+.duel-zone .plateau {
+  --entete: 0px; --cw: 110px; --pied: 170px;
+  --dx: -430px; --dy: 185px;
+  display: block; container-type: inline-size; aspect-ratio: 240 / 112; padding: 0;
+  background: var(--fond) 0 var(--entete) / 100% auto no-repeat, var(--color-papier-fort);
+  image-rendering: pixelated;
 }
+/* La nuit, les fonds clairs s'assombrissent. */
+.duel-zone .plateau.assombri::before { content: ''; position: absolute; inset: var(--entete) 0; background: rgb(30 35 64 / 0.4); }
+.duel-zone .poste { position: absolute; inset: 0; z-index: 1; display: block; margin: 0; justify-self: stretch; align-self: stretch; pointer-events: none; }
+.duel-zone .combattant { position: absolute; }
+.duel-zone .eux .combattant { left: calc(74% - var(--cw)); top: calc(var(--entete) + 26.6cqw - var(--pied)); }
+.duel-zone .moi .combattant { left: calc(26% - var(--cw)); top: calc(var(--entete) + 45.5cqw - var(--pied)); }
+.duel-zone .moi .combattant img { scale: 1.4; transform-origin: 50% 100%; }
+/* Comme dans les jeux : étiquette adverse en haut à gauche, la tienne en bas à droite. */
+.duel-zone .poste app-etiquette { position: absolute; }
+.duel-zone .eux app-etiquette { left: 3%; top: calc(var(--entete) + 5%); }
+.duel-zone .moi app-etiquette { right: 3%; bottom: calc(var(--entete) + 6%); }
+.duel-zone .plateau > .bandeau { z-index: 6; }
+/* Les socles sont dans le fond : on ne garde que l'ombre de contact. */
+.socle { left: 22%; width: 56%; border: 0; background: none; box-shadow: none; }
 
-/* Essai : fond tiré de la mosaïque, socles déjà dessinés dans l'image. */
-.plateau.photo { display: block; aspect-ratio: 16 / 9; padding: 0; background: var(--fond) center / 100% 100% no-repeat; }
-.plateau.photo app-terrain, .plateau.photo .socle { display: none; }
-.plateau.photo .poste { position: absolute; margin: 0; }
-.plateau.photo .poste.eux { left: calc(78% - 110px); bottom: calc(53% - 30px); }
-.plateau.photo .eux app-etiquette { position: absolute; right: 100%; bottom: 150px; }
-.plateau.photo .poste.moi { left: calc(27% - 110px); bottom: calc(4% - 30px); flex-direction: column-reverse; }
-.plateau.photo .moi .combattant img { scale: 1.5; transform-origin: 50% 100%; }
-.plateau.photo .moi app-etiquette { position: absolute; left: 105%; bottom: 120px; }
+@media (max-width: 860px) {
+  .duel-zone .plateau { --cw: 75px; --pied: 130px; --dx: -250px; --dy: 120px; }
+  .duel-zone .moi .combattant img { scale: 1.25; }
+}
+/* Sur téléphone, la scène est trop basse pour les étiquettes : elles passent au-dessus et en dessous. */
+@media (max-width: 560px) {
+  .duel-zone .plateau { --entete: 74px; box-sizing: content-box; padding: var(--entete) 0; }
+  .duel-zone .eux app-etiquette { left: 10px; top: 10px; }
+  .duel-zone .moi app-etiquette { right: 10px; bottom: 10px; }
+  .duel-zone .combattant { scale: 0.8; transform-origin: 50% var(--pied); }
+}

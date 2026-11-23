@@ -17,8 +17,7 @@ import { EffetSprite } from '../../ui/effet-sprite';
 import { Etiquette } from '../../ui/etiquette';
 import { DRESSEUR_PAR_TYPE } from '../../core/avatars';
 import { dresseurImg } from '../../core/dresseurs';
-import { TERRAINS, TerrainCle, estNuit, terrainPourType } from '../../core/game/terrains';
-import { TerrainDuel } from '../../ui/terrain';
+import { FONDS, FONDS_SOMBRES, Fond, estNuit, fondPourType, fondUrl } from '../../core/game/terrains';
 
 type Phase = 'prep' | 'fight' | 'end';
 
@@ -56,7 +55,7 @@ const TAUX_DEFAUT = 45;
 
 @Component({
   selector: 'app-arene',
-  imports: [Son, ApresDuel, RouterLink, EffetSprite, Etiquette, TerrainDuel],
+  imports: [Son, ApresDuel, RouterLink, EffetSprite, Etiquette],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './arene.html',
   styleUrls: ['./arene.css', './intro.css', './capture.css', './terrain.css'],
@@ -71,11 +70,9 @@ export class Arene {
   /** Présents après une rencontre sauvage : /arene?sauvage=16&chroma=1 */
   readonly sauvage = input<string>();
   readonly chroma = input<string>();
-  /** Pour forcer un décor : /arene?sauvage=16&terrain=neige&nuit=1 */
-  readonly terrain = input<string>();
-  readonly nuit = input<string>();
-  /** Essai : une tuile de la mosaïque B2W2 en fond, /arene?sauvage=43&fond=06 */
+  /** Pour forcer un décor : /arene?sauvage=16&fond=neige&nuit=1 */
   readonly fond = input<string>();
+  readonly nuit = input<string>();
   private readonly audio = inject(AudioService);
   protected readonly capture = signal<{ nom: string; chromatique: boolean } | null>(null);
   /** Vrai quand un Pokémon sauvage a été mis K.O. au lieu d'être capturé. */
@@ -137,20 +134,17 @@ export class Arene {
   });
 
   /** Le décor : l'habitat du Pokémon sauvage, ou le type de l'arène ; la Ligue et les duels libres se jouent en ville. */
-  protected readonly terrainCle = computed<TerrainCle>(() => {
-    const force = this.terrain();
-    if (force && force in TERRAINS) return force as TerrainCle;
-    const w = this.wild();
-    if (w) return terrainPourType(w.types[0]);
-    const c = this.challenge();
-    if (c && c.gym !== LEAGUE) return terrainPourType(GYMS[c.region - 1][c.gym - 1].type);
-    return 'ville';
-  });
   protected readonly deNuit = computed(() => (this.nuit() === undefined ? estNuit() : this.nuit() === '1'));
-  /** Les socles prennent la couleur du sol de leur terrain. */
-  protected readonly sol = computed(() => {
-    const c = TERRAINS[this.terrainCle()][this.deNuit() ? 'nuit' : 'jour'];
-    return { '--socle': c.socle, '--socle-haut': c.socleHaut, '--grain': c.grain };
+  /** Le fond du combat : l'habitat du Pokémon sauvage, ou le type de l'arène ; la Ligue a le sien. */
+  protected readonly decor = computed(() => {
+    const nuit = this.deNuit(), force = this.fond() as Fond;
+    const c = this.challenge(), w = this.wild();
+    const fond: Fond = FONDS.includes(force) ? force
+      : w ? fondPourType(w.types[0], nuit)
+      : c && c.gym === LEAGUE ? 'ligue'
+      : c ? fondPourType(GYMS[c.region - 1][c.gym - 1].type, nuit)
+      : nuit ? 'nuit' : 'chemin';
+    return { url: `url(${fondUrl(fond)})`, assombri: nuit && !FONDS_SOMBRES.has(fond) };
   });
 
   protected readonly titre = computed(() => this.challenge()?.title ?? (this.wild() ? `${this.wild()!.name} sauvage` : 'Duel libre'));
