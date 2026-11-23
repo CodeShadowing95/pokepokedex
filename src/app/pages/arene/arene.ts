@@ -17,6 +17,8 @@ import { EffetSprite } from '../../ui/effet-sprite';
 import { Etiquette } from '../../ui/etiquette';
 import { DRESSEUR_PAR_TYPE } from '../../core/avatars';
 import { dresseurImg } from '../../core/dresseurs';
+import { TERRAINS, TerrainCle, estNuit, terrainPourType } from '../../core/game/terrains';
+import { TerrainDuel } from '../../ui/terrain';
 
 type Phase = 'prep' | 'fight' | 'end';
 
@@ -54,10 +56,10 @@ const TAUX_DEFAUT = 45;
 
 @Component({
   selector: 'app-arene',
-  imports: [Son, ApresDuel, RouterLink, EffetSprite, Etiquette],
+  imports: [Son, ApresDuel, RouterLink, EffetSprite, Etiquette, TerrainDuel],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './arene.html',
-  styleUrls: ['./arene.css', './intro.css', './capture.css'],
+  styleUrls: ['./arene.css', './intro.css', './capture.css', './terrain.css'],
 })
 export class Arene {
   private readonly dex = inject(PokedexService);
@@ -69,6 +71,9 @@ export class Arene {
   /** Présents après une rencontre sauvage : /arene?sauvage=16&chroma=1 */
   readonly sauvage = input<string>();
   readonly chroma = input<string>();
+  /** Pour forcer un décor : /arene?sauvage=16&terrain=neige&nuit=1 */
+  readonly terrain = input<string>();
+  readonly nuit = input<string>();
   private readonly audio = inject(AudioService);
   protected readonly capture = signal<{ nom: string; chromatique: boolean } | null>(null);
   /** Vrai quand un Pokémon sauvage a été mis K.O. au lieu d'être capturé. */
@@ -127,6 +132,23 @@ export class Arene {
   protected readonly wild = computed(() => {
     const id = Number(this.sauvage());
     return id ? (this.dex.get(id) ?? null) : null;
+  });
+
+  /** Le décor : l'habitat du Pokémon sauvage, ou le type de l'arène ; la Ligue et les duels libres se jouent en ville. */
+  protected readonly terrainCle = computed<TerrainCle>(() => {
+    const force = this.terrain();
+    if (force && force in TERRAINS) return force as TerrainCle;
+    const w = this.wild();
+    if (w) return terrainPourType(w.types[0]);
+    const c = this.challenge();
+    if (c && c.gym !== LEAGUE) return terrainPourType(GYMS[c.region - 1][c.gym - 1].type);
+    return 'ville';
+  });
+  protected readonly deNuit = computed(() => (this.nuit() === undefined ? estNuit() : this.nuit() === '1'));
+  /** Les socles prennent la couleur du sol de leur terrain. */
+  protected readonly sol = computed(() => {
+    const c = TERRAINS[this.terrainCle()][this.deNuit() ? 'nuit' : 'jour'];
+    return { '--socle': c.socle, '--socle-haut': c.socleHaut, '--grain': c.grain };
   });
 
   protected readonly titre = computed(() => this.challenge()?.title ?? (this.wild() ? `${this.wild()!.name} sauvage` : 'Duel libre'));

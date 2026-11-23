@@ -1,0 +1,10 @@
+/* Le décor passe derrière ; les Pokémon, leurs étiquettes et le bandeau restent devant. */
+.plateau > .poste { position: relative; z-index: 1; }
+.plateau > .bandeau { z-index: 6; }
+/* Le socle est un morceau du sol du terrain : face claire, bord plus soutenu, grain du sol, tranche épaisse. */
+.socle {
+  background:
+    radial-gradient(circle, var(--grain) 1.4px, transparent 1.9px) 3px 2px / 15px 9px,
+    radial-gradient(ellipse 62% 48% at 50% 42%, var(--socle-haut) 98%, var(--socle) 100%);
+  box-shadow: 0 6px 0 0 var(--grain), 0 6px 0 2.5px var(--color-encre);
+}
