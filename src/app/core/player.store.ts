@@ -1,12 +1,17 @@
 import { Injectable, computed, effect, signal } from '@angular/core';
 import { Pokemon } from './pokemon';
 import { total } from './game/cards';
+import { NIVEAU_DEPART, experiencePour, niveauPour } from './game/progression';
 
 export interface OwnedCard {
+  /** Expérience totale, comme dans les jeux (voir core/game/progression.ts). */
   xp: number;
+  /** Niveau, de 1 à 100. */
   level: number;
   shiny: boolean;
   count: number;
+  /** Ses capacités, une fois qu'il en a appris de nouvelles ; sinon celles de son niveau par défaut. */
+  moves?: number[];
 }
 
 export interface PlayerState {
@@ -31,6 +36,8 @@ export interface PlayerState {
   sauvages: { day: string; count: number };
   /** Pokéballs en poche, et le jour de la dernière recharge du matin. */
   pokeballs: { stock: number; day: string };
+  /** 2 depuis le passage aux vrais niveaux des jeux. */
+  version?: number;
 }
 
 export interface Quest {
@@ -57,10 +64,9 @@ const EMPTY: PlayerState = {
   streak: { count: 0, last: '', jokerWeek: '' },
   boosterDay: '', quests: { day: '', progress: {} }, mystery: { day: '', tries: 0, solved: false }, badges: {},
   dresseur: null, accueilPasse: false, sauvages: { day: '', count: 0 },
-  pokeballs: { stock: POKEBALLS_MATIN, day: '' },
+  pokeballs: { stock: POKEBALLS_MATIN, day: '' }, version: 2,
 };
 
-export const CARD_XP_PER_LEVEL = 100;
 export const DUPLICATE_DUST = 20;
 export const CRAFT_COST = 100;
 
@@ -120,7 +126,7 @@ export class PlayerStore {
   }
 
   private read(): PlayerState {
-    try { return { ...EMPTY, ...JSON.parse(localStorage.getItem(KEY) ?? '{}') }; } catch { return EMPTY; }
+    try { return migrer({ ...EMPTY, version: undefined, ...JSON.parse(localStorage.getItem(KEY) ?? '{}') }); } catch { return EMPTY; }
   }
 
   private patch(change: (s: PlayerState) => Partial<PlayerState>): void {
@@ -176,11 +182,11 @@ export class PlayerStore {
     if (p.types.includes(questType)) this.bumpQuest('view:' + p.id, 'view');
   }
 
-  /** Ajoute une carte. Un doublon devient de la poussière. Renvoie vrai si la carte est nouvelle. */
-  addCard(id: number, shiny: boolean): boolean {
+  /** Ajoute une carte, au niveau donné. Un doublon devient de la poussière. Renvoie vrai si la carte est nouvelle. */
+  addCard(id: number, shiny: boolean, niveau = NIVEAU_DEPART, growth = 2): boolean {
     const had = this.state().owned[id];
     this.patch((s) => ({
-      owned: { ...s.owned, [id]: had ? { ...had, count: had.count + 1, shiny: had.shiny || shiny } : { xp: 0, level: 1, shiny, count: 1 } },
+      owned: { ...s.owned, [id]: had ? { ...had, count: had.count + 1, shiny: had.shiny || shiny } : { xp: experiencePour(growth, niveau), level: niveau, shiny, count: 1 } },
       dust: s.dust + (had ? DUPLICATE_DUST : 0),
       seen: s.seen.includes(id) ? s.seen : [...s.seen, id],
     }));
@@ -195,11 +201,28 @@ export class PlayerStore {
 
   setDeck(ids: number[]): void { this.patch(() => ({ deck: ids.slice(0, 3) })); }
 
-  gainCardXp(id: number, amount: number): void {
+  /**
+   * Ajoute de l'expérience à une carte et renvoie ses niveaux avant et après.
+   * `growth` est la courbe de l'espèce ; `connues`, ses capacités du moment, figées à cette occasion
+   * pour que les nouvelles s'apprennent une à une, comme dans les jeux.
+   */
+  gainCardXp(id: number, amount: number, growth = 2, connues?: number[]): { avant: number; apres: number } {
+    const card = this.state().owned[id];
+    if (!card) return { avant: 0, apres: 0 };
+    const xp = Math.max(card.xp, experiencePour(growth, card.level)) + amount;
+    const level = Math.max(card.level, niveauPour(growth, xp));
+    this.patch((s) => ({ owned: { ...s.owned, [id]: { ...card, xp, level, moves: card.moves ?? connues } } }));
+    return { avant: card.level, apres: level };
+  }
+
+  /** Il apprend une capacité, à la place de `oublie` s'il en connaît déjà quatre. */
+  apprendre(id: number, capacite: number, connues: number[], oublie?: number): void {
     const card = this.state().owned[id];
     if (!card) return;
-    const xp = card.xp + amount;
-    this.patch((s) => ({ owned: { ...s.owned, [id]: { ...card, xp: xp % CARD_XP_PER_LEVEL, level: card.level + Math.floor(xp / CARD_XP_PER_LEVEL) } } }));
+    const base = card.moves ?? connues;
+    if (base.includes(capacite)) return;
+    const moves = base.length < 4 ? [...base, capacite] : oublie === undefined ? base : base.map((m) => (m === oublie ? capacite : m));
+    this.patch((s) => ({ owned: { ...s.owned, [id]: { ...card, moves } } }));
   }
 
   /** Remplace une carte par son évolution, en gardant son niveau. */
@@ -209,7 +232,7 @@ export class PlayerStore {
     this.patch((s) => {
       const { [from]: _, ...rest } = s.owned;
       return {
-        owned: { ...rest, [to]: { ...card, xp: 0 } },
+        owned: { ...rest, [to]: { ...card } },
         deck: s.deck.map((id) => (id === from ? to : id)),
         starter: s.starter === from ? to : s.starter,
         seen: s.seen.includes(to) ? s.seen : [...s.seen, to],
@@ -304,4 +327,17 @@ export class PlayerStore {
   }
 
   reset(): void { this.state.set(EMPTY); }
+}
+
+/**
+ * Les sauvegardes d'avant les vrais niveaux (cartes de niveau 1 à 10, 100 XP par niveau)
+ * passent au barème des jeux : niveau 5 au départ, puis +4 par ancien niveau.
+ */
+export function migrer(s: PlayerState): PlayerState {
+  if (s.version === 2) return s;
+  const owned = Object.fromEntries(Object.entries(s.owned ?? {}).map(([id, c]) => {
+    const level = Math.min(100, NIVEAU_DEPART + (Math.max(1, c.level) - 1) * 4);
+    return [id, { ...c, level, xp: experiencePour(2, level) }];
+  }));
+  return { ...s, owned, version: 2 };
 }

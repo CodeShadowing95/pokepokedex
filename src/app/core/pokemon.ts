@@ -16,8 +16,15 @@ export interface Pokemon {
   chain: number;
   /** Niveau d'évolution dans les jeux (0 = autre condition). */
   level: number;
-  /** Ses quatre capacités de combat (identifiants PokéAPI, voir core/game/capacites.ts). */
-  moves: number[];
+  /**
+   * Capacités offensives apprises en montant de niveau, aplaties : [niveau, capacité, niveau, capacité…]
+   * (identifiants PokéAPI, voir core/game/capacites.ts).
+   */
+  learn: number[];
+  /** Expérience de base donnée quand il est mis K.O. */
+  xp: number;
+  /** Courbe d'expérience PokéAPI : 1 lente, 2 moyenne, 3 rapide, 4 parabolique, 5 erratique, 6 fluctuante. */
+  growth: number;
 }
 
 export interface PokemonDetails {
@@ -30,7 +37,7 @@ export interface PokemonDetails {
 const SPRITES = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon';
 
 export const artwork = (id: number, shiny = false) => `${SPRITES}/other/official-artwork/${shiny ? 'shiny/' : ''}${id}.png`;
-export const animated = (id: number, back = false) => `${SPRITES}/other/showdown/${back ? 'back/' : ''}${id}.gif`;
+export const animated = (id: number, back = false, shiny = false) => `${SPRITES}/other/showdown/${back ? 'back/' : ''}${shiny ? 'shiny/' : ''}${id}.gif`;
 export const cry = (id: number) => `https://raw.githubusercontent.com/PokeAPI/cries/main/cries/pokemon/latest/${id}.ogg`;
 export const dexNumber = (id: number) => '#' + String(id).padStart(4, '0');
 

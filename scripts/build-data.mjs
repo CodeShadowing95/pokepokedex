@@ -89,30 +89,21 @@ for (const r of pMoves) {
   if (!parJeu.has(r.version_group_id)) parJeu.set(r.version_group_id, []);
   parJeu.get(r.version_group_id).push({ id: r.move_id, level: Number(r.level) });
 }
-/** Niveau jusqu'auquel on pioche les capacités apprises : celui des duels. */
-const NIVEAU_MAX = 50;
 /**
- * Les quatre capacités d'un Pokémon : la meilleure de chacun de ses types (bonus de même type),
- * puis les plus fortes, en variant les types.
- * Score = puissance × précision × bonus de même type × statistique d'attaque utilisée.
+ * Les capacités offensives qu'un Pokémon apprend en montant de niveau, dans le jeu le plus récent
+ * qui le connaît : liste aplatie [niveau, capacité, niveau, capacité…], triée par niveau.
+ * Le niveau 0 des jeux (« à l'évolution ») compte comme le niveau 1.
  */
-function quatre(pokemonId, types) {
-  const st = (statsByPokemon.get(pokemonId) ?? []).reduce((o, s) => ({ ...o, [s.stat_id]: Number(s.base_stat) }), {});
+function apprentissage(pokemonId) {
   const parJeu = parNiveau.get(pokemonId);
   const jeu = parJeu && JEUX.find((j) => parJeu.has(j));
-  if (!jeu) return [33];
-  const appris = [...new Map(parJeu.get(jeu).filter((m) => m.level <= NIVEAU_MAX).map((m) => [m.id, m])).values()];
-  const pool = appris.length ? appris : parJeu.get(jeu).slice(0, 4);
-  const score = (id) => {
-    const m = attaques.get(id);
-    return Number(m.power) * (Number(m.accuracy) || 100) / 100 * (types.includes(Number(m.type_id)) ? 1.5 : 1) * ((m.damage_class_id === '2' ? st[2] : st[4]) || 50);
-  };
-  const tri = [...new Set(pool.map((m) => m.id))].sort((a, b) => score(b) - score(a) || Number(a) - Number(b));
-  const choix = [];
-  for (const t of types) { const m = tri.find((id) => Number(attaques.get(id).type_id) === t); if (m && !choix.includes(m)) choix.push(m); }
-  for (const id of tri) { if (choix.length >= 4) break; const t = attaques.get(id).type_id; if (!choix.includes(id) && !choix.some((c) => attaques.get(c).type_id === t)) choix.push(id); }
-  for (const id of tri) { if (choix.length >= 4) break; if (!choix.includes(id)) choix.push(id); }
-  return choix.slice(0, 4).map(Number);
+  if (!jeu) return [1, 33];
+  const premier = new Map();
+  for (const m of parJeu.get(jeu)) {
+    const n = Math.max(1, m.level);
+    if (!premier.has(m.id) || premier.get(m.id) > n) premier.set(m.id, n);
+  }
+  return [...premier].sort((a, b) => a[1] - b[1] || Number(a[0]) - Number(b[0])).flatMap(([id, n]) => [n, Number(id)]);
 }
 
 const list = [];
@@ -140,7 +131,9 @@ for (const sp of species) {
     from: sp.evolves_from_species_id ? Number(sp.evolves_from_species_id) : 0,
     chain: Number(sp.evolution_chain_id),
     level: evo?.minimum_level ? Number(evo.minimum_level) : 0,
-    moves: quatre(sp.id, (typesByPokemon.get(sp.id) ?? []).sort((a, b) => a.slot - b.slot).map((t) => Number(t.type_id))),
+    learn: apprentissage(sp.id),
+    xp: Number(p.base_experience) || 60,
+    growth: Number(sp.growth_rate_id) || 2,
   });
   details[id] = {
     genus: fr?.genus ?? '',
@@ -155,7 +148,7 @@ await mkdir('public/data', { recursive: true });
 await writeFile('public/data/pokedex.json', JSON.stringify(list));
 await writeFile('public/data/details.json', JSON.stringify(details));
 
-const utilisees = [...new Set(list.flatMap((p) => p.moves))].sort((a, b) => a - b);
+const utilisees = [...new Set(list.flatMap((p) => p.learn.filter((_, i) => i % 2 === 1)))].sort((a, b) => a - b);
 const ligne = (id) => {
   const m = attaques.get(String(id));
   const nom = moveFr.get(String(id)) ?? m.identifier;

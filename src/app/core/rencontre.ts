@@ -10,7 +10,7 @@ export const RENCONTRE = {
   /** Fréquence des tirages, et chance qu'un tirage donne une rencontre. */
   tirage: 20_000,
   chance: 0.35,
-  parJour: 5,
+  parJour: 8,
   /** Sans réponse, le Pokémon repart. */
   patience: 15_000,
   chromatique: 1 / 40,

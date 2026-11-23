@@ -49,7 +49,7 @@ export class Fiche {
       weak: matchups.filter((m) => m.factor > 1).sort((a, b) => b.factor - a.factor),
       strong: matchups.filter((m) => m.factor < 1).sort((a, b) => a.factor - b.factor),
       family: this.dex.family(p).map((f) => ({ p: f, art: artwork(f.id), level: f.level })),
-      card: cardOf(p, this.player.owned()[p.id]?.level ?? 1),
+      card: cardOf(p, this.player.owned()[p.id]?.level, this.player.owned()[p.id]?.moves),
       sprite: animated(p.id),
       prev: p.id > 1 ? this.dex.get(p.id - 1) : undefined,
       next: this.dex.get(p.id + 1),

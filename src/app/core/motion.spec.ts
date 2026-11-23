@@ -1,7 +1,7 @@
 import { signatureOf } from './motion';
 import { Pokemon } from './pokemon';
 
-const make = (over: Partial<Pokemon>): Pokemon => ({ id: 1, name: 'Test', types: [1], gen: 1, stats: [50, 50, 50, 50, 50, 60], height: 1, weight: 30, shape: 8, rank: 0, from: 0, chain: 1, level: 0, moves: [33], ...over });
+const make = (over: Partial<Pokemon>): Pokemon => ({ id: 1, name: 'Test', types: [1], gen: 1, stats: [50, 50, 50, 50, 50, 60], height: 1, weight: 30, shape: 8, rank: 0, from: 0, chain: 1, level: 0, learn: [1, 33], xp: 60, growth: 2, ...over });
 
 describe('signature de mouvement', () => {
   it('fait flotter les spectres, quel que soit le reste', () => {

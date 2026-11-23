@@ -21,9 +21,11 @@ const EFFETS = {
   capture: 'pokeball-caught.wav',
   selection: 'select-options-audio.wav',
   confirmation: 'confirm-button-audio.wav',
+  sortie: 'pokemon-out-audio.wav',
 } as const;
 export type Effet = keyof typeof EFFETS;
 const CLE = 'pokedex.son';
+const CLE_BRUITAGES = 'pokedex.bruitages';
 const VOLUME = 0.45;
 const FONDU = 700;
 
@@ -37,21 +39,34 @@ export const urlSon = (fichier: string) => 'soundtracks/' + encodeURIComponent(f
  */
 @Injectable({ providedIn: 'root' })
 export class AudioService {
-  readonly actif = signal(this.lire());
+  /** La musique de fond. */
+  readonly actif = signal(this.lire(CLE));
+  /** Les effets sonores : boutons, Pokéball, exclamation. Réglés à part de la musique. */
+  readonly bruitages = signal(this.lire(CLE_BRUITAGES));
   /** La piste que la scène demande, jouée ou non selon `actif`. */
   private voulue: Piste | null = 'opening';
   private courante: { piste: Piste; el: HTMLAudioElement } | null = null;
 
-  private lire(): boolean {
-    try { return localStorage.getItem(CLE) !== '0'; } catch { return true; }
+  private lire(cle: string): boolean {
+    try { return localStorage.getItem(cle) !== '0'; } catch { return true; }
+  }
+
+  private retenir(cle: string, on: boolean): void {
+    try { localStorage.setItem(cle, on ? '1' : '0'); } catch { /* navigation privée */ }
   }
 
   basculer(): void {
     const on = !this.actif();
     this.actif.set(on);
-    try { localStorage.setItem(CLE, on ? '1' : '0'); } catch { /* navigation privée */ }
+    this.retenir(CLE, on);
     if (on) this.appliquer();
     else this.arreter();
+  }
+
+  basculerBruitages(): void {
+    const on = !this.bruitages();
+    this.bruitages.set(on);
+    this.retenir(CLE_BRUITAGES, on);
   }
 
   /** La scène demande une piste. Les victoires ne bouclent pas. */
@@ -67,15 +82,23 @@ export class AudioService {
   }
 
   effet(nom: Effet): void {
-    if (!this.actif() || typeof Audio === 'undefined') return;
+    if (!this.bruitages() || typeof Audio === 'undefined') return;
     const el = new Audio(urlSon(EFFETS[nom]));
     el.volume = nom === 'selection' || nom === 'confirmation' ? 0.5 : 0.8;
     void el.play().catch(() => undefined);
   }
 
+  /** Le cri d'un Pokémon (fichier distant de PokéAPI), joué avec les effets sonores. */
+  cri(url: string): void {
+    if (!this.bruitages() || typeof Audio === 'undefined') return;
+    const el = new Audio(url);
+    el.volume = 0.35;
+    void el.play().catch(() => undefined);
+  }
+
   /** Charge les bruitages d'une scène à l'avance, pour qu'ils tombent pile au bon moment. */
   precharger(...noms: Effet[]): void {
-    if (!this.actif() || typeof Audio === 'undefined') return;
+    if (!this.bruitages() || typeof Audio === 'undefined') return;
     for (const n of noms) { const el = new Audio(urlSon(EFFETS[n])); el.preload = 'auto'; }
   }
 

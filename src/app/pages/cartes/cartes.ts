@@ -1,8 +1,9 @@
 import { Son } from '../../ui/son';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { cardOf, evolutionLevel } from '../../core/game/cards';
-import { CARD_XP_PER_LEVEL, PlayerStore, rarityOf } from '../../core/player.store';
+import { cardOf } from '../../core/game/cards';
+import { avancee, niveauEvolution } from '../../core/game/progression';
+import { PlayerStore, rarityOf } from '../../core/player.store';
 import { PokedexService } from '../../core/pokedex.service';
 import { Pokemon, artwork } from '../../core/pokemon';
 import { typeOf } from '../../core/types';
@@ -28,8 +29,8 @@ export class Cartes {
       .flatMap(([key, o]) => {
         const p = this.dex.get(+key);
         if (!p) return [];
-        const next = this.dex.evolutions(p.id).map((to) => ({ to, need: evolutionLevel(to), ready: o.level >= evolutionLevel(to) }));
-        return [{ p, o, next, card: cardOf(p, o.level), ink: typeOf(p.types[0]), art: artwork(p.id, o.shiny), rarity: rarityOf(p), xpPct: (o.xp / CARD_XP_PER_LEVEL) * 100, inDeck: deck.includes(p.id) }];
+        const next = this.dex.evolutions(p.id).map((to) => ({ to, need: niveauEvolution(to), ready: o.level >= niveauEvolution(to) }));
+        return [{ p, o, next, card: cardOf(p, o.level, o.moves), ink: typeOf(p.types[0]), art: artwork(p.id, o.shiny), rarity: rarityOf(p), xpPct: Math.round(avancee(p.growth, o.level, o.xp) * 100), inDeck: deck.includes(p.id) }];
       })
       .sort((a, b) => Number(b.inDeck) - Number(a.inDeck) || b.o.level - a.o.level || a.p.id - b.p.id);
   });

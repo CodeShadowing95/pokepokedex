@@ -1,5 +1,6 @@
 import { Pokemon } from '../pokemon';
 import { CAPACITES, Capacite } from './capacites';
+import { NIVEAU_DEPART, capacitesParDefaut } from './progression';
 
 /** Une capacité de combat, avec son identifiant PokéAPI. */
 export interface Move extends Capacite {
@@ -10,7 +11,7 @@ export interface Card {
   id: number;
   name: string;
   types: number[];
-  /** Niveau de combat, calculé à partir du niveau de la carte. */
+  /** Niveau, de 1 à 100, comme dans les jeux. */
   level: number;
   hp: number;
   atk: number;
@@ -30,15 +31,13 @@ const CHARGE: Move = { id: 33, nom: 'Charge', type: 1, puissance: 40, precision:
 
 export const moveOf = (id: number): Move => (CAPACITES[id] ? { id, ...CAPACITES[id] } : CHARGE);
 
-/** Niveau de combat d'une carte : 42 au niveau 1, puis +2 par niveau de carte. */
-export const battleLevel = (cardLevel: number) => 40 + cardLevel * 2;
-
 /**
  * Transforme un Pokémon en carte de duel avec les formules des jeux (individuelles au maximum,
  * sans entraînement ni nature) : rien n'est saisi à la main, les 1 025 cartes existent d'office.
+ * Sans capacités précisées, il connaît les quatre dernières apprises à son niveau, comme dans les jeux.
  */
-export function cardOf(p: Pokemon, level = 1): Card {
-  const L = battleLevel(level);
+export function cardOf(p: Pokemon, level = NIVEAU_DEPART, moves?: number[]): Card {
+  const L = Math.max(1, Math.min(100, Math.round(level)));
   const stat = (base: number) => Math.floor(((2 * base + 31) * L) / 100) + 5;
   const [hp, atk, def, spa, spdef, spd] = p.stats;
   return {
@@ -52,11 +51,6 @@ export function cardOf(p: Pokemon, level = 1): Card {
     spa: stat(spa),
     spdef: stat(spdef),
     spd: stat(spd),
-    moves: (p.moves?.length ? p.moves : [33]).map(moveOf),
+    moves: (moves?.length ? moves : capacitesParDefaut(p, L)).map(moveOf),
   };
-}
-
-/** Niveau de carte à atteindre pour évoluer vers `target` (repris du niveau des jeux, ramené à l'échelle des cartes). */
-export function evolutionLevel(target: Pokemon): number {
-  return target.level ? Math.min(8, Math.max(2, Math.round(target.level / 8))) : 4;
 }
