@@ -11,9 +11,9 @@ une campagne en huit arènes et des cartes qui grandissent et évoluent. Sans co
 [![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![Vitest](https://img.shields.io/badge/tests-54_passent-6E9F18?logo=vitest&logoColor=white)](#qualité)
-[![Netlify](https://img.shields.io/badge/déployé_sur-Netlify-00C7B7?logo=netlify&logoColor=white)](https://pokecraftershub.netlify.app)
+[![Netlify](https://img.shields.io/badge/déployé_sur-Netlify-00C7B7?logo=netlify&logoColor=white)](https://poke-craft.netlify.app)
 
-[**Voir la démo**](https://pokecraftershub.netlify.app) · [Fonctionnalités](#fonctionnalités) · [Stack](#stack-technique) · [Architecture](#architecture) · [Démarrer](#démarrer)
+[**Voir la démo**](https://poke-craft.netlify.app) · [Fonctionnalités](#fonctionnalités) · [Stack](#stack-technique) · [Architecture](#architecture) · [Démarrer](#démarrer)
 
 </div>
 
